@@ -1,0 +1,14 @@
+{
+  "updateInterval": 300,
+  "babelLocale": "de",
+  "mqtt": {
+    "broker": "",
+    "username": "",
+    "password": ""
+  },
+  "volvoData": {
+    "username": "",
+    "password": "",
+    "vin": ""
+  }
+}
