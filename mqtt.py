@@ -3,7 +3,7 @@ import paho.mqtt.client as mqtt
 import json
 import volvo
 import threading
-from datetime import datetime, timedelta
+from datetime import datetime
 from babel.dates import format_datetime
 from config import settings
 from const import VEHICLE_DETAILS_URL,CLIMATE_START_URL, CLIMATE_STOP_URL, CAR_LOCK_URL, \
