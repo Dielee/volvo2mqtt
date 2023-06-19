@@ -9,6 +9,7 @@
   "volvoData": {
     "username": "",
     "password": "",
-    "vin": ""
+    "vin": "",
+	"vccapikey": ""
   }
 }

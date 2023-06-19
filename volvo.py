@@ -8,7 +8,7 @@ from const import charging_system_states, CLIMATE_START_URL, \
 
 session = requests.Session()
 session.headers = {
-                "vcc-api-key": "f0d0419bf51d420c8efb21cf9a127227",
+                "vcc-api-key": settings["volvoData"]["vccapikey"],
                 "content-type": "application/json",
                 "accept": "*/*"
 }
