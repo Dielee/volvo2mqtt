@@ -19,3 +19,7 @@ Here is what every option means:
 | `mqtt`               | `json`    | **required** | Broker = Mqtt Broker IP / Username and Passwort are optional!   |
 | `volvoData`          | `json`    | **required** | Username and password are required. Car vin is optional. If no vin is provided, the system will always use the first vehicle in API. Vccapi key is your api key from [here](https://developer.volvocars.com/account/).                                   |
 | `TZ`                 | `string`  |              | Container timezone eg "Europe/Berlin" |
+
+If you like my work:
+
+<a href="https://www.buymeacoffee.com/dielee" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
