@@ -17,7 +17,7 @@ Here is what every option means:
 | `updateInterval`     | `int`     | **required** | Updateintervall in seconds.                                     |
 | `babelLocale`        | `string`  | **required** | Locale for date Format                                          |
 | `mqtt`               | `json`    | **required** | Broker = Mqtt Broker IP / Username and Passwort are optional!   |
-| `volvoData`          | `json`    | **required** | Username and password are required. Car vin is optional. If no vin is provided, the system will always use the first vehicle in API. Vccapi key is your api key from [here](https://developer.volvocars.com/account/).                                   |
+| `volvoData`          | `json`    | **required** | Username and password are required. Car vin can be a single vin or a list of multiple vins like `["vin1", "vin2"]`. If no vin is provided, <b>ALL</b> of your vehicles will be used. Vccapi key is your api key from [here](https://developer.volvocars.com/account/).                                   |
 | `TZ`                 | `string`  |              | Container timezone eg "Europe/Berlin" |
 
 If you like my work:
