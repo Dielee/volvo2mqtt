@@ -13,7 +13,7 @@ session.headers = {
                 "accept": "*/*"
 }
 
-token_expires_at = None
+token_expires_at: datetime
 refresh_token = None
 vin = ""
 recharge_response = {}
@@ -145,23 +145,38 @@ def api_call(url, method, sensor_id=None):
     if url == VEHICLE_DETAILS_URL:
         return data["data"]
     elif sensor_id == "battery_charge_level":
-        return data["data"]["batteryChargeLevel"]["value"]
-    elif sensor_id == "electric_range":
-        return data["data"]["electricRange"]["value"]
-    elif sensor_id == "charging_system_status":
-        return charging_system_states[data["data"]["chargingSystemStatus"]["value"]]
-    elif sensor_id == "estimated_charging_time":
-        charging_system_state = charging_system_states[data["data"]["chargingSystemStatus"]["value"]]
-        if charging_system_state == "Charging":
-            return data["data"]["estimatedChargingTime"]["value"]
+        if "batteryChargeLevel" in data["data"]:
+            return data["data"]["batteryChargeLevel"]["value"]
         else:
-            return 0
+            return ""
+    elif sensor_id == "electric_range":
+        if "electricRange" in data["data"]:
+            return data["data"]["electricRange"]["value"]
+        else:
+            return ""
+    elif sensor_id == "charging_system_status":
+        if "charging_system_status" in data["data"]:
+            return charging_system_states[data["data"]["chargingSystemStatus"]["value"]]
+        else:
+            return ""
+    elif sensor_id == "estimated_charging_time":
+        if "chargingSystemStatus" in data["data"]:
+            charging_system_state = charging_system_states[data["data"]["chargingSystemStatus"]["value"]]
+            if charging_system_state == "Charging":
+                return data["data"]["estimatedChargingTime"]["value"]
+            else:
+                return 0
+        else:
+            return ""
     elif sensor_id == "estimated_charging_finish_time":
-        charging_system_state = charging_system_states[data["data"]["chargingSystemStatus"]["value"]]
-        if charging_system_state == "Charging":
-            charging_time = int(data["data"]["estimatedChargingTime"]["value"])
-            charging_finished = datetime.now() + timedelta(minutes=charging_time)
-            return format_datetime(charging_finished, format="medium", locale=settings["babelLocale"])
+        if "chargingSystemStatus" in data["data"]:
+            charging_system_state = charging_system_states[data["data"]["chargingSystemStatus"]["value"]]
+            if charging_system_state == "Charging":
+                charging_time = int(data["data"]["estimatedChargingTime"]["value"])
+                charging_finished = datetime.now() + timedelta(minutes=charging_time)
+                return format_datetime(charging_finished, format="medium", locale=settings["babelLocale"])
+            else:
+                return None
         else:
             return None
     elif sensor_id == "lock_status":
