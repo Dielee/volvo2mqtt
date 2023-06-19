@@ -12,7 +12,8 @@ name: Create and publish a Docker image
 on:
   release:
     types: [created]
-    
+  workflow_dispatch:
+  
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
