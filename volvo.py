@@ -15,7 +15,7 @@ session.headers = {
 
 token_expires_at: datetime
 refresh_token = None
-vin = ""
+vins = []
 recharge_response = {}
 recharge_last_update = None
 
@@ -42,7 +42,7 @@ def authorize():
         token_expires_at = datetime.now() + timedelta(seconds=(data["expires_in"] - 30))
         refresh_token = data["refresh_token"]
 
-        get_vehicle()
+        get_vehicles()
     else:
         message = auth.json()
         raise Exception(message["error_description"])
@@ -71,25 +71,31 @@ def refresh_auth():
         refresh_token = data["refresh_token"]
 
 
-def get_vehicle():
-    global vin
+def get_vehicles():
+    global vins
     if not settings.volvoData["vin"]:
         vehicles = session.get(VEHICLES_URL)
         if vehicles.status_code == 200:
             data = vehicles.json()
             if len(data["data"]) > 0:
-                vin = data["data"][0]["vin"]
+                for vehicle in data["data"]:
+                    vins.append(vehicle["vin"])
             else:
-                print("No vehicle in account " + settings.volvoData["username"] + " found.")
+                raise Exception("No vehicle in account " + settings.volvoData["username"] + " found.")
         else:
-            print("Error getting Vehicles " + str(vehicles.status_code))
+            raise Exception("Error getting vehicles: " + str(vehicles.status_code))
     else:
-        vin = settings.volvoData["vin"]
+        if isinstance(settings.volvoData["vin"], list):
+            # If setting is a list, copy
+            vins = settings.volvoData["vin"]
+        else:
+            # If setting is a string, append to list
+            vins.append(settings.volvoData["vin"])
 
-    if not vin:
+    if len(vins) == 0:
         raise Exception("No vehicle found, exiting application!")
     else:
-        print("Vin: " + vin + " found!")
+        print("Vin: " + str(vins) + " found!")
 
 
 def disable_climate():
@@ -97,12 +103,12 @@ def disable_climate():
     mqtt.update_car_data()
 
 
-def api_call(url, method, sensor_id=None):
+def api_call(url, method, vin, sensor_id=None):
     global token_expires_at
     if datetime.now() >= token_expires_at:
         refresh_auth()
 
-    global vin, recharge_response, recharge_last_update
+    global recharge_response, recharge_last_update
     if url == RECHARGE_STATUS_URL:
         # Minimize API calls for recharge API
         if not bool(recharge_response):

@@ -80,132 +80,134 @@ def update_loop():
 def update_car_data():
     global last_data_update
     last_data_update = format_datetime(datetime.now(), format="medium", locale=settings["babelLocale"])
-    for lock in supported_locks:
-        state = volvo.api_call(lock["url"], "GET", lock["id"])
-        mqtt_client.publish(
-            f"homeassistant/lock/{volvo.vin}_{lock['id']}/state",
-            state
-        )
+    for vin in volvo.vins:
+        for lock in supported_locks:
+            state = volvo.api_call(lock["url"], "GET", vin, lock["id"])
+            mqtt_client.publish(
+                f"homeassistant/lock/{vin}_{lock['id']}/state",
+                state
+            )
 
-    for switch in supported_switches:
-        if switch["id"] == "climate_status":
-            state = assumed_climate_state
-        else:
-            state = "OFF"
+        for switch in supported_switches:
+            if switch["id"] == "climate_status":
+                state = assumed_climate_state
+            else:
+                state = "OFF"
 
-        mqtt_client.publish(
-            f"homeassistant/switch/{volvo.vin}_{switch['id']}/state",
-            state
-        )
+            mqtt_client.publish(
+                f"homeassistant/switch/{vin}_{switch['id']}/state",
+                state
+            )
 
-    for sensor in supported_sensors:
-        if sensor["id"] == "last_data_update":
-            state = last_data_update
-        else:
-            state = volvo.api_call(sensor["url"], "GET", sensor["id"])
-        mqtt_client.publish(
-            f"homeassistant/sensor/{volvo.vin}_{sensor['id']}/state",
-            state
-        )
+        for sensor in supported_sensors:
+            if sensor["id"] == "last_data_update":
+                state = last_data_update
+            else:
+                state = volvo.api_call(sensor["url"], "GET", vin, sensor["id"])
+            mqtt_client.publish(
+                f"homeassistant/sensor/{vin}_{sensor['id']}/state",
+                state
+            )
 
 
 def create_ha_devices():
-    car_details = volvo.api_call(VEHICLE_DETAILS_URL, "GET")
+    for vin in volvo.vins:
+        car_details = volvo.api_call(VEHICLE_DETAILS_URL, "GET", vin)
 
-    for button in supported_buttons:
-        command_topic = f"homeassistant/button/{volvo.vin}_{button['id']}/command"
-        config = {
-                    "name": button['name'],
-                    "object_id": button['id'],
-                    "schema": "state",
-                    "icon": f"mdi:{button['icon']}",
-                    "state_topic": f"homeassistant/button/{volvo.vin}_{button['id']}/state",
-                    "command_topic": command_topic,
-                    "device": {
-                        "identifiers": ["volvoAAOS2mqtt"],
-                        "manufacturer": "Volvo",
-                        "model": car_details['descriptions']['model'],
-                        "name": f"{car_details['descriptions']['model']} ({car_details['modelYear']}) - {volvo.vin}",
-                    },
-                    "unique_id": f"volvoAAOS2mqtt_{volvo.vin}_{button['id']}",
-                }
-        mqtt_client.publish(
-            f"homeassistant/button/volvoAAOS2mqtt/{volvo.vin}_{button['id']}/config",
-            json.dumps(config),
-        )
-        subscribed_topics.append(command_topic)
-        mqtt_client.subscribe(command_topic)
+        for button in supported_buttons:
+            command_topic = f"homeassistant/button/{vin}_{button['id']}/command"
+            config = {
+                        "name": button['name'],
+                        "object_id": button['id'],
+                        "schema": "state",
+                        "icon": f"mdi:{button['icon']}",
+                        "state_topic": f"homeassistant/button/{vin}_{button['id']}/state",
+                        "command_topic": command_topic,
+                        "device": {
+                            "identifiers": [f"volvoAAOS2mqtt_{vin}"],
+                            "manufacturer": "Volvo",
+                            "model": car_details['descriptions']['model'],
+                            "name": f"{car_details['descriptions']['model']} ({car_details['modelYear']}) - {vin}",
+                        },
+                        "unique_id": f"volvoAAOS2mqtt_{vin}_{button['id']}",
+                    }
+            mqtt_client.publish(
+                f"homeassistant/button/volvoAAOS2mqtt/{vin}_{button['id']}/config",
+                json.dumps(config),
+            )
+            subscribed_topics.append(command_topic)
+            mqtt_client.subscribe(command_topic)
 
-    for lock in supported_locks:
-        command_topic = f"homeassistant/lock/{volvo.vin}_{lock['id']}/command"
-        config = {
-                    "name": lock['name'],
-                    "object_id": lock['id'],
-                    "schema": "state",
-                    "icon": f"mdi:{lock['icon']}",
-                    "state_topic": f"homeassistant/lock/{volvo.vin}_{lock['id']}/state",
-                    "command_topic": command_topic,
-                    "optimistic": False,
-                    "device": {
-                        "identifiers": ["volvoAAOS2mqtt"],
-                        "manufacturer": "Volvo",
-                        "model": car_details['descriptions']['model'],
-                        "name": f"{car_details['descriptions']['model']} ({car_details['modelYear']}) - {volvo.vin}",
-                    },
-                    "unique_id": f"volvoAAOS2mqtt_{volvo.vin}_{lock['id']}",
-                }
-        mqtt_client.publish(
-            f"homeassistant/lock/volvoAAOS2mqtt/{volvo.vin}_{lock['id']}/config",
-            json.dumps(config),
-        )
-        subscribed_topics.append(command_topic)
-        mqtt_client.subscribe(command_topic)
+        for lock in supported_locks:
+            command_topic = f"homeassistant/lock/{vin}_{lock['id']}/command"
+            config = {
+                        "name": lock['name'],
+                        "object_id": lock['id'],
+                        "schema": "state",
+                        "icon": f"mdi:{lock['icon']}",
+                        "state_topic": f"homeassistant/lock/{vin}_{lock['id']}/state",
+                        "command_topic": command_topic,
+                        "optimistic": False,
+                        "device": {
+                            "identifiers": [f"volvoAAOS2mqtt_{vin}"],
+                            "manufacturer": "Volvo",
+                            "model": car_details['descriptions']['model'],
+                            "name": f"{car_details['descriptions']['model']} ({car_details['modelYear']}) - {vin}",
+                        },
+                        "unique_id": f"volvoAAOS2mqtt_{vin}_{lock['id']}",
+                    }
+            mqtt_client.publish(
+                f"homeassistant/lock/volvoAAOS2mqtt/{vin}_{lock['id']}/config",
+                json.dumps(config),
+            )
+            subscribed_topics.append(command_topic)
+            mqtt_client.subscribe(command_topic)
 
-    for switch in supported_switches:
-        command_topic = f"homeassistant/switch/{volvo.vin}_{switch['id']}/command"
-        config = {
-                    "name": switch['name'],
-                    "object_id": switch['id'],
-                    "schema": "state",
-                    "icon": f"mdi:{switch['icon']}",
-                    "state_topic": f"homeassistant/switch/{volvo.vin}_{switch['id']}/state",
-                    "command_topic": command_topic,
-                    "optimistic": False,
-                    "device": {
-                        "identifiers": ["volvoAAOS2mqtt"],
-                        "manufacturer": "Volvo",
-                        "model": car_details['descriptions']['model'],
-                        "name": f"{car_details['descriptions']['model']} ({car_details['modelYear']}) - {volvo.vin}",
-                    },
-                    "unique_id": f"volvoAAOS2mqtt_{volvo.vin}_{switch['id']}",
-                }
-        mqtt_client.publish(
-            f"homeassistant/switch/volvoAAOS2mqtt/{volvo.vin}_{switch['id']}/config",
-            json.dumps(config),
-        )
-        subscribed_topics.append(command_topic)
-        mqtt_client.subscribe(command_topic)
+        for switch in supported_switches:
+            command_topic = f"homeassistant/switch/{vin}_{switch['id']}/command"
+            config = {
+                        "name": switch['name'],
+                        "object_id": switch['id'],
+                        "schema": "state",
+                        "icon": f"mdi:{switch['icon']}",
+                        "state_topic": f"homeassistant/switch/{vin}_{switch['id']}/state",
+                        "command_topic": command_topic,
+                        "optimistic": False,
+                        "device": {
+                            "identifiers": [f"volvoAAOS2mqtt_{vin}"],
+                            "manufacturer": "Volvo",
+                            "model": car_details['descriptions']['model'],
+                            "name": f"{car_details['descriptions']['model']} ({car_details['modelYear']}) - {vin}",
+                        },
+                        "unique_id": f"volvoAAOS2mqtt_{vin}_{switch['id']}",
+                    }
+            mqtt_client.publish(
+                f"homeassistant/switch/volvoAAOS2mqtt/{vin}_{switch['id']}/config",
+                json.dumps(config),
+            )
+            subscribed_topics.append(command_topic)
+            mqtt_client.subscribe(command_topic)
 
-    for sensor in supported_sensors:
-        config = {
-                    "name": sensor['name'],
-                    "object_id": sensor['id'],
-                    "schema": "state",
-                    "icon": f"mdi:{sensor['icon']}",
-                    "state_topic": f"homeassistant/sensor/{volvo.vin}_{sensor['id']}/state",
-                    "device": {
-                        "identifiers": ["volvoAAOS2mqtt"],
-                        "manufacturer": "Volvo",
-                        "model": car_details['descriptions']['model'],
-                        "name": f"{car_details['descriptions']['model']} ({car_details['modelYear']}) - {volvo.vin}",
-                    },
-                    "unique_id": f"volvoAAOS2mqtt_{volvo.vin}_{sensor['id']}",
-                }
-        if "unit" in sensor:
-            config["unit_of_measurement"] = sensor["unit"]
+        for sensor in supported_sensors:
+            config = {
+                        "name": sensor['name'],
+                        "object_id": sensor['id'],
+                        "schema": "state",
+                        "icon": f"mdi:{sensor['icon']}",
+                        "state_topic": f"homeassistant/sensor/{vin}_{sensor['id']}/state",
+                        "device": {
+                            "identifiers": [f"volvoAAOS2mqtt_{vin}"],
+                            "manufacturer": "Volvo",
+                            "model": car_details['descriptions']['model'],
+                            "name": f"{car_details['descriptions']['model']} ({car_details['modelYear']}) - {vin}",
+                        },
+                        "unique_id": f"volvoAAOS2mqtt_{vin}_{sensor['id']}",
+                    }
+            if "unit" in sensor:
+                config["unit_of_measurement"] = sensor["unit"]
 
-        mqtt_client.publish(
-            f"homeassistant/sensor/volvoAAOS2mqtt/{volvo.vin}_{sensor['id']}/config",
-            json.dumps(config),
-        )
+            mqtt_client.publish(
+                f"homeassistant/sensor/volvoAAOS2mqtt/{vin}_{sensor['id']}/config",
+                json.dumps(config),
+            )
     time.sleep(2)
