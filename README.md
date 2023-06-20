@@ -25,6 +25,7 @@ Here is what every option means:
 | `mqtt`               | `json`    | **required** | Broker = Mqtt Broker IP / Username and Passwort are optional!   |
 | `volvoData`          | `json`    | **required** | Username and password are REQUIRED. Car vin can be a single vin or a list of multiple vins like `["vin1", "vin2"]`. If no vin is provided, <b>ALL</b> of your vehicles will be used. Vccapi key is REQUIRED. Get your Vccapi key from [here](https://developer.volvocars.com/account/).                                   |
 | `TZ`                 | `string`  |              | Container timezone eg "Europe/Berlin" |
+| `debug`              | `string`  |              | Debug option (True/False) - optional! |
 
 If you like my work:
 
