@@ -4,7 +4,8 @@ This component establishes a connection between the newer AAOS Volvo cars and Ho
 Maybe this component works also with other Volvo cars. Please try out the native Volvo [integration](https://www.home-assistant.io/integrations/volvooncall/) before using this component! If the native component doesn't work for your car, try this mqtt bridge.
 
 ## Confirmed working with
--  Volvo XC40 BEV (2023)
+- Volvo XC40 BEV (2023)
+- V60 T8 PHEV (2023)
 
 Please let me know if your car works with this addon so I can expand the list!
 
