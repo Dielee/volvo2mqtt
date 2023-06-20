@@ -42,27 +42,28 @@ def on_disconnect(client, userdata,  rc):
 
 def on_message(client, userdata, msg):
     if msg.topic in subscribed_topics:
+        vin = msg.topic.split('/')[2].split('_')[0]
         payload = msg.payload.decode("UTF-8")
         if "climate_status" in msg.topic:
             global assumed_climate_state
             if payload == "ON":
-                api_thread = threading.Thread(target=volvo.api_call, args=(CLIMATE_START_URL, "POST", ))
+                api_thread = threading.Thread(target=volvo.api_call, args=(CLIMATE_START_URL, "POST", vin))
                 api_thread.start()
                 assumed_climate_state = "ON"
                 # Starting timer to disable climate after 30 mins
                 threading.Timer(30 * 60, volvo.disable_climate).start()
                 update_car_data()
             elif payload == "OFF":
-                api_thread = threading.Thread(target=volvo.api_call, args=(CLIMATE_STOP_URL, "POST", ))
+                api_thread = threading.Thread(target=volvo.api_call, args=(CLIMATE_STOP_URL, "POST", vin))
                 api_thread.start()
                 assumed_climate_state = "OFF"
                 update_car_data()
         elif "lock_status" in msg.topic:
             if payload == "LOCK":
-                volvo.api_call(CAR_LOCK_URL, "POST")
+                volvo.api_call(CAR_LOCK_URL, "POST", vin)
                 update_car_data()
             elif payload == "UNLOCK":
-                volvo.api_call(CAR_UNLOCK_URL, "POST")
+                volvo.api_call(CAR_UNLOCK_URL, "POST", vin)
                 update_car_data()
         elif "update_data" in msg.topic:
             if payload == "PRESS":
