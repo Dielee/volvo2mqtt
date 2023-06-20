@@ -95,11 +95,18 @@ def get_vehicles():
     if len(vins) == 0:
         raise Exception("No vehicle found, exiting application!")
     else:
+        initialize_climate(vins)
         print("Vin: " + str(vins) + " found!")
 
 
-def disable_climate():
-    mqtt.assumed_climate_state = "OFF"
+def initialize_climate(vins):
+    for vin in vins:
+        mqtt.assumed_climate_state[vin] = "OFF"
+
+
+def disable_climate(vin):
+    print("Turning climate off by timer!")
+    mqtt.assumed_climate_state[vin] = "OFF"
     mqtt.update_car_data()
 
 

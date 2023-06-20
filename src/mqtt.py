@@ -12,7 +12,7 @@ from const import VEHICLE_DETAILS_URL, CLIMATE_START_URL, CLIMATE_STOP_URL, CAR_
 
 mqtt_client: mqtt.Client
 subscribed_topics = []
-assumed_climate_state = "OFF"
+assumed_climate_state = {}
 last_data_update = None
 
 
@@ -49,14 +49,14 @@ def on_message(client, userdata, msg):
             if payload == "ON":
                 api_thread = threading.Thread(target=volvo.api_call, args=(CLIMATE_START_URL, "POST", vin))
                 api_thread.start()
-                assumed_climate_state = "ON"
+                assumed_climate_state[vin] = "ON"
                 # Starting timer to disable climate after 30 mins
-                threading.Timer(30 * 60, volvo.disable_climate).start()
+                threading.Timer(30 * 60, volvo.disable_climate, (vin, )).start()
                 update_car_data()
             elif payload == "OFF":
                 api_thread = threading.Thread(target=volvo.api_call, args=(CLIMATE_STOP_URL, "POST", vin))
                 api_thread.start()
-                assumed_climate_state = "OFF"
+                assumed_climate_state[vin] = "OFF"
                 update_car_data()
         elif "lock_status" in msg.topic:
             if payload == "LOCK":
@@ -92,7 +92,7 @@ def update_car_data():
 
         for switch in supported_switches:
             if switch["id"] == "climate_status":
-                state = assumed_climate_state
+                state = assumed_climate_state[vin]
             else:
                 state = "OFF"
 
