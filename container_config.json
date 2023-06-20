@@ -1,8 +1,0 @@
-{
-	"name": "volvoaaos2mqtt",
-  	"ports": {},
-    "env": {"TZ": "Europe/Amsterdam"},
-	"volumes": [
-		"/home/dockerhost/volvoAAOS2mqtt/settings.json:/volvoAAOS2mqtt/settings.json"
-	]
-}
