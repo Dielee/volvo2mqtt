@@ -22,7 +22,7 @@ Here is what every option means:
 | `updateInterval`     | `int`     | **required** | Update intervall in seconds.                                     |
 | `babelLocale`        | `string`  | **required** | Locale for date Format                                          |
 | `mqtt`               | `json`    | **required** | Broker = Mqtt Broker IP / Username and Passwort are optional!   |
-| `volvoData`          | `json`    | **required** | Username and password are REQUIRED. Car vin can be a single vin or a list of multiple vins like `["vin1", "vin2"]`. If no vin is provided, <b>ALL</b> of your vehicles will be used. Vccapi key is REQUIRED. Get your api key from [here](https://developer.volvocars.com/account/).                                   |
+| `volvoData`          | `json`    | **required** | Username and password are REQUIRED. Car vin can be a single vin or a list of multiple vins like `["vin1", "vin2"]`. If no vin is provided, <b>ALL</b> of your vehicles will be used. Vccapi key is REQUIRED. Get your Vccapi key from [here](https://developer.volvocars.com/account/).                                   |
 | `TZ`                 | `string`  |              | Container timezone eg "Europe/Berlin" |
 
 If you like my work:
