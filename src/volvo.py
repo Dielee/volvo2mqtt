@@ -139,6 +139,9 @@ def api_call(url, method, vin, sensor_id=None):
 
     if response.status_code == 200:
         data = response.json()
+        if "debug" in settings:
+            if settings["debug"]:
+                print(response.text)
     else:
         if url == CLIMATE_START_URL and response.status_code == 503:
             print("Car in use, cannot start pre climatization")
