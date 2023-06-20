@@ -8,7 +8,7 @@ from const import charging_system_states, CLIMATE_START_URL, \
 
 session = requests.Session()
 session.headers = {
-                "vcc-api-key": settings["volvoData"]["vccapikey"],
+                "vcc-api-key": "",
                 "content-type": "application/json",
                 "accept": "*/*"
 }
@@ -42,6 +42,7 @@ def authorize():
         token_expires_at = datetime.now() + timedelta(seconds=(data["expires_in"] - 30))
         refresh_token = data["refresh_token"]
 
+        session.headers.update({"vcc-api-key": settings["volvoData"]["vccapikey"]})
         get_vehicles()
     else:
         message = auth.json()
