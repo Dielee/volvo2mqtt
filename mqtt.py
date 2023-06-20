@@ -74,6 +74,7 @@ def update_loop():
     while True:
         print("Sending mqtt update...")
         update_car_data()
+        print("Mqtt update done. Next run in " + str(settings["updateInterval"]) + " seconds.")
         time.sleep(settings["updateInterval"])
 
 

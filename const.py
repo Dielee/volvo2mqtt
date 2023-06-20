@@ -1,4 +1,4 @@
-VERSION = "v1.0.4"
+VERSION = "v1.0.5"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles"

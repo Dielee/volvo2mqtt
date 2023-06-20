@@ -115,18 +115,18 @@ def api_call(url, method, vin, sensor_id=None):
             # No API Data cached, get fresh data from API
             print("Starting " + method + " call against " + url)
             response = session.get(url.format(vin), timeout=15)
-            recharge_response = response
+            recharge_response[vin] = response
             recharge_last_update = datetime.now()
         else:
             if (datetime.now() - recharge_last_update).total_seconds() >= settings["updateInterval"]:
                 # Old Data in Cache, updateing
                 print("Starting " + method + " call against " + url)
                 response = session.get(url.format(vin), timeout=15)
-                recharge_response = response
+                recharge_response[vin] = response
                 recharge_last_update = datetime.now()
             else:
                 # Data is up do date, returning cached data
-                response = recharge_response
+                response = recharge_response[vin]
     elif method == "GET":
         print("Starting " + method + " call against " + url)
         response = session.get(url.format(vin), timeout=15)
@@ -147,7 +147,10 @@ def api_call(url, method, vin, sensor_id=None):
         else:
             print("API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
         return ""
+    return parse_api_data(url, data, sensor_id)
 
+
+def parse_api_data(url, data, sensor_id=None):
     if url == VEHICLE_DETAILS_URL:
         return data["data"]
     elif sensor_id == "battery_charge_level":
