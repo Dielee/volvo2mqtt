@@ -167,7 +167,7 @@ def parse_api_data(url, data, sensor_id=None):
         else:
             return ""
     elif sensor_id == "charging_system_status":
-        if "charging_system_status" in data["data"]:
+        if "chargingSystemStatus" in data["data"]:
             return charging_system_states[data["data"]["chargingSystemStatus"]["value"]]
         else:
             return ""

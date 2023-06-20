@@ -1,4 +1,4 @@
-VERSION = "v1.0.9"
+VERSION = "v1.0.10"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles"
@@ -12,7 +12,7 @@ CAR_UNLOCK_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/co
 RECHARGE_STATUS_URL = "https://api.volvocars.com/energy/v1/vehicles/{0}/recharge-status"
 
 charging_system_states = {"CHARGING_SYSTEM_CHARGING": "Charging", "CHARGING_SYSTEM_IDLE": "Idle",
-                          "CHARGING_SYSTEM_FAULT": "Fault", "CHARGING_SYSTEM_UNSPECIFIED": "UNSPECIFIED"}
+                          "CHARGING_SYSTEM_FAULT": "Fault", "CHARGING_SYSTEM_UNSPECIFIED": "Unspecified"}
 
 supported_sensors = [
                         {"name": "Battery Charge Level", "id": "battery_charge_level", "unit": "%", "icon": "car-battery", "url": RECHARGE_STATUS_URL},
