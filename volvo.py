@@ -17,7 +17,7 @@ token_expires_at: datetime
 refresh_token = None
 vins = []
 recharge_response = {}
-recharge_last_update = None
+recharge_last_update = {}
 
 
 def authorize():
@@ -111,19 +111,19 @@ def api_call(url, method, vin, sensor_id=None):
     global recharge_response, recharge_last_update
     if url == RECHARGE_STATUS_URL:
         # Minimize API calls for recharge API
-        if not bool(recharge_response):
-            # No API Data cached, get fresh data from API
+        if not vin in recharge_response:
+            # No API Data for vin cached, get fresh data from API
             print("Starting " + method + " call against " + url)
             response = session.get(url.format(vin), timeout=15)
             recharge_response[vin] = response
-            recharge_last_update = datetime.now()
+            recharge_last_update[vin] = datetime.now()
         else:
-            if (datetime.now() - recharge_last_update).total_seconds() >= settings["updateInterval"]:
-                # Old Data in Cache, updateing
+            if (datetime.now() - recharge_last_update[vin]).total_seconds() >= settings["updateInterval"]:
+                # Old Data in Cache, updating
                 print("Starting " + method + " call against " + url)
                 response = session.get(url.format(vin), timeout=15)
                 recharge_response[vin] = response
-                recharge_last_update = datetime.now()
+                recharge_last_update[vin] = datetime.now()
             else:
                 # Data is up do date, returning cached data
                 response = recharge_response[vin]
