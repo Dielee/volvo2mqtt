@@ -21,7 +21,7 @@ Here is what every option means:
 | Name                 |   Type    |   Default    | Description                                                     |
 | -------------------- | :-------: | :----------: | --------------------------------------------------------------- |
 | `updateInterval`     | `int`     | **required** | Update intervall in seconds.                                     |
-| `babelLocale`        | `string`  | **required** | Locale for date Format                                          |
+| `babelLocale`        | `string`  | **required** | Select your country from this [list](https://www.ibm.com/docs/en/radfws/9.7?topic=overview-locales-code-pages-supported). "Locale name" is the column you need!                                        |
 | `mqtt`               | `json`    | **required** | Broker = Mqtt Broker IP / Username and Passwort are optional!   |
 | `volvoData`          | `json`    | **required** | Username and password are REQUIRED. Car vin can be a single vin or a list of multiple vins like `["vin1", "vin2"]`. If no vin is provided, <b>ALL</b> of your vehicles will be used. Vccapi key is REQUIRED. Get your Vccapi key from [here](https://developer.volvocars.com/account/).                                   |
 | `TZ`                 | `string`  |              | Container timezone eg "Europe/Berlin" |
