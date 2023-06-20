@@ -6,7 +6,7 @@ Maybe this component works also with other Volvo cars. Please try out the native
 ## Confirmed working with
 -  Volvo XC40 BEV (2023)
 
-Please let me know if your car works with this addon so i can expand the list!
+Please let me know if your car works with this addon so I can expand the list!
 
 ## Setup
 
