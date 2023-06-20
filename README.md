@@ -11,6 +11,15 @@ Maybe this component works also with other Volvo cars. Please try out the native
 
 Please let me know if your car works with this addon so I can expand the list!
 
+## Supported features
+- Lock/unlock car
+- Start/stop climate
+- Sensor "Battery Charge Level"
+- Sensor "Electric Range"
+- Sensor "Charging System Status"
+- Sensor "Estimated Charging Finish Time"
+- Multiple cars
+
 ## Setup
 
 Just install this addon with the following command.
