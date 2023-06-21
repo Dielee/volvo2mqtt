@@ -1,0 +1,39 @@
+name: "Volvo2Mqtt"
+description: "Volvo AAOS MQTT bridge"
+version: "1.1.0"
+slug: "volvo2mqtt"
+init: false
+url: "https://github.com/Dielee/volvo2mqtt"
+apparmor: true
+options:
+  updateInterval: 300
+  babelLocale: null
+  debug: false
+  mqtt:
+    broker: null
+    username: ""
+    password: ""
+  volvoData:
+    username: null
+    password: null
+    vin: ""
+    vccapikey: null
+schema:
+  updateInterval: int(10,)
+  babelLocale: str
+  debug: bool
+  mqtt:
+    broker: str
+    username: str?
+    password: str?
+  volvoData:
+    username: str
+    password: str
+    vin: str?
+    vccapikey: str
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
