@@ -23,14 +23,14 @@ Please let me know if your car works with this addon so I can expand the list!
 NOTE: Energy status currently available only for cars in the Europe / Middle East / Africa regions. [source](https://developer.volvocars.com/apis/energy/v1/overview/#availability)
 
 ## Setup
-Docker:
+<b>Docker:</b>
 
 Just install this addon with the following command.
 Please note to fill in your settings inside the environment variables.
 
 `docker run --pull=always -e CONF_updateInterval=300 -e CONF_babelLocale='de' -e CONF_mqtt='@json {"broker": "", "username": "", "password": ""}' -e CONF_volvoData='@json {"username": "", "password": "", "vin": "",   "vccapikey": ""}' -e TZ='Europe/Berlin' --name volvo2mqtt ghcr.io/dielee/volvo2mqtt:latest`
 
-HA Add-On<br>
+<b>HA Add-On:</b><br>
 
 [![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FDielee%2Fvolvo2mqtt)
 
