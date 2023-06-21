@@ -1,0 +1,16 @@
+configuration:
+  updateInterval:
+    name: Update intervall
+    description: Time to wait between data pulls
+  babelLocale:
+    name: Babel locale
+    description: Select your country code or take a look at the GitHub repo for more infos!
+  debug:
+    name: API debug mode
+    description: Enable Volvo API debug, normaly this can be stay off
+  mqtt:
+    name: MQTT Broker settings
+    description: Broker is your mqtt broker IP eg "192.168.0.1". Mqtt username and password are optional.
+  volvoData:
+    name: Volvo APP credentials
+    description: You have to enter your Volvo app credentials. The username is normally your email, and the password is the password you use for your Volvo app. The vin can stay empty. The Add-On will use any vin inside your Volvo account. VCCAPI key is required and comes from your Volvo developer account. Take a look at the GitHub repo for more information!
