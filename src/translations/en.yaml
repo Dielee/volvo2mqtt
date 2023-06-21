@@ -7,7 +7,7 @@ configuration:
     description: Select your country code or take a look at the GitHub repo for more infos!
   debug:
     name: API debug mode
-    description: Enable Volvo API debug, normaly this can be stay off
+    description: Enable Volvo API debug, normaly this can stay off
   mqtt:
     name: MQTT Broker settings
     description: Broker is your mqtt broker IP eg "192.168.0.1". Mqtt username and password are optional.
