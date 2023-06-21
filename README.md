@@ -20,7 +20,7 @@ Please let me know if your car works with this addon so I can expand the list!
 - Sensor "Estimated Charging Finish Time"
 - Multiple cars
 
-  * Energy status currently available only for cars in the Europe / Middle East / Africa regions. [source](https://developer.volvocars.com/apis/energy/v1/overview/#availability)
+NOTE: Energy status currently available only for cars in the Europe / Middle East / Africa regions. [source](https://developer.volvocars.com/apis/energy/v1/overview/#availability)
 
 ## Setup
 
