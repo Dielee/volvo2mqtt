@@ -133,10 +133,9 @@ def create_ha_devices():
         for device_tracker in supported_device_trackers:
             config = {
                         "name": device_tracker['name'],
-                        "object_id": device_tracker['id'],
+                        "object_id": f"volvo_{vin}_{device_tracker['id']}",
                         "schema": "state",
                         "icon": f"mdi:{device_tracker['icon']}",
-
                         "state_topic": f"homeassistant/device_tracker/{vin}_{device_tracker['id']}/state",
                         "device": device,
                         "unique_id": f"volvoAAOS2mqtt_{vin}_{device_tracker['id']}",
@@ -151,7 +150,7 @@ def create_ha_devices():
             command_topic = f"homeassistant/button/{vin}_{button['id']}/command"
             config = {
                         "name": button['name'],
-                        "object_id": button['id'],
+                        "object_id": f"volvo_{vin}_{button['id']}",
                         "schema": "state",
                         "icon": f"mdi:{button['icon']}",
                         "state_topic": f"homeassistant/button/{vin}_{button['id']}/state",
@@ -170,7 +169,7 @@ def create_ha_devices():
             command_topic = f"homeassistant/lock/{vin}_{lock['id']}/command"
             config = {
                         "name": lock['name'],
-                        "object_id": lock['id'],
+                        "object_id": f"volvo_{vin}_{lock['id']}",
                         "schema": "state",
                         "icon": f"mdi:{lock['icon']}",
                         "state_topic": f"homeassistant/lock/{vin}_{lock['id']}/state",
@@ -190,7 +189,7 @@ def create_ha_devices():
             command_topic = f"homeassistant/switch/{vin}_{switch['id']}/command"
             config = {
                         "name": switch['name'],
-                        "object_id": switch['id'],
+                        "object_id": f"volvo_{vin}_{switch['id']}",
                         "schema": "state",
                         "icon": f"mdi:{switch['icon']}",
                         "state_topic": f"homeassistant/switch/{vin}_{switch['id']}/state",
@@ -209,7 +208,7 @@ def create_ha_devices():
         for sensor in supported_sensors:
             config = {
                         "name": sensor['name'],
-                        "object_id": sensor['id'],
+                        "object_id": f"volvo_{vin}_{sensor['id']}",
                         "schema": "state",
                         "icon": f"mdi:{sensor['icon']}",
                         "state_topic": f"homeassistant/sensor/{vin}_{sensor['id']}/state",
