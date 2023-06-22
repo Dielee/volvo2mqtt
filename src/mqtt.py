@@ -7,7 +7,9 @@ from datetime import datetime
 from babel.dates import format_datetime
 from config import settings
 from const import CLIMATE_START_URL, CLIMATE_STOP_URL, CAR_LOCK_URL, \
-            CAR_UNLOCK_URL, supported_sensors, supported_buttons, supported_switches, supported_locks
+            CAR_UNLOCK_URL, supported_sensors, supported_buttons, supported_switches, \
+            supported_locks, supported_device_trackers
+
 
 
 mqtt_client: mqtt.Client
@@ -88,6 +90,13 @@ def update_car_data(force_update=False):
     global last_data_update
     last_data_update = format_datetime(datetime.now(), format="medium", locale=settings["babelLocale"])
     for vin in volvo.vins:
+        for device_tracker in supported_device_trackers:
+            state = volvo.api_call(device_tracker["url"], "GET", vin, device_tracker["id"], force_update)
+            mqtt_client.publish(
+                f"homeassistant/device_tracker/{vin}_{device_tracker['id']}/attributes",
+                json.dumps(state)
+            )
+
         for lock in supported_locks:
             state = volvo.api_call(lock["url"], "GET", vin, lock["id"], force_update)
             mqtt_client.publish(
@@ -120,6 +129,23 @@ def update_car_data(force_update=False):
 def create_ha_devices():
     for vin in volvo.vins:
         device = volvo.get_vehicle_details(vin)
+
+        for device_tracker in supported_device_trackers:
+            config = {
+                        "name": device_tracker['name'],
+                        "object_id": device_tracker['id'],
+                        "schema": "state",
+                        "icon": f"mdi:{device_tracker['icon']}",
+
+                        "state_topic": f"homeassistant/device_tracker/{vin}_{device_tracker['id']}/state",
+                        "device": device,
+                        "unique_id": f"volvoAAOS2mqtt_{vin}_{device_tracker['id']}",
+                        "json_attributes_topic": f"homeassistant/device_tracker/{vin}_{device_tracker['id']}/attributes"
+                    }
+            mqtt_client.publish(
+                f"homeassistant/device_tracker/volvoAAOS2mqtt/{vin}_{device_tracker['id']}/config",
+                json.dumps(config),
+            )
 
         for button in supported_buttons:
             command_topic = f"homeassistant/button/{vin}_{button['id']}/command"

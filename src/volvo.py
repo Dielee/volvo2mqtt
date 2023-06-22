@@ -311,5 +311,11 @@ def parse_api_data(data, sensor_id=None):
             return data["data"]["tankLidOpen"]["value"]
         else:
             return ""
+    elif sensor_id == "location":
+        coordinates = {}
+        if "geometry" in data["data"]:
+            raw_data = data["data"]["geometry"]["coordinates"]
+            coordinates = {"longitude": raw_data[0], "latitude": raw_data[1], "gps_accuracy": 1}
+        return coordinates
     else:
         return ""

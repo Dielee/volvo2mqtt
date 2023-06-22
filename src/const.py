@@ -13,6 +13,7 @@ CAR_LOCK_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/comm
 CAR_UNLOCK_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/commands/unlock"
 RECHARGE_STATE_URL = "https://api.volvocars.com/energy/v1/vehicles/{0}/recharge-status"
 ODOMETER_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/odometer"
+LOCATION_STATE_URL = "https://api.volvocars.com/location/v1/vehicles/{0}/location"
 
 charging_system_states = {"CHARGING_SYSTEM_CHARGING": "Charging", "CHARGING_SYSTEM_IDLE": "Idle",
                           "CHARGING_SYSTEM_FAULT": "Fault", "CHARGING_SYSTEM_UNSPECIFIED": "Unspecified"}
@@ -48,4 +49,8 @@ supported_locks = [
 
 supported_buttons = [
                         {"name": "Force Update Data", "id": "update_data", "icon": "update", "url": ""}
+]
+
+supported_device_trackers = [
+                        {"name": "Location", "id": "location", "icon": "map-marker-radius", "url": LOCATION_STATE_URL}
 ]
