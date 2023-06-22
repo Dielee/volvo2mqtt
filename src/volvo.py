@@ -4,7 +4,8 @@ import mqtt
 from config import settings
 from babel.dates import format_datetime
 from const import charging_system_states, CLIMATE_START_URL, \
-    OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL
+    OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, \
+    WINDOWS_STATE_URL
 
 session = requests.Session()
 session.headers = {
@@ -16,8 +17,10 @@ session.headers = {
 token_expires_at: datetime
 refresh_token = None
 vins = []
-recharge_response = {}
-recharge_last_update = {}
+recharge_cached_api_response = {}
+recharge_api_last_update = {}
+window_cached_api_response = {}
+window_api_last_update = {}
 
 
 def authorize():
@@ -143,25 +146,12 @@ def api_call(url, method, vin, sensor_id=None):
     if datetime.now() >= token_expires_at:
         refresh_auth()
 
-    global recharge_response, recharge_last_update
     if url == RECHARGE_STATE_URL:
-        # Minimize API calls for recharge API
-        if not vin in recharge_response:
-            # No API Data for vin cached, get fresh data from API
-            print("Starting " + method + " call against " + url)
-            response = session.get(url.format(vin), timeout=15)
-            recharge_response[vin] = response
-            recharge_last_update[vin] = datetime.now()
-        else:
-            if (datetime.now() - recharge_last_update[vin]).total_seconds() >= settings["updateInterval"]:
-                # Old Data in Cache, updating
-                print("Starting " + method + " call against " + url)
-                response = session.get(url.format(vin), timeout=15)
-                recharge_response[vin] = response
-                recharge_last_update[vin] = datetime.now()
-            else:
-                # Data is up do date, returning cached data
-                response = recharge_response[vin]
+        # Minimize API calls for recharge state
+        response = pull_recharge_api(url, method, vin)
+    elif url == WINDOWS_STATE_URL:
+        # Minimize API calls for window state
+        response = pull_window_api(url, method, vin)
     elif method == "GET":
         print("Starting " + method + " call against " + url)
         response = session.get(url.format(vin), timeout=15)
@@ -186,6 +176,48 @@ def api_call(url, method, vin, sensor_id=None):
             print("API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
         return ""
     return parse_api_data(data, sensor_id)
+
+
+def pull_window_api(url, method, vin):
+    global window_cached_api_response, window_api_last_update
+    if not vin in window_cached_api_response:
+        # No API Data for vin cached, get fresh data from API
+        print("Starting " + method + " call against " + url)
+        response = session.get(url.format(vin), timeout=15)
+        window_cached_api_response[vin] = response
+        window_api_last_update[vin] = datetime.now()
+    else:
+        if (datetime.now() - window_api_last_update[vin]).total_seconds() >= settings["updateInterval"]:
+            # Old Data in Cache, updating
+            print("Starting " + method + " call against " + url)
+            response = session.get(url.format(vin), timeout=15)
+            window_cached_api_response[vin] = response
+            window_api_last_update[vin] = datetime.now()
+        else:
+            # Data is up do date, returning cached data
+            response = window_cached_api_response[vin]
+    return response
+
+
+def pull_recharge_api(url, method, vin):
+    global recharge_cached_api_response, recharge_api_last_update
+    if not vin in recharge_cached_api_response:
+        # No API Data for vin cached, get fresh data from API
+        print("Starting " + method + " call against " + url)
+        response = session.get(url.format(vin), timeout=15)
+        recharge_cached_api_response[vin] = response
+        recharge_api_last_update[vin] = datetime.now()
+    else:
+        if (datetime.now() - recharge_api_last_update[vin]).total_seconds() >= settings["updateInterval"]:
+            # Old Data in Cache, updating
+            print("Starting " + method + " call against " + url)
+            response = session.get(url.format(vin), timeout=15)
+            recharge_cached_api_response[vin] = response
+            recharge_api_last_update[vin] = datetime.now()
+        else:
+            # Data is up do date, returning cached data
+            response = recharge_cached_api_response[vin]
+    return response
 
 
 def parse_api_data(data, sensor_id=None):
@@ -228,5 +260,13 @@ def parse_api_data(data, sensor_id=None):
         return data["data"]["carLocked"]["value"]
     elif sensor_id == "odometer":
         return data["data"]["odometer"]["value"]
+    elif sensor_id == "window_front_left":
+        return data["data"]["frontLeftWindowOpen"]["value"]
+    elif sensor_id == "window_front_right":
+        return data["data"]["frontRightWindowOpen"]["value"]
+    elif sensor_id == "window_rear_left":
+        return data["data"]["rearLeftWindowOpen"]["value"]
+    elif sensor_id == "window_rear_right":
+        return data["data"]["rearRightWindowOpen"]["value"]
     else:
         return ""
