@@ -4,7 +4,7 @@ import mqtt
 from config import settings
 from babel.dates import format_datetime
 from const import charging_system_states, CLIMATE_START_URL, \
-    OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATUS_URL
+    OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL
 
 session = requests.Session()
 session.headers = {
@@ -144,7 +144,7 @@ def api_call(url, method, vin, sensor_id=None):
         refresh_auth()
 
     global recharge_response, recharge_last_update
-    if url == RECHARGE_STATUS_URL:
+    if url == RECHARGE_STATE_URL:
         # Minimize API calls for recharge API
         if not vin in recharge_response:
             # No API Data for vin cached, get fresh data from API
