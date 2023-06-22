@@ -1,3 +1,5 @@
+from config import settings
+
 VERSION = "v1.1.2"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
@@ -16,7 +18,7 @@ charging_system_states = {"CHARGING_SYSTEM_CHARGING": "Charging", "CHARGING_SYST
 
 supported_sensors = [
                         {"name": "Battery Charge Level", "id": "battery_charge_level", "unit": "%", "icon": "car-battery", "url": RECHARGE_STATE_URL},
-                        {"name": "Electric Range", "id": "electric_range", "unit": "km", "icon": "map-marker-distance", "url": RECHARGE_STATE_URL},
+                        {"name": "Electric Range", "id": "electric_range", "unit": "km" if settings["babelLocale"] != "en_US" else "mi", "icon": "map-marker-distance", "url": RECHARGE_STATE_URL},
                         {"name": "Estimated Charging Time", "id": "estimated_charging_time", "unit": "minutes", "icon": "timer-sync-outline", "url": RECHARGE_STATE_URL},
                         {"name": "Charging System Status", "id": "charging_system_status", "icon": "ev-plug-ccs2", "url": RECHARGE_STATE_URL},
                         {"name": "Estimated Charging Finish Time", "id": "estimated_charging_finish_time", "icon": "timer-sync-outline", "url": RECHARGE_STATE_URL},
