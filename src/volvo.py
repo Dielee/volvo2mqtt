@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import mqtt
 from config import settings
 from babel.dates import format_datetime
+from util import keys_exists
 from const import charging_system_states, CLIMATE_START_URL, \
     OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, \
     WINDOWS_STATE_URL, LOCK_STATE_URL
@@ -180,12 +181,7 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
         else:
             print("API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
         return ""
-    state = parse_api_data(data, sensor_id)
-    if not state:
-        return ""
-    else:
-        return state
-
+    return parse_api_data(data, sensor_id)
 
 
 def pull_door_api(url, method, vin, force_update=False):
@@ -252,66 +248,68 @@ def pull_recharge_api(url, method, vin, force_update=False):
 
 
 def parse_api_data(data, sensor_id=None):
+    data = data["data"]
     if sensor_id == "battery_charge_level":
-        return data["data"].get("batteryChargeLevel").get("value")
+        return data["batteryChargeLevel"]["value"] if keys_exists(data, "batteryChargeLevel") else 0
     elif sensor_id == "electric_range":
-        return data["data"].get("electricRange").get("value")
+        return data["electricRange"]["value"] if keys_exists(data, "electricRange") else 0
     elif sensor_id == "charging_system_status":
-        if "chargingSystemStatus" in data["data"]:
-            return charging_system_states[data["data"].get("chargingSystemStatus").get("value")]
-        else:
-            return ""
+        return charging_system_states[data["chargingSystemStatus"]["value"]] if keys_exists(data, "chargingSystemStatus") else ""
     elif sensor_id == "estimated_charging_time":
-        if "chargingSystemStatus" in data["data"]:
-            charging_system_state = charging_system_states[data["data"]["chargingSystemStatus"]["value"]]
+        if keys_exists(data, "chargingSystemStatus"):
+            charging_system_state = charging_system_states[data["chargingSystemStatus"]["value"]]
             if charging_system_state == "Charging":
-                return data["data"]["estimatedChargingTime"]["value"]
+                return data["estimatedChargingTime"]["value"] if keys_exists(data, "estimatedChargingTime") else ""
             else:
                 return 0
         else:
             return ""
     elif sensor_id == "estimated_charging_finish_time":
-        if "chargingSystemStatus" in data["data"]:
-            charging_system_state = charging_system_states[data["data"].get("chargingSystemStatus").get("value")]
+        if keys_exists(data, "chargingSystemStatus"):
+            charging_system_state = charging_system_states[data["chargingSystemStatus"]["value"]]
             if charging_system_state == "Charging":
-                charging_time = int(data["data"].get("estimatedChargingTime").get("value"))
+                charging_time = int(data["estimatedChargingTime"]["value"] if keys_exists(data, "estimatedChargingTime")
+                                    else 0)
                 charging_finished = datetime.now() + timedelta(minutes=charging_time)
                 return format_datetime(charging_finished, format="medium", locale=settings["babelLocale"])
             else:
-                return None
+                return ""
         else:
-            return None
+            return ""
     elif sensor_id == "lock_status":
-        return data["data"].get("carLocked").get("value")
+        return data["carLocked"]["value"] if keys_exists(data, "carLocked") else ""
     elif sensor_id == "odometer":
-        return data["data"].get("odometer").get("value")
+        return data["odometer"]["value"] if keys_exists(data, "odometer") else 0
     elif sensor_id == "window_front_left":
-        return data["data"].get("frontLeftWindowOpen").get("value")
+        return data["frontLeftWindowOpen"]["value"] if keys_exists(data, "frontLeftWindowOpen") else ""
     elif sensor_id == "window_front_right":
-        return data["data"].get("frontRightWindowOpen").get("value")
+        return data["frontRightWindowOpen"]["value"] if keys_exists(data, "frontRightWindowOpen") else ""
     elif sensor_id == "window_rear_left":
-        return data["data"].get("rearLeftWindowOpen").get("value")
+        return data["rearLeftWindowOpen"]["value"] if keys_exists(data, "rearLeftWindowOpen") else ""
     elif sensor_id == "window_rear_right":
-        return data["data"].get("rearRightWindowOpen").get("value")
+        return data["rearRightWindowOpen"]["value"] if keys_exists(data, "rearRightWindowOpen") else ""
     elif sensor_id == "door_front_left":
-        return data["data"].get("frontLeftDoorOpen").get("value")
+        return data["frontLeftDoorOpen"]["value"] if keys_exists(data, "frontLeftDoorOpen") else ""
     elif sensor_id == "door_front_right":
-        return data["data"].get("frontRightDoorOpen").get("value")
+        return data["frontRightDoorOpen"]["value"] if keys_exists(data, "frontRightDoorOpen") else ""
     elif sensor_id == "door_rear_left":
-        return data["data"].get("rearLeftDoorOpen").get("value")
+        return data["rearLeftDoorOpen"]["value"] if keys_exists(data, "rearLeftDoorOpen") else ""
     elif sensor_id == "door_rear_right":
-        return data["data"].get("rearRightDoorOpen").get("value")
+        return data["rearRightDoorOpen"]["value"] if keys_exists(data, "rearRightDoorOpen") else ""
     elif sensor_id == "tailgate":
-        return data["data"].get("tailGateOpen").get("value")
+        return data["tailGateOpen"]["value"] if keys_exists(data, "tailGateOpen") else ""
     elif sensor_id == "engine_hood":
-        return data["data"].get("hoodOpen").get("value")
+        return data["hoodOpen"]["value"] if keys_exists(data, "hoodOpen") else ""
     elif sensor_id == "tank_lid":
-        return data["data"].get("tankLidOpen").get("value")
+        return data["tankLidOpen"]["value"] if keys_exists(data, "tankLidOpen") else ""
     elif sensor_id == "location":
         coordinates = {}
-        if "geometry" in data["data"]:
-            raw_data = data["data"].get("geometry").get("coordinates")
-            coordinates = {"longitude": raw_data[0], "latitude": raw_data[1], "gps_accuracy": 1}
+        if keys_exists(data, "geometry"):
+            raw_data = data["geometry"]
+            if keys_exists(raw_data, "coordinates"):
+                coordinates = {"longitude": raw_data["coordinates"][0],
+                               "latitude": raw_data["coordinates"][1],
+                               "gps_accuracy": 1}
         return coordinates
     else:
         return ""
