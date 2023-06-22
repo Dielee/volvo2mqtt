@@ -8,7 +8,7 @@ VEHICLE_DETAILS_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles/{
 WINDOWS_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/windows"
 CLIMATE_START_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/commands/climatization-start"
 CLIMATE_STOP_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/commands/climatization-stop"
-CAR_LOCK_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/doors"
+LOCK_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/doors"
 CAR_LOCK_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/commands/lock"
 CAR_UNLOCK_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/commands/unlock"
 RECHARGE_STATE_URL = "https://api.volvocars.com/energy/v1/vehicles/{0}/recharge-status"
@@ -28,7 +28,11 @@ supported_sensors = [
                         {"name": "Window Front Left", "id": "window_front_left", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
                         {"name": "Window Front Right", "id": "window_front_right", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
                         {"name": "Window Rear Left", "id": "window_rear_left", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
-                        {"name": "Window Rear Right", "id": "window_rear_right", "icon": "car-door-lock", "url": WINDOWS_STATE_URL}
+                        {"name": "Window Rear Right", "id": "window_rear_right", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
+                        {"name": "Door Front Left", "id": "door_front_left", "icon": "car-door-lock", "url": LOCK_STATE_URL},
+                        {"name": "Door Front Right", "id": "door_front_right", "icon": "car-door-lock", "url": LOCK_STATE_URL},
+                        {"name": "Door Rear Left", "id": "door_rear_left", "icon": "car-door-lock", "url": LOCK_STATE_URL},
+                        {"name": "Door Rear Right", "id": "door_rear_right", "icon": "car-door-lock", "url": LOCK_STATE_URL}
 ]
 
 supported_switches = [
@@ -36,9 +40,9 @@ supported_switches = [
 ]
 
 supported_locks = [
-                        {"name": "Lock state", "id": "lock_status", "icon": "lock", "url": CAR_LOCK_STATE_URL}
+                        {"name": "Lock state", "id": "lock_status", "icon": "lock", "url": LOCK_STATE_URL}
 ]
 
 supported_buttons = [
-                        {"name": "Update Data", "id": "update_data", "icon": "update", "url": ""}
+                        {"name": "Force Update Data", "id": "update_data", "icon": "update", "url": ""}
 ]

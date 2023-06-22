@@ -72,7 +72,7 @@ def on_message(client, userdata, msg):
                 update_car_data()
         elif "update_data" in msg.topic:
             if payload == "PRESS":
-                update_car_data()
+                update_car_data(True)
 
 
 def update_loop():
@@ -84,12 +84,12 @@ def update_loop():
         time.sleep(settings["updateInterval"])
 
 
-def update_car_data():
+def update_car_data(force_update=False):
     global last_data_update
     last_data_update = format_datetime(datetime.now(), format="medium", locale=settings["babelLocale"])
     for vin in volvo.vins:
         for lock in supported_locks:
-            state = volvo.api_call(lock["url"], "GET", vin, lock["id"])
+            state = volvo.api_call(lock["url"], "GET", vin, lock["id"], force_update)
             mqtt_client.publish(
                 f"homeassistant/lock/{vin}_{lock['id']}/state",
                 state
@@ -110,7 +110,7 @@ def update_car_data():
             if sensor["id"] == "last_data_update":
                 state = last_data_update
             else:
-                state = volvo.api_call(sensor["url"], "GET", vin, sensor["id"])
+                state = volvo.api_call(sensor["url"], "GET", vin, sensor["id"], force_update)
             mqtt_client.publish(
                 f"homeassistant/sensor/{vin}_{sensor['id']}/state",
                 state

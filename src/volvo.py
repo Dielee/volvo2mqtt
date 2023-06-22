@@ -5,7 +5,7 @@ from config import settings
 from babel.dates import format_datetime
 from const import charging_system_states, CLIMATE_START_URL, \
     OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, \
-    WINDOWS_STATE_URL
+    WINDOWS_STATE_URL, LOCK_STATE_URL
 
 session = requests.Session()
 session.headers = {
@@ -21,6 +21,8 @@ recharge_cached_api_response = {}
 recharge_api_last_update = {}
 window_cached_api_response = {}
 window_api_last_update = {}
+door_cached_api_response = {}
+door_api_last_update = {}
 
 
 def authorize():
@@ -141,17 +143,20 @@ def disable_climate(vin):
     mqtt.update_car_data()
 
 
-def api_call(url, method, vin, sensor_id=None):
+def api_call(url, method, vin, sensor_id=None, force_update=False):
     global token_expires_at
     if datetime.now() >= token_expires_at:
         refresh_auth()
 
     if url == RECHARGE_STATE_URL:
         # Minimize API calls for recharge state
-        response = pull_recharge_api(url, method, vin)
+        response = pull_recharge_api(url, method, vin, force_update)
     elif url == WINDOWS_STATE_URL:
         # Minimize API calls for window state
-        response = pull_window_api(url, method, vin)
+        response = pull_window_api(url, method, vin, force_update)
+    elif url == LOCK_STATE_URL:
+        # Minimize API calls for door state
+        response = pull_door_api(url, method, vin, force_update)
     elif method == "GET":
         print("Starting " + method + " call against " + url)
         response = session.get(url.format(vin), timeout=15)
@@ -178,9 +183,30 @@ def api_call(url, method, vin, sensor_id=None):
     return parse_api_data(data, sensor_id)
 
 
-def pull_window_api(url, method, vin):
+def pull_door_api(url, method, vin, force_update=False):
+    global door_cached_api_response, door_api_last_update
+    if not vin in door_cached_api_response or force_update:
+        # No API Data for vin cached, get fresh data from API
+        print("Starting " + method + " call against " + url)
+        response = session.get(url.format(vin), timeout=15)
+        door_cached_api_response[vin] = response
+        door_api_last_update[vin] = datetime.now()
+    else:
+        if (datetime.now() - door_api_last_update[vin]).total_seconds() >= settings["updateInterval"]:
+            # Old Data in Cache, updating
+            print("Starting " + method + " call against " + url)
+            response = session.get(url.format(vin), timeout=15)
+            door_cached_api_response[vin] = response
+            door_api_last_update[vin] = datetime.now()
+        else:
+            # Data is up do date, returning cached data
+            response = door_cached_api_response[vin]
+    return response
+
+
+def pull_window_api(url, method, vin, force_update=False):
     global window_cached_api_response, window_api_last_update
-    if not vin in window_cached_api_response:
+    if not vin in window_cached_api_response or force_update:
         # No API Data for vin cached, get fresh data from API
         print("Starting " + method + " call against " + url)
         response = session.get(url.format(vin), timeout=15)
@@ -199,9 +225,9 @@ def pull_window_api(url, method, vin):
     return response
 
 
-def pull_recharge_api(url, method, vin):
+def pull_recharge_api(url, method, vin, force_update=False):
     global recharge_cached_api_response, recharge_api_last_update
-    if not vin in recharge_cached_api_response:
+    if not vin in recharge_cached_api_response or force_update:
         # No API Data for vin cached, get fresh data from API
         print("Starting " + method + " call against " + url)
         response = session.get(url.format(vin), timeout=15)
@@ -268,5 +294,13 @@ def parse_api_data(data, sensor_id=None):
         return data["data"]["rearLeftWindowOpen"]["value"]
     elif sensor_id == "window_rear_right":
         return data["data"]["rearRightWindowOpen"]["value"]
+    elif sensor_id == "door_front_left":
+        return data["data"]["frontLeftDoorOpen"]["value"]
+    elif sensor_id == "door_front_right":
+        return data["data"]["frontRightDoorOpen"]["value"]
+    elif sensor_id == "door_rear_left":
+        return data["data"]["rearLeftDoorOpen"]["value"]
+    elif sensor_id == "door_rear_right":
+        return data["data"]["rearRightDoorOpen"]["value"]
     else:
         return ""
