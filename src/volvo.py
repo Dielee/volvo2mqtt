@@ -180,7 +180,12 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
         else:
             print("API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
         return ""
-    return parse_api_data(data, sensor_id)
+    state = parse_api_data(data, sensor_id)
+    if not state:
+        return ""
+    else:
+        return state
+
 
 
 def pull_door_api(url, method, vin, force_update=False):
@@ -248,18 +253,12 @@ def pull_recharge_api(url, method, vin, force_update=False):
 
 def parse_api_data(data, sensor_id=None):
     if sensor_id == "battery_charge_level":
-        if "batteryChargeLevel" in data["data"]:
-            return data["data"]["batteryChargeLevel"]["value"]
-        else:
-            return ""
+        return data["data"].get("batteryChargeLevel").get("value")
     elif sensor_id == "electric_range":
-        if "electricRange" in data["data"]:
-            return data["data"]["electricRange"]["value"]
-        else:
-            return ""
+        return data["data"].get("electricRange").get("value")
     elif sensor_id == "charging_system_status":
         if "chargingSystemStatus" in data["data"]:
-            return charging_system_states[data["data"]["chargingSystemStatus"]["value"]]
+            return charging_system_states[data["data"].get("chargingSystemStatus").get("value")]
         else:
             return ""
     elif sensor_id == "estimated_charging_time":
@@ -273,9 +272,9 @@ def parse_api_data(data, sensor_id=None):
             return ""
     elif sensor_id == "estimated_charging_finish_time":
         if "chargingSystemStatus" in data["data"]:
-            charging_system_state = charging_system_states[data["data"]["chargingSystemStatus"]["value"]]
+            charging_system_state = charging_system_states[data["data"].get("chargingSystemStatus").get("value")]
             if charging_system_state == "Charging":
-                charging_time = int(data["data"]["estimatedChargingTime"]["value"])
+                charging_time = int(data["data"].get("estimatedChargingTime").get("value"))
                 charging_finished = datetime.now() + timedelta(minutes=charging_time)
                 return format_datetime(charging_finished, format="medium", locale=settings["babelLocale"])
             else:
@@ -283,38 +282,35 @@ def parse_api_data(data, sensor_id=None):
         else:
             return None
     elif sensor_id == "lock_status":
-        return data["data"]["carLocked"]["value"]
+        return data["data"].get("carLocked").get("value")
     elif sensor_id == "odometer":
-        return data["data"]["odometer"]["value"]
+        return data["data"].get("odometer").get("value")
     elif sensor_id == "window_front_left":
-        return data["data"]["frontLeftWindowOpen"]["value"]
+        return data["data"].get("frontLeftWindowOpen").get("value")
     elif sensor_id == "window_front_right":
-        return data["data"]["frontRightWindowOpen"]["value"]
+        return data["data"].get("frontRightWindowOpen").get("value")
     elif sensor_id == "window_rear_left":
-        return data["data"]["rearLeftWindowOpen"]["value"]
+        return data["data"].get("rearLeftWindowOpen").get("value")
     elif sensor_id == "window_rear_right":
-        return data["data"]["rearRightWindowOpen"]["value"]
+        return data["data"].get("rearRightWindowOpen").get("value")
     elif sensor_id == "door_front_left":
-        return data["data"]["frontLeftDoorOpen"]["value"]
+        return data["data"].get("frontLeftDoorOpen").get("value")
     elif sensor_id == "door_front_right":
-        return data["data"]["frontRightDoorOpen"]["value"]
+        return data["data"].get("frontRightDoorOpen").get("value")
     elif sensor_id == "door_rear_left":
-        return data["data"]["rearLeftDoorOpen"]["value"]
+        return data["data"].get("rearLeftDoorOpen").get("value")
     elif sensor_id == "door_rear_right":
-        return data["data"]["rearRightDoorOpen"]["value"]
+        return data["data"].get("rearRightDoorOpen").get("value")
     elif sensor_id == "tailgate":
-        return data["data"]["tailGateOpen"]["value"]
+        return data["data"].get("tailGateOpen").get("value")
     elif sensor_id == "engine_hood":
-        return data["data"]["hoodOpen"]["value"]
+        return data["data"].get("hoodOpen").get("value")
     elif sensor_id == "tank_lid":
-        if "tankLidOpen" in data["data"]:
-            return data["data"]["tankLidOpen"]["value"]
-        else:
-            return ""
+        return data["data"].get("tankLidOpen").get("value")
     elif sensor_id == "location":
         coordinates = {}
         if "geometry" in data["data"]:
-            raw_data = data["data"]["geometry"]["coordinates"]
+            raw_data = data["data"].get("geometry").get("coordinates")
             coordinates = {"longitude": raw_data[0], "latitude": raw_data[1], "gps_accuracy": 1}
         return coordinates
     else:
