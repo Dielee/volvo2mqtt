@@ -285,7 +285,10 @@ def parse_api_data(data, sensor_id=None):
     elif sensor_id == "lock_status":
         return data["data"]["carLocked"]["value"]
     elif sensor_id == "odometer":
-        return data["data"]["odometer"]["value"]
+        if "odometer" in data["data"]:
+            return data["data"]["odometer"]["value"]
+        else:
+            return None
     elif sensor_id == "window_front_left":
         return data["data"]["frontLeftWindowOpen"]["value"]
     elif sensor_id == "window_front_right":
