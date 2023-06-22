@@ -32,7 +32,10 @@ supported_sensors = [
                         {"name": "Door Front Left", "id": "door_front_left", "icon": "car-door-lock", "url": LOCK_STATE_URL},
                         {"name": "Door Front Right", "id": "door_front_right", "icon": "car-door-lock", "url": LOCK_STATE_URL},
                         {"name": "Door Rear Left", "id": "door_rear_left", "icon": "car-door-lock", "url": LOCK_STATE_URL},
-                        {"name": "Door Rear Right", "id": "door_rear_right", "icon": "car-door-lock", "url": LOCK_STATE_URL}
+                        {"name": "Door Rear Right", "id": "door_rear_right", "icon": "car-door-lock", "url": LOCK_STATE_URL},
+                        {"name": "Tailgate", "id": "tailgate", "icon": "car-door-lock", "url": LOCK_STATE_URL},
+                        {"name": "Engine Hood", "id": "engine_hood", "icon": "car-door-lock", "url": LOCK_STATE_URL},
+                        {"name": "Tank Lid", "id": "tank_lid", "icon": "car-door-lock", "url": LOCK_STATE_URL}
 ]
 
 supported_switches = [

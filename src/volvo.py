@@ -302,5 +302,14 @@ def parse_api_data(data, sensor_id=None):
         return data["data"]["rearLeftDoorOpen"]["value"]
     elif sensor_id == "door_rear_right":
         return data["data"]["rearRightDoorOpen"]["value"]
+    elif sensor_id == "tailgate":
+        return data["data"]["tailGateOpen"]["value"]
+    elif sensor_id == "engine_hood":
+        return data["data"]["hoodOpen"]["value"]
+    elif sensor_id == "tank_lid":
+        if "tankLidOpen" in data["data"]:
+            return data["data"]["tankLidOpen"]["value"]
+        else:
+            return ""
     else:
         return ""
