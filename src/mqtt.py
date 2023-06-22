@@ -6,7 +6,7 @@ from threading import Thread, Timer
 from datetime import datetime
 from babel.dates import format_datetime
 from config import settings
-from const import VEHICLE_DETAILS_URL, CLIMATE_START_URL, CLIMATE_STOP_URL, CAR_LOCK_URL, \
+from const import CLIMATE_START_URL, CLIMATE_STOP_URL, CAR_LOCK_URL, \
             CAR_UNLOCK_URL, supported_sensors, supported_buttons, supported_switches, supported_locks
 
 
@@ -14,7 +14,7 @@ mqtt_client: mqtt.Client
 subscribed_topics = []
 assumed_climate_state = {}
 last_data_update = None
-climate_timer_thread: Thread
+climate_timer: Timer
 
 
 def connect():
@@ -46,24 +46,22 @@ def on_message(client, userdata, msg):
         vin = msg.topic.split('/')[2].split('_')[0]
         payload = msg.payload.decode("UTF-8")
         if "climate_status" in msg.topic:
-            global assumed_climate_state
+            global assumed_climate_state, climate_timer
             if payload == "ON":
                 api_thread = Thread(target=volvo.api_call, args=(CLIMATE_START_URL, "POST", vin))
                 api_thread.start()
                 assumed_climate_state[vin] = "ON"
                 # Starting timer to disable climate after 30 mins
-                global climate_timer_thread
-                climate_timer_thread = Timer(30 * 60, volvo.disable_climate, (vin, ))
-                climate_timer_thread.start()
+                climate_timer = Timer(1 * 60, volvo.disable_climate, (vin, ))
+                climate_timer.start()
                 update_car_data()
             elif payload == "OFF":
                 api_thread = Thread(target=volvo.api_call, args=(CLIMATE_STOP_URL, "POST", vin))
                 api_thread.start()
                 assumed_climate_state[vin] = "OFF"
                 # Stop timer if active
-                global climate_timer_thread
-                if climate_timer_thread.is_alive():
-                    climate_timer_thread.cancel()
+                if climate_timer.is_alive():
+                    climate_timer.cancel()
                 update_car_data()
         elif "lock_status" in msg.topic:
             if payload == "LOCK":
@@ -121,7 +119,7 @@ def update_car_data():
 
 def create_ha_devices():
     for vin in volvo.vins:
-        car_details = volvo.api_call(VEHICLE_DETAILS_URL, "GET", vin)
+        device = volvo.get_vehicle_details(vin)
 
         for button in supported_buttons:
             command_topic = f"homeassistant/button/{vin}_{button['id']}/command"
@@ -132,12 +130,7 @@ def create_ha_devices():
                         "icon": f"mdi:{button['icon']}",
                         "state_topic": f"homeassistant/button/{vin}_{button['id']}/state",
                         "command_topic": command_topic,
-                        "device": {
-                            "identifiers": [f"volvoAAOS2mqtt_{vin}"],
-                            "manufacturer": "Volvo",
-                            "model": car_details['descriptions']['model'],
-                            "name": f"{car_details['descriptions']['model']} ({car_details['modelYear']}) - {vin}",
-                        },
+                        "device": device,
                         "unique_id": f"volvoAAOS2mqtt_{vin}_{button['id']}",
                     }
             mqtt_client.publish(
@@ -157,12 +150,7 @@ def create_ha_devices():
                         "state_topic": f"homeassistant/lock/{vin}_{lock['id']}/state",
                         "command_topic": command_topic,
                         "optimistic": False,
-                        "device": {
-                            "identifiers": [f"volvoAAOS2mqtt_{vin}"],
-                            "manufacturer": "Volvo",
-                            "model": car_details['descriptions']['model'],
-                            "name": f"{car_details['descriptions']['model']} ({car_details['modelYear']}) - {vin}",
-                        },
+                        "device": device,
                         "unique_id": f"volvoAAOS2mqtt_{vin}_{lock['id']}",
                     }
             mqtt_client.publish(
@@ -182,12 +170,7 @@ def create_ha_devices():
                         "state_topic": f"homeassistant/switch/{vin}_{switch['id']}/state",
                         "command_topic": command_topic,
                         "optimistic": False,
-                        "device": {
-                            "identifiers": [f"volvoAAOS2mqtt_{vin}"],
-                            "manufacturer": "Volvo",
-                            "model": car_details['descriptions']['model'],
-                            "name": f"{car_details['descriptions']['model']} ({car_details['modelYear']}) - {vin}",
-                        },
+                        "device": device,
                         "unique_id": f"volvoAAOS2mqtt_{vin}_{switch['id']}",
                     }
             mqtt_client.publish(
@@ -204,12 +187,7 @@ def create_ha_devices():
                         "schema": "state",
                         "icon": f"mdi:{sensor['icon']}",
                         "state_topic": f"homeassistant/sensor/{vin}_{sensor['id']}/state",
-                        "device": {
-                            "identifiers": [f"volvoAAOS2mqtt_{vin}"],
-                            "manufacturer": "Volvo",
-                            "model": car_details['descriptions']['model'],
-                            "name": f"{car_details['descriptions']['model']} ({car_details['modelYear']}) - {vin}",
-                        },
+                        "device": device,
                         "unique_id": f"volvoAAOS2mqtt_{vin}_{sensor['id']}",
                     }
             if "unit" in sensor:

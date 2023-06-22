@@ -99,6 +99,34 @@ def get_vehicles():
         print("Vin: " + str(vins) + " found!")
 
 
+def get_vehicle_details(vin):
+    response = session.get(VEHICLE_DETAILS_URL.format(vin), timeout=15)
+    if response.status_code == 200:
+        data = response.json()["data"]
+        if "debug" in settings:
+            if settings["debug"]:
+                print(response.text)
+        device = {
+                            "identifiers": [f"volvoAAOS2mqtt_{vin}"],
+                            "manufacturer": "Volvo",
+                            "model": data['descriptions']['model'],
+                            "name": f"{data['descriptions']['model']} ({data['modelYear']}) - {vin}",
+                 }
+    elif response.status_code == 500 and not settings.volvoData["vin"]:
+        # Workaround for some cars that are not returning vehicle details
+        device = {
+                            "identifiers": [f"volvoAAOS2mqtt_{vin}"],
+                            "manufacturer": "Volvo",
+                            "model": vin,
+                            "name": f"Volvo - {vin}",
+                 }
+    else:
+        raise Exception("Getting vehicle details failed. Status Code: " + str(response.status_code) +
+                        ". Error: " + response.text)
+
+    return device
+
+
 def initialize_climate(vins):
     for vin in vins:
         mqtt.assumed_climate_state[vin] = "OFF"
@@ -157,13 +185,11 @@ def api_call(url, method, vin, sensor_id=None):
         else:
             print("API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
         return ""
-    return parse_api_data(url, data, sensor_id)
+    return parse_api_data(data, sensor_id)
 
 
-def parse_api_data(url, data, sensor_id=None):
-    if url == VEHICLE_DETAILS_URL:
-        return data["data"]
-    elif sensor_id == "battery_charge_level":
+def parse_api_data(data, sensor_id=None):
+    if sensor_id == "battery_charge_level":
         if "batteryChargeLevel" in data["data"]:
             return data["data"]["batteryChargeLevel"]["value"]
         else:
