@@ -2,7 +2,7 @@ import time
 import paho.mqtt.client as mqtt
 import json
 import volvo
-import threading
+from threading import Thread, Timer
 from datetime import datetime
 from babel.dates import format_datetime
 from config import settings
@@ -14,6 +14,7 @@ mqtt_client: mqtt.Client
 subscribed_topics = []
 assumed_climate_state = {}
 last_data_update = None
+climate_timer_thread: Thread
 
 
 def connect():
@@ -47,16 +48,22 @@ def on_message(client, userdata, msg):
         if "climate_status" in msg.topic:
             global assumed_climate_state
             if payload == "ON":
-                api_thread = threading.Thread(target=volvo.api_call, args=(CLIMATE_START_URL, "POST", vin))
+                api_thread = Thread(target=volvo.api_call, args=(CLIMATE_START_URL, "POST", vin))
                 api_thread.start()
                 assumed_climate_state[vin] = "ON"
                 # Starting timer to disable climate after 30 mins
-                threading.Timer(30 * 60, volvo.disable_climate, (vin, )).start()
+                global climate_timer_thread
+                climate_timer_thread = Timer(30 * 60, volvo.disable_climate, (vin, ))
+                climate_timer_thread.start()
                 update_car_data()
             elif payload == "OFF":
-                api_thread = threading.Thread(target=volvo.api_call, args=(CLIMATE_STOP_URL, "POST", vin))
+                api_thread = Thread(target=volvo.api_call, args=(CLIMATE_STOP_URL, "POST", vin))
                 api_thread.start()
                 assumed_climate_state[vin] = "OFF"
+                # Stop timer if active
+                global climate_timer_thread
+                if climate_timer_thread.is_alive():
+                    climate_timer_thread.cancel()
                 update_car_data()
         elif "lock_status" in msg.topic:
             if payload == "LOCK":
