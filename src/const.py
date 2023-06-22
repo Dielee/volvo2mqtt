@@ -12,6 +12,7 @@ CAR_LOCK_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0
 CAR_LOCK_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/commands/lock"
 CAR_UNLOCK_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/commands/unlock"
 RECHARGE_STATE_URL = "https://api.volvocars.com/energy/v1/vehicles/{0}/recharge-status"
+ODOMETER_STATE_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles/{0}/odometer"
 
 charging_system_states = {"CHARGING_SYSTEM_CHARGING": "Charging", "CHARGING_SYSTEM_IDLE": "Idle",
                           "CHARGING_SYSTEM_FAULT": "Fault", "CHARGING_SYSTEM_UNSPECIFIED": "Unspecified"}
@@ -22,6 +23,7 @@ supported_sensors = [
                         {"name": "Estimated Charging Time", "id": "estimated_charging_time", "unit": "minutes", "icon": "timer-sync-outline", "url": RECHARGE_STATE_URL},
                         {"name": "Charging System Status", "id": "charging_system_status", "icon": "ev-plug-ccs2", "url": RECHARGE_STATE_URL},
                         {"name": "Estimated Charging Finish Time", "id": "estimated_charging_finish_time", "icon": "timer-sync-outline", "url": RECHARGE_STATE_URL},
+                        {"name": "Odometer", "id": "odometer", "unit": "km" if settings["babelLocale"] != "en_US" else "mi", "icon": "counter", "url": ODOMETER_STATE_URL},
                         {"name": "Last Data Update", "id": "last_data_update", "icon": "timer", "url": ""}
 ]
 

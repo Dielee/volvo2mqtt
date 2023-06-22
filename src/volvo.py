@@ -226,5 +226,7 @@ def parse_api_data(data, sensor_id=None):
             return None
     elif sensor_id == "lock_status":
         return data["data"]["carLocked"]["value"]
+    elif sensor_id == "odometer":
+        return data["data"]["odometer"]["value"]
     else:
         return ""
