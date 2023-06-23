@@ -16,6 +16,7 @@ ODOMETER_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0
 LOCATION_STATE_URL = "https://api.volvocars.com/location/v1/vehicles/{0}/location"
 TYRE_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/tyres"
 ENGINE_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/engine-status"
+BATTERY_CHARGE_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/battery-charge-level"
 
 charging_system_states = {"CHARGING_SYSTEM_CHARGING": "Charging", "CHARGING_SYSTEM_IDLE": "Idle",
                           "CHARGING_SYSTEM_FAULT": "Fault", "CHARGING_SYSTEM_UNSPECIFIED": "Unspecified"}

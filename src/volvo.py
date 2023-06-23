@@ -6,7 +6,7 @@ from babel.dates import format_datetime
 from util import keys_exists
 from const import charging_system_states, charging_connection_states, CLIMATE_START_URL, \
     OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, \
-    WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, supported_entities
+    WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, supported_entities, BATTERY_CHARGE_STATE_URL
 
 
 session = requests.Session()
@@ -201,8 +201,11 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
     else:
         if url == CLIMATE_START_URL and response.status_code == 503:
             print("Car in use, cannot start pre climatization")
-            mqtt.assumed_climate_state = "OFF"
+            mqtt.assumed_climate_state[vin] = "OFF"
             mqtt.update_car_data()
+        if sensor_id == "battery_charge_level" and url == RECHARGE_STATE_URL and response.status_code == 404:
+            # Try to get battery charge level from another endpoint than energy api
+            api_call(BATTERY_CHARGE_STATE_URL, method, vin, sensor_id)
         else:
             print("API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
         return ""
