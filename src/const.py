@@ -26,6 +26,7 @@ charging_connection_states = {"CONNECTION_STATUS_DISCONNECTED": "Disconnected", 
 
 supported_entities = [
                         {"name": "Battery Charge Level", "domain": "sensor", "id": "battery_charge_level", "unit": "%", "icon": "car-battery", "url": RECHARGE_STATE_URL},
+                        {"name": "Battery Charge Level", "domain": "sensor", "id": "battery_charge_level", "unit": "%", "icon": "car-battery", "url": BATTERY_CHARGE_STATE_URL},
                         {"name": "Electric Range", "domain": "sensor", "id": "electric_range", "unit": "km" if settings["babelLocale"] != "en_US" else "mi", "icon": "map-marker-distance", "url": RECHARGE_STATE_URL},
                         {"name": "Estimated Charging Time", "domain": "sensor", "id": "estimated_charging_time", "unit": "minutes", "icon": "timer-sync-outline", "url": RECHARGE_STATE_URL},
                         {"name": "Charging System Status", "domain": "sensor", "id": "charging_system_status", "icon": "ev-station", "url": RECHARGE_STATE_URL},

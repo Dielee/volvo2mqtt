@@ -8,12 +8,11 @@ from const import charging_system_states, charging_connection_states, CLIMATE_ST
     OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, \
     WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, supported_entities, BATTERY_CHARGE_STATE_URL
 
-
 session = requests.Session()
 session.headers = {
-                "vcc-api-key": settings["volvoData"]["vccapikey"],
-                "content-type": "application/json",
-                "accept": "*/*"
+    "vcc-api-key": settings["volvoData"]["vccapikey"],
+    "content-type": "application/json",
+    "accept": "*/*"
 }
 
 token_expires_at: datetime
@@ -32,16 +31,16 @@ supported_endpoints = {}
 
 def authorize():
     headers = {
-                "authorization": "Basic aDRZZjBiOlU4WWtTYlZsNnh3c2c1WVFxWmZyZ1ZtSWFEcGhPc3kxUENhVXNpY1F0bzNUUjVrd2FKc2U0QVpkZ2ZJZmNMeXc=",
-                "content-type": "application/x-www-form-urlencoded",
-                "accept": "application/json"
+        "authorization": "Basic aDRZZjBiOlU4WWtTYlZsNnh3c2c1WVFxWmZyZ1ZtSWFEcGhPc3kxUENhVXNpY1F0bzNUUjVrd2FKc2U0QVpkZ2ZJZmNMeXc=",
+        "content-type": "application/x-www-form-urlencoded",
+        "accept": "application/json"
     }
 
     body = {
-            "username": settings.volvoData["username"],
-            "password": settings.volvoData["password"],
-            "grant_type": "password",
-            "scope": "openid email profile care_by_volvo:financial_information:invoice:read care_by_volvo:financial_information:payment_method care_by_volvo:subscription:read customer:attributes customer:attributes:write order:attributes vehicle:attributes tsp_customer_api:all conve:brake_status conve:climatization_start_stop conve:command_accessibility conve:commands conve:diagnostics_engine_status conve:diagnostics_workshop conve:doors_status conve:engine_status conve:environment conve:fuel_status conve:honk_flash conve:lock conve:lock_status conve:navigation conve:odometer_status conve:trip_statistics conve:tyre_status conve:unlock conve:vehicle_relation conve:warnings conve:windows_status energy:battery_charge_level energy:charging_connection_status energy:charging_system_status energy:electric_range energy:estimated_charging_time energy:recharge_status vehicle:attributes"
+        "username": settings.volvoData["username"],
+        "password": settings.volvoData["password"],
+        "grant_type": "password",
+        "scope": "openid email profile care_by_volvo:financial_information:invoice:read care_by_volvo:financial_information:payment_method care_by_volvo:subscription:read customer:attributes customer:attributes:write order:attributes vehicle:attributes tsp_customer_api:all conve:brake_status conve:climatization_start_stop conve:command_accessibility conve:commands conve:diagnostics_engine_status conve:diagnostics_workshop conve:doors_status conve:engine_status conve:environment conve:fuel_status conve:honk_flash conve:lock conve:lock_status conve:navigation conve:odometer_status conve:trip_statistics conve:tyre_status conve:unlock conve:vehicle_relation conve:warnings conve:windows_status energy:battery_charge_level energy:charging_connection_status energy:charging_system_status energy:electric_range energy:estimated_charging_time energy:recharge_status vehicle:attributes"
     }
     auth = requests.post(OAUTH_URL, data=body, headers=headers)
     if auth.status_code == 200:
@@ -63,14 +62,14 @@ def refresh_auth():
     print("Refreshing credentials")
     global refresh_token
     headers = {
-                "authorization": "Basic aDRZZjBiOlU4WWtTYlZsNnh3c2c1WVFxWmZyZ1ZtSWFEcGhPc3kxUENhVXNpY1F0bzNUUjVrd2FKc2U0QVpkZ2ZJZmNMeXc=",
-                "content-type": "application/x-www-form-urlencoded",
-                "accept": "application/json"
+        "authorization": "Basic aDRZZjBiOlU4WWtTYlZsNnh3c2c1WVFxWmZyZ1ZtSWFEcGhPc3kxUENhVXNpY1F0bzNUUjVrd2FKc2U0QVpkZ2ZJZmNMeXc=",
+        "content-type": "application/x-www-form-urlencoded",
+        "accept": "application/json"
     }
 
     body = {
-            "grant_type": "refresh_token",
-            "refresh_token": refresh_token
+        "grant_type": "refresh_token",
+        "refresh_token": refresh_token
     }
     auth = requests.post(OAUTH_URL, data=body, headers=headers)
     if auth.status_code == 200:
@@ -118,19 +117,19 @@ def get_vehicle_details(vin):
             if settings["debug"]:
                 print(response.text)
         device = {
-                            "identifiers": [f"volvoAAOS2mqtt_{vin}"],
-                            "manufacturer": "Volvo",
-                            "model": data['descriptions']['model'],
-                            "name": f"{data['descriptions']['model']} ({data['modelYear']}) - {vin}",
-                 }
+            "identifiers": [f"volvoAAOS2mqtt_{vin}"],
+            "manufacturer": "Volvo",
+            "model": data['descriptions']['model'],
+            "name": f"{data['descriptions']['model']} ({data['modelYear']}) - {vin}",
+        }
     elif response.status_code == 500 and not settings.volvoData["vin"]:
         # Workaround for some cars that are not returning vehicle details
         device = {
-                            "identifiers": [f"volvoAAOS2mqtt_{vin}"],
-                            "manufacturer": "Volvo",
-                            "model": vin,
-                            "name": f"Volvo - {vin}",
-                 }
+            "identifiers": [f"volvoAAOS2mqtt_{vin}"],
+            "manufacturer": "Volvo",
+            "model": vin,
+            "name": f"Volvo - {vin}",
+        }
     else:
         raise Exception("Getting vehicle details failed. Status Code: " + str(response.status_code) +
                         ". Error: " + response.text)
@@ -143,6 +142,11 @@ def check_supported_endpoints():
     for vin in vins:
         supported_endpoints[vin] = []
         for entity in supported_entities:
+            if entity["id"] == "battery_charge_level" and entity["url"] == BATTERY_CHARGE_STATE_URL \
+                    and any("battery_charge_level" in d["id"] for d in supported_endpoints[vin]):
+                # If battery charge level could be found in recharge-api, skip the second battery charge sensor
+                continue
+
             if entity.get('url'):
                 state = api_call(entity["url"], "GET", vin, entity["id"])
             else:
@@ -203,9 +207,6 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
             print("Car in use, cannot start pre climatization")
             mqtt.assumed_climate_state[vin] = "OFF"
             mqtt.update_car_data()
-        if sensor_id == "battery_charge_level" and url == RECHARGE_STATE_URL and response.status_code == 404:
-            # Try to get battery charge level from another endpoint than energy api
-            api_call(BATTERY_CHARGE_STATE_URL, method, vin, sensor_id)
         else:
             print("API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
         return ""
