@@ -279,7 +279,7 @@ def parse_api_data(data, sensor_id=None):
     elif sensor_id == "lock_status":
         return data["carLocked"]["value"] if keys_exists(data, "carLocked") else ""
     elif sensor_id == "odometer":
-        return data["odometer"]["value"] if keys_exists(data, "odometer") else 0
+        return int(data["odometer"]["value"]) * 10 if keys_exists(data, "odometer") else 0
     elif sensor_id == "window_front_left":
         return data["frontLeftWindowOpen"]["value"] if keys_exists(data, "frontLeftWindowOpen") else ""
     elif sensor_id == "window_front_right":
