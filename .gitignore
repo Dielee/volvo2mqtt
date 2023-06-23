@@ -1,3 +1,4 @@
 .idea
 venv
 src/settings.dev.json
+.env

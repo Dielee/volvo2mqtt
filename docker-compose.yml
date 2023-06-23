@@ -1,0 +1,24 @@
+version: '3'
+services:
+  app:
+    build: .
+    env_file:
+      - .env
+    #    environment:
+    #      CONF_updateInterval: 300
+    #      CONF_babelLocale: 'de'
+    #      CONF_mqtt: '@json {"broker": "mqtt", "username": "", "password": ""}'
+    #      CONF_volvoData: '@json {"username": "", "password": "", "vin": "",   "vccapikey": ""}'
+    #      TZ: 'Europe/Berlin'
+    links:
+      - mqtt
+    depends_on:
+      - mqtt
+
+  mqtt:
+    container_name: mqtt
+    image: eclipse-mosquitto
+    expose:
+      - 1883
+    command: [ "/usr/sbin/mosquitto", "-c", "/mosquitto-no-auth.conf" ]
+
