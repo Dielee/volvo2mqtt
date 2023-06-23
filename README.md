@@ -22,6 +22,12 @@ Please let me know if your car works with this addon so I can expand the list!
 - Sensor "Electric Range"
 - Sensor "Charging System Status"
 - Sensor "Estimated Charging Finish Time"
+- Sensor "Door Lock Status"
+- Sensor "Window Lock Status"
+- Sensor "Odometer"
+- Sensor "Tire Status"
+- Sensor "Fuel Status"
+- Car Device Tracker
 - Multiple cars
 
 NOTE: Energy status currently available only for cars in the Europe / Middle East / Africa regions. [source](https://developer.volvocars.com/apis/energy/v1/overview/#availability)
