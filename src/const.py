@@ -50,10 +50,10 @@ supported_entities = [
                         {"name": "Lock state", "domain": "lock", "id": "lock_status", "icon": "lock", "url": LOCK_STATE_URL},
                         {"name": "Force Update Data", "domain": "button", "id": "update_data", "icon": "update", "url": ""},
                         {"name": "Location", "domain": "device_tracker", "id": "location", "icon": "map-marker-radius", "url": LOCATION_STATE_URL},
-                        {"name": "Tyre Front Left", "domain": "sensor", "id": "tyre_front_left", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
-                        {"name": "Tyre Front Right", "domain": "sensor", "id": "tyre_front_right", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
-                        {"name": "Tyre Rear Left", "domain": "sensor", "id": "tyre_rear_left", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
-                        {"name": "Tyre Rear Right", "domain": "sensor", "id": "tyre_rear_right", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
+                        {"name": "Tire Front Left", "domain": "sensor", "id": "tyre_front_left", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
+                        {"name": "Tire Front Right", "domain": "sensor", "id": "tyre_front_right", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
+                        {"name": "Tire Rear Left", "domain": "sensor", "id": "tyre_rear_left", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
+                        {"name": "Tire Rear Right", "domain": "sensor", "id": "tyre_rear_right", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
                         {"name": "Engine State", "domain": "sensor", "id": "engine_state", "icon": "engine", "url": ENGINE_STATE_URL},
                         {"name": "Fuel Level", "domain": "sensor", "id": "fuel_level", "unit": "liters", "icon": "fuel", "url": FUEL_STATE_URL}
 ]
