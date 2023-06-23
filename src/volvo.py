@@ -331,7 +331,12 @@ def parse_api_data(data, sensor_id=None):
     elif sensor_id == "lock_status":
         return data["carLocked"]["value"] if keys_exists(data, "carLocked") else None
     elif sensor_id == "odometer":
-        return int(data["odometer"]["value"]) * 10 if keys_exists(data, "odometer") else None
+        multiplier = 1
+        if keys_exists(settings["volvoData"], "odometerMultiplier"):
+            multiplier = settings["volvoData"]["odometerMultiplier"]
+            if multiplier < 1:
+                multiplier = 1
+        return int(data["odometer"]["value"]) * multiplier if keys_exists(data, "odometer") else None
     elif sensor_id == "window_front_left":
         return data["frontLeftWindowOpen"]["value"] if keys_exists(data, "frontLeftWindowOpen") else None
     elif sensor_id == "window_front_right":

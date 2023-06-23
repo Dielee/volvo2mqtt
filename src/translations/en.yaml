@@ -13,4 +13,4 @@ configuration:
     description: Broker is your mqtt broker IP eg "192.168.0.1". Mqtt username and password are optional.
   volvoData:
     name: Volvo APP credentials
-    description: You have to enter your Volvo app credentials. The username is normally your email, and the password is the password you use for your Volvo app. The vin can stay empty. The Add-On will use any vin inside your Volvo account. VCCAPI key is required and comes from your Volvo developer account. Take a look at the GitHub repo for more information!
+    description: You have to enter your Volvo app credentials. The username is normally your email, and the password is the password you use for your Volvo app. The vin can stay empty. The Add-On will use any vin inside your Volvo account. VCCAPI key is required and comes from your Volvo developer account. Odometer multiplier is sometimes 10, sometimes 1. Leave it empty if you don't know what's right. Take a look at the GitHub repo for more information!

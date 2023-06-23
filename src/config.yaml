@@ -1,6 +1,6 @@
 name: "Volvo2Mqtt"
 description: "Volvo AAOS MQTT bridge"
-version: "1.3.1"
+version: "1.3.2"
 slug: "volvo2mqtt"
 init: false
 url: "https://github.com/Dielee/volvo2mqtt"
@@ -18,6 +18,7 @@ options:
     password: null
     vin: ""
     vccapikey: null
+    odometerMultiplier: 1
 schema:
   updateInterval: int(10,)
   babelLocale: str
@@ -31,6 +32,7 @@ schema:
     password: str
     vin: str?
     vccapikey: str
+    odometerMultiplier: int(1,)
 arch:
   - aarch64
   - amd64
