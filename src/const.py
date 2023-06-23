@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.3.0"
+VERSION = "v1.3.1"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles"
@@ -17,6 +17,7 @@ LOCATION_STATE_URL = "https://api.volvocars.com/location/v1/vehicles/{0}/locatio
 TYRE_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/tyres"
 ENGINE_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/engine-status"
 BATTERY_CHARGE_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/battery-charge-level"
+FUEL_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/fuel"
 
 charging_system_states = {"CHARGING_SYSTEM_CHARGING": "Charging", "CHARGING_SYSTEM_IDLE": "Idle",
                           "CHARGING_SYSTEM_FAULT": "Fault", "CHARGING_SYSTEM_UNSPECIFIED": "Unspecified"}
@@ -53,5 +54,6 @@ supported_entities = [
                         {"name": "Tyre Front Right", "domain": "sensor", "id": "tyre_front_right", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
                         {"name": "Tyre Rear Left", "domain": "sensor", "id": "tyre_rear_left", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
                         {"name": "Tyre Rear Right", "domain": "sensor", "id": "tyre_rear_right", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
-                        {"name": "Engine State", "domain": "sensor", "id": "engine_state", "icon": "engine", "url": ENGINE_STATE_URL}
+                        {"name": "Engine State", "domain": "sensor", "id": "engine_state", "icon": "engine", "url": ENGINE_STATE_URL},
+                        {"name": "Fuel Level", "domain": "sensor", "id": "fuel_level", "unit": "liters", "icon": "fuel", "url": FUEL_STATE_URL}
 ]

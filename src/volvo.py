@@ -364,6 +364,8 @@ def parse_api_data(data, sensor_id=None):
         return data["rearRightTyrePressure"]["value"] if keys_exists(data, "rearRightTyrePressure") else None
     elif sensor_id == "engine_state":
         return data["engineRunning"]["value"] if keys_exists(data, "engineRunning") else None
+    elif sensor_id == "fuel_level":
+        return data["fuelAmount"]["value"] if keys_exists(data, "fuelAmount") else None
     elif sensor_id == "location":
         coordinates = {}
         if keys_exists(data, "geometry"):
