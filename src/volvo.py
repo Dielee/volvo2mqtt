@@ -4,9 +4,10 @@ import mqtt
 from config import settings
 from babel.dates import format_datetime
 from util import keys_exists
-from const import charging_system_states, CLIMATE_START_URL, \
+from const import charging_system_states, charging_connection_states, CLIMATE_START_URL, \
     OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, \
-    WINDOWS_STATE_URL, LOCK_STATE_URL, supported_entities
+    WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, supported_entities
+
 
 session = requests.Session()
 session.headers = {
@@ -24,6 +25,8 @@ window_cached_api_response = {}
 window_api_last_update = {}
 door_cached_api_response = {}
 door_api_last_update = {}
+tyre_cached_api_response = {}
+tyre_api_last_update = {}
 supported_endpoints = {}
 
 
@@ -146,7 +149,10 @@ def check_supported_endpoints():
                 state = ""
 
             if state is not None:
+                print("Success! " + entity["name"] + " is supported by your vehicle.")
                 supported_endpoints[vin].append(entity)
+            else:
+                print("Failed, " + entity["name"] + " is unfortunately not supported by your vehicle.")
 
 
 def initialize_climate(vins):
@@ -174,6 +180,9 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
     elif url == LOCK_STATE_URL:
         # Minimize API calls for door state
         response = pull_door_api(url, method, vin, force_update)
+    elif url == TYRE_STATE_URL:
+        # Minimize API calls for tyre state
+        response = pull_tyre_api(url, method, vin, force_update)
     elif method == "GET":
         print("Starting " + method + " call against " + url)
         response = session.get(url.format(vin), timeout=15)
@@ -198,6 +207,27 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
             print("API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
         return ""
     return parse_api_data(data, sensor_id)
+
+
+def pull_tyre_api(url, method, vin, force_update=False):
+    global tyre_cached_api_response, tyre_api_last_update
+    if not vin in tyre_cached_api_response or force_update:
+        # No API Data for vin cached, get fresh data from API
+        print("Starting " + method + " call against " + url)
+        response = session.get(url.format(vin), timeout=15)
+        tyre_cached_api_response[vin] = response
+        tyre_api_last_update[vin] = datetime.now()
+    else:
+        if (datetime.now() - tyre_api_last_update[vin]).total_seconds() >= settings["updateInterval"]:
+            # Old Data in Cache, updating
+            print("Starting " + method + " call against " + url)
+            response = session.get(url.format(vin), timeout=15)
+            tyre_cached_api_response[vin] = response
+            tyre_api_last_update[vin] = datetime.now()
+        else:
+            # Data is up do date, returning cached data
+            response = tyre_cached_api_response[vin]
+    return response
 
 
 def pull_door_api(url, method, vin, force_update=False):
@@ -271,6 +301,8 @@ def parse_api_data(data, sensor_id=None):
         return data["electricRange"]["value"] if keys_exists(data, "electricRange") else None
     elif sensor_id == "charging_system_status":
         return charging_system_states[data["chargingSystemStatus"]["value"]] if keys_exists(data, "chargingSystemStatus") else None
+    elif sensor_id == "charging_connection_status":
+        return charging_connection_states[data["chargingConnectionStatus"]["value"]] if keys_exists(data, "chargingConnectionStatus") else None
     elif sensor_id == "estimated_charging_time":
         if keys_exists(data, "chargingSystemStatus"):
             charging_system_state = charging_system_states[data["chargingSystemStatus"]["value"]]
@@ -318,6 +350,16 @@ def parse_api_data(data, sensor_id=None):
         return data["hoodOpen"]["value"] if keys_exists(data, "hoodOpen") else None
     elif sensor_id == "tank_lid":
         return data["tankLidOpen"]["value"] if keys_exists(data, "tankLidOpen") else None
+    elif sensor_id == "tyre_front_left":
+        return data["frontLeftTyrePressure"]["value"] if keys_exists(data, "frontLeftTyrePressure") else None
+    elif sensor_id == "tyre_front_right":
+        return data["frontRightTyrePressure"]["value"] if keys_exists(data, "frontRightTyrePressure") else None
+    elif sensor_id == "tyre_rear_left":
+        return data["rearLeftTyrePressure"]["value"] if keys_exists(data, "rearLeftTyrePressure") else None
+    elif sensor_id == "tyre_rear_right":
+        return data["rearRightTyrePressure"]["value"] if keys_exists(data, "rearRightTyrePressure") else None
+    elif sensor_id == "engine_state":
+        return data["engineRunning"]["value"] if keys_exists(data, "engineRunning") else None
     elif sensor_id == "location":
         coordinates = {}
         if keys_exists(data, "geometry"):
