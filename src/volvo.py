@@ -6,7 +6,7 @@ from babel.dates import format_datetime
 from util import keys_exists
 from const import charging_system_states, CLIMATE_START_URL, \
     OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, \
-    WINDOWS_STATE_URL, LOCK_STATE_URL
+    WINDOWS_STATE_URL, LOCK_STATE_URL, supported_entities
 
 session = requests.Session()
 session.headers = {
@@ -24,6 +24,7 @@ window_cached_api_response = {}
 window_api_last_update = {}
 door_cached_api_response = {}
 door_api_last_update = {}
+supported_endpoints = {}
 
 
 def authorize():
@@ -49,6 +50,7 @@ def authorize():
         refresh_token = data["refresh_token"]
 
         get_vehicles()
+        check_supported_endpoints()
     else:
         message = auth.json()
         raise Exception(message["error_description"])
@@ -131,6 +133,20 @@ def get_vehicle_details(vin):
                         ". Error: " + response.text)
 
     return device
+
+
+def check_supported_endpoints():
+    global supported_endpoints
+    for vin in vins:
+        supported_endpoints[vin] = []
+        for entity in supported_entities:
+            if entity.get('url'):
+                state = api_call(entity["url"], "GET", vin, entity["id"])
+            else:
+                state = ""
+
+            if state is not None:
+                supported_endpoints[vin].append(entity)
 
 
 def initialize_climate(vins):
@@ -250,11 +266,11 @@ def pull_recharge_api(url, method, vin, force_update=False):
 def parse_api_data(data, sensor_id=None):
     data = data["data"]
     if sensor_id == "battery_charge_level":
-        return data["batteryChargeLevel"]["value"] if keys_exists(data, "batteryChargeLevel") else 0
+        return data["batteryChargeLevel"]["value"] if keys_exists(data, "batteryChargeLevel") else None
     elif sensor_id == "electric_range":
-        return data["electricRange"]["value"] if keys_exists(data, "electricRange") else 0
+        return data["electricRange"]["value"] if keys_exists(data, "electricRange") else None
     elif sensor_id == "charging_system_status":
-        return charging_system_states[data["chargingSystemStatus"]["value"]] if keys_exists(data, "chargingSystemStatus") else ""
+        return charging_system_states[data["chargingSystemStatus"]["value"]] if keys_exists(data, "chargingSystemStatus") else None
     elif sensor_id == "estimated_charging_time":
         if keys_exists(data, "chargingSystemStatus"):
             charging_system_state = charging_system_states[data["chargingSystemStatus"]["value"]]
@@ -263,7 +279,7 @@ def parse_api_data(data, sensor_id=None):
             else:
                 return 0
         else:
-            return ""
+            return None
     elif sensor_id == "estimated_charging_finish_time":
         if keys_exists(data, "chargingSystemStatus"):
             charging_system_state = charging_system_states[data["chargingSystemStatus"]["value"]]
@@ -275,33 +291,33 @@ def parse_api_data(data, sensor_id=None):
             else:
                 return ""
         else:
-            return ""
+            return None
     elif sensor_id == "lock_status":
-        return data["carLocked"]["value"] if keys_exists(data, "carLocked") else ""
+        return data["carLocked"]["value"] if keys_exists(data, "carLocked") else None
     elif sensor_id == "odometer":
-        return int(data["odometer"]["value"]) * 10 if keys_exists(data, "odometer") else 0
+        return int(data["odometer"]["value"]) * 10 if keys_exists(data, "odometer") else None
     elif sensor_id == "window_front_left":
-        return data["frontLeftWindowOpen"]["value"] if keys_exists(data, "frontLeftWindowOpen") else ""
+        return data["frontLeftWindowOpen"]["value"] if keys_exists(data, "frontLeftWindowOpen") else None
     elif sensor_id == "window_front_right":
-        return data["frontRightWindowOpen"]["value"] if keys_exists(data, "frontRightWindowOpen") else ""
+        return data["frontRightWindowOpen"]["value"] if keys_exists(data, "frontRightWindowOpen") else None
     elif sensor_id == "window_rear_left":
-        return data["rearLeftWindowOpen"]["value"] if keys_exists(data, "rearLeftWindowOpen") else ""
+        return data["rearLeftWindowOpen"]["value"] if keys_exists(data, "rearLeftWindowOpen") else None
     elif sensor_id == "window_rear_right":
-        return data["rearRightWindowOpen"]["value"] if keys_exists(data, "rearRightWindowOpen") else ""
+        return data["rearRightWindowOpen"]["value"] if keys_exists(data, "rearRightWindowOpen") else None
     elif sensor_id == "door_front_left":
-        return data["frontLeftDoorOpen"]["value"] if keys_exists(data, "frontLeftDoorOpen") else ""
+        return data["frontLeftDoorOpen"]["value"] if keys_exists(data, "frontLeftDoorOpen") else None
     elif sensor_id == "door_front_right":
-        return data["frontRightDoorOpen"]["value"] if keys_exists(data, "frontRightDoorOpen") else ""
+        return data["frontRightDoorOpen"]["value"] if keys_exists(data, "frontRightDoorOpen") else None
     elif sensor_id == "door_rear_left":
-        return data["rearLeftDoorOpen"]["value"] if keys_exists(data, "rearLeftDoorOpen") else ""
+        return data["rearLeftDoorOpen"]["value"] if keys_exists(data, "rearLeftDoorOpen") else None
     elif sensor_id == "door_rear_right":
-        return data["rearRightDoorOpen"]["value"] if keys_exists(data, "rearRightDoorOpen") else ""
+        return data["rearRightDoorOpen"]["value"] if keys_exists(data, "rearRightDoorOpen") else None
     elif sensor_id == "tailgate":
-        return data["tailGateOpen"]["value"] if keys_exists(data, "tailGateOpen") else ""
+        return data["tailGateOpen"]["value"] if keys_exists(data, "tailGateOpen") else None
     elif sensor_id == "engine_hood":
-        return data["hoodOpen"]["value"] if keys_exists(data, "hoodOpen") else ""
+        return data["hoodOpen"]["value"] if keys_exists(data, "hoodOpen") else None
     elif sensor_id == "tank_lid":
-        return data["tankLidOpen"]["value"] if keys_exists(data, "tankLidOpen") else ""
+        return data["tankLidOpen"]["value"] if keys_exists(data, "tankLidOpen") else None
     elif sensor_id == "location":
         coordinates = {}
         if keys_exists(data, "geometry"):
@@ -312,4 +328,4 @@ def parse_api_data(data, sensor_id=None):
                                "gps_accuracy": 1}
         return coordinates
     else:
-        return ""
+        return None
