@@ -70,10 +70,10 @@ def on_message(client, userdata, msg):
     elif "lock_status" in msg.topic:
         if payload == "LOCK":
             volvo.api_call(CAR_LOCK_URL, "POST", vin)
-            update_car_data()
+            update_car_data(True)
         elif payload == "UNLOCK":
             volvo.api_call(CAR_UNLOCK_URL, "POST", vin)
-            update_car_data()
+            update_car_data(True)
     elif "update_data" in msg.topic:
         if payload == "PRESS":
             update_car_data(True)
