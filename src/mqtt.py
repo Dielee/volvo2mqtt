@@ -143,5 +143,6 @@ def create_ha_devices():
             mqtt_client.publish(
                 f"homeassistant/{entity['domain']}/volvoAAOS2mqtt/{vin}_{entity['id']}/config",
                 json.dumps(config),
+                retain=True
             )
     time.sleep(2)
