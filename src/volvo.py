@@ -228,7 +228,7 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
 
 def cached_request(url, method, vin, force_update=False):
     global cached_requests
-    if not keys_exists(cached_requests, vin + "_" + url) or force_update:
+    if not keys_exists(cached_requests, vin + "_" + url):
         # No API Data cached, get fresh data from API
         print("Starting " + method + " call against " + url)
         try:
@@ -240,8 +240,9 @@ def cached_request(url, method, vin, force_update=False):
         data = {"response": response, "last_update": datetime.now()}
         cached_requests[vin + "_" + url] = data
     else:
-        if (datetime.now() - cached_requests[vin + "_" + url]["last_update"]).total_seconds() >= settings["updateInterval"]:
-            # Old Data in Cache, updating
+        if (datetime.now() - cached_requests[vin + "_" + url]["last_update"]).total_seconds() >= settings["updateInterval"] \
+                or (force_update and (datetime.now() - cached_requests[vin + "_" + url]["last_update"]).total_seconds() >= 2):
+            # Old Data in Cache, or force mode active, updating
             print("Starting " + method + " call against " + url)
             try:
                 response = session.get(url.format(vin), timeout=15)
