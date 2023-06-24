@@ -12,9 +12,12 @@ Maybe this component works also with other Volvo cars. Please try out the native
 - XC90 T8 PHEV (2023)
 - XC60 PHEV (2023)
 - XC60 PHEV (2022)
-- V90 PHEV T8 (2019)
+- V90 PHEV T8 (2019)*
 
-Please let me know if your car works with this addon so I can expand the list!
+*only partly working
+
+Please let me know if your car works with this addon so I can expand the list!<br>
+
 
 ## Supported features
 - Lock/unlock car
