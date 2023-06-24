@@ -182,6 +182,9 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
                                                                                           recharge_api_last_update,
                                                                                           url, method, vin,
                                                                                           force_update)
+        if response is None:
+            # Exception catched while getting data from volvo api, doing nothing
+            return None
     elif url == WINDOWS_STATE_URL:
         # Minimize API calls for window state
         global window_cached_api_response, window_api_last_update
@@ -189,6 +192,9 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
                                                                                           window_api_last_update,
                                                                                           url, method, vin,
                                                                                           force_update)
+        if response is None:
+            # Exception catched while getting data from volvo api, doing nothing
+            return ""
     elif url == LOCK_STATE_URL:
         # Minimize API calls for door state
         global door_cached_api_response, door_api_last_update
@@ -196,6 +202,9 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
                                                                                           door_api_last_update,
                                                                                           url, method, vin,
                                                                                           force_update)
+        if response is None:
+            # Exception catched while getting data from volvo api, doing nothing
+            return ""
     elif url == TYRE_STATE_URL:
         # Minimize API calls for tyre state
         global tyre_cached_api_response, tyre_api_last_update
@@ -203,12 +212,23 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
                                                                                           tyre_api_last_update,
                                                                                           url, method, vin,
                                                                                           force_update)
+        if response is None:
+            # Exception catched while getting data from volvo api, doing nothing
+            return ""
     elif method == "GET":
         print("Starting " + method + " call against " + url)
-        response = session.get(url.format(vin), timeout=15)
+        try:
+            response = session.get(url.format(vin), timeout=15)
+        except requests.exceptions.RequestException as e:
+            print("Error getting data: " + str(e))
+            return ""
     elif method == "POST":
         print("Starting " + method + " call against " + url)
-        response = session.post(url.format(vin), timeout=20)
+        try:
+            response = session.post(url.format(vin), timeout=20)
+        except requests.exceptions.RequestException as e:
+            print("Error getting data: " + str(e))
+            return ""
     else:
         print("Unkown method posted: " + method + ". Returning nothing")
         return ""
@@ -233,14 +253,22 @@ def cached_request(response_cache, update_cache, url, method, vin, force_update=
     if not vin in response_cache or force_update:
         # No API Data cached, get fresh data from API
         print("Starting " + method + " call against " + url)
-        response = session.get(url.format(vin), timeout=15)
+        try:
+            response = session.get(url.format(vin), timeout=15)
+        except requests.exceptions.RequestException as e:
+            print("Error getting data: " + str(e))
+            return None, None, None
         response_cache[vin] = response
         update_cache[vin] = datetime.now()
     else:
         if (datetime.now() - update_cache[vin]).total_seconds() >= settings["updateInterval"]:
             # Old Data in Cache, updating
             print("Starting " + method + " call against " + url)
-            response = session.get(url.format(vin), timeout=15)
+            try:
+                response = session.get(url.format(vin), timeout=15)
+            except requests.exceptions.RequestException as e:
+                print("Error getting data: " + str(e))
+                return None, None, None
             response_cache[vin] = response
             update_cache[vin] = datetime.now()
         else:
