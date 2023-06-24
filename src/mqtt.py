@@ -70,10 +70,10 @@ def on_message(client, userdata, msg):
     elif "lock_status" in msg.topic:
         if payload == "LOCK":
             volvo.api_call(CAR_LOCK_URL, "POST", vin)
-            update_car_data(True, {"entity_id": "lock_status", "state": "LOCKED"})
+            update_car_data(True)
         elif payload == "UNLOCK":
             volvo.api_call(CAR_UNLOCK_URL, "POST", vin)
-            update_car_data(True, {"entity_id": "lock_status", "state": "UNLOCKED"})
+            update_car_data(True)
     elif "update_data" in msg.topic:
         if payload == "PRESS":
             update_car_data(True)
@@ -88,7 +88,7 @@ def update_loop():
         time.sleep(settings["updateInterval"])
 
 
-def update_car_data(force_update=False, overwrite={}):
+def update_car_data(force_update=False):
     global last_data_update
     last_data_update = format_datetime(datetime.now(), format="medium", locale=settings["babelLocale"])
     for vin in volvo.vins:
@@ -96,21 +96,12 @@ def update_car_data(force_update=False, overwrite={}):
             if entity["domain"] == "button":
                 continue
 
-            ov_entity_id = ""
-            ov_state = ""
-            if bool(overwrite):
-                ov_entity_id = overwrite["entity_id"]
-                ov_state = overwrite["state"]
-
             if entity["id"] == "climate_status":
                 state = assumed_climate_state[vin]
             elif entity["id"] == "last_data_update":
                 state = last_data_update
             else:
-                if entity["id"] == ov_entity_id:
-                    state = ov_state
-                else:
-                    state = volvo.api_call(entity["url"], "GET", vin, entity["id"], force_update)
+                state = volvo.api_call(entity["url"], "GET", vin, entity["id"], force_update)
 
             if entity["domain"] == "device_tracker":
                 topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/attributes"
