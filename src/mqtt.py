@@ -56,7 +56,7 @@ def on_message(client, userdata, msg):
             api_thread.start()
             assumed_climate_state[vin] = "ON"
             # Starting timer to disable climate after 30 mins
-            climate_timer = Timer(1 * 60, volvo.disable_climate, (vin, ))
+            climate_timer = Timer(30 * 60, volvo.disable_climate, (vin, ))
             climate_timer.start()
             update_car_data()
         elif payload == "OFF":
