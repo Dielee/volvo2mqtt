@@ -14,7 +14,7 @@ mqtt_client: mqtt.Client
 subscribed_topics = []
 assumed_climate_state = {}
 last_data_update = None
-climate_timer: Timer
+climate_timer = {}
 
 
 def connect():
@@ -56,16 +56,16 @@ def on_message(client, userdata, msg):
             api_thread.start()
             assumed_climate_state[vin] = "ON"
             # Starting timer to disable climate after 30 mins
-            climate_timer = Timer(30 * 60, volvo.disable_climate, (vin, ))
-            climate_timer.start()
+            climate_timer[vin] = Timer(30 * 60, volvo.disable_climate, (vin, ))
+            climate_timer[vin].start()
             update_car_data()
         elif payload == "OFF":
             api_thread = Thread(target=volvo.api_call, args=(CLIMATE_STOP_URL, "POST", vin))
             api_thread.start()
             assumed_climate_state[vin] = "OFF"
             # Stop timer if active
-            if climate_timer.is_alive():
-                climate_timer.cancel()
+            if climate_timer[vin].is_alive():
+                climate_timer[vin].cancel()
             update_car_data()
     elif "lock_status" in msg.topic:
         if payload == "LOCK":
