@@ -18,15 +18,8 @@ session.headers = {
 token_expires_at: datetime
 refresh_token = None
 vins = []
-recharge_cached_api_response = {}
-recharge_api_last_update = {}
-window_cached_api_response = {}
-window_api_last_update = {}
-door_cached_api_response = {}
-door_api_last_update = {}
-tyre_cached_api_response = {}
-tyre_api_last_update = {}
 supported_endpoints = {}
+cached_requests = {}
 
 
 def authorize():
@@ -177,43 +170,27 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
 
     if url == RECHARGE_STATE_URL:
         # Minimize API calls for recharge state
-        global recharge_cached_api_response, recharge_api_last_update
-        response, recharge_cached_api_response, recharge_api_last_update = cached_request(recharge_cached_api_response,
-                                                                                          recharge_api_last_update,
-                                                                                          url, method, vin,
-                                                                                          force_update)
+        response = cached_request(url, method, vin, force_update)
         if response is None:
-            # Exception catched while getting data from volvo api, doing nothing
+            # Exception caught while getting data from volvo api, doing nothing
             return None
     elif url == WINDOWS_STATE_URL:
         # Minimize API calls for window state
-        global window_cached_api_response, window_api_last_update
-        response, recharge_cached_api_response, recharge_api_last_update = cached_request(window_cached_api_response,
-                                                                                          window_api_last_update,
-                                                                                          url, method, vin,
-                                                                                          force_update)
+        response = cached_request(url, method, vin, force_update)
         if response is None:
-            # Exception catched while getting data from volvo api, doing nothing
+            # Exception caught while getting data from volvo api, doing nothing
             return ""
     elif url == LOCK_STATE_URL:
         # Minimize API calls for door state
-        global door_cached_api_response, door_api_last_update
-        response, recharge_cached_api_response, recharge_api_last_update = cached_request(door_cached_api_response,
-                                                                                          door_api_last_update,
-                                                                                          url, method, vin,
-                                                                                          force_update)
+        response = cached_request(url, method, vin, force_update)
         if response is None:
-            # Exception catched while getting data from volvo api, doing nothing
+            # Exception caught while getting data from volvo api, doing nothing
             return ""
     elif url == TYRE_STATE_URL:
         # Minimize API calls for tyre state
-        global tyre_cached_api_response, tyre_api_last_update
-        response, recharge_cached_api_response, recharge_api_last_update = cached_request(tyre_cached_api_response,
-                                                                                          tyre_api_last_update,
-                                                                                          url, method, vin,
-                                                                                          force_update)
+        response = cached_request(url, method, vin, force_update)
         if response is None:
-            # Exception catched while getting data from volvo api, doing nothing
+            # Exception caught while getting data from volvo api, doing nothing
             return ""
     elif method == "GET":
         print("Starting " + method + " call against " + url)
@@ -249,32 +226,34 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
     return parse_api_data(data, sensor_id)
 
 
-def cached_request(response_cache, update_cache, url, method, vin, force_update=False):
-    if not vin in response_cache or force_update:
+def cached_request(url, method, vin, force_update=False):
+    global cached_requests
+    if not keys_exists(cached_requests, vin + "_" + url) or force_update:
         # No API Data cached, get fresh data from API
         print("Starting " + method + " call against " + url)
         try:
             response = session.get(url.format(vin), timeout=15)
         except requests.exceptions.RequestException as e:
             print("Error getting data: " + str(e))
-            return None, None, None
-        response_cache[vin] = response
-        update_cache[vin] = datetime.now()
+            return None
+
+        data = {"response": response, "last_update": datetime.now()}
+        cached_requests[vin + "_" + url] = data
     else:
-        if (datetime.now() - update_cache[vin]).total_seconds() >= settings["updateInterval"]:
+        if (datetime.now() - cached_requests[vin + "_" + url]["last_update"]).total_seconds() >= settings["updateInterval"]:
             # Old Data in Cache, updating
             print("Starting " + method + " call against " + url)
             try:
                 response = session.get(url.format(vin), timeout=15)
             except requests.exceptions.RequestException as e:
                 print("Error getting data: " + str(e))
-                return None, None, None
-            response_cache[vin] = response
-            update_cache[vin] = datetime.now()
+                return None
+            data = {"response": response, "last_update": datetime.now()}
+            cached_requests[vin + "_" + url] = data
         else:
             # Data is up do date, returning cached data
-            response = response_cache[vin]
-    return response, response_cache, update_cache
+            response = cached_requests[vin + "_" + url]["response"]
+    return response
 
 
 def parse_api_data(data, sensor_id=None):
