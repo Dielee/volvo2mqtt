@@ -2,6 +2,7 @@ import time
 import paho.mqtt.client as mqtt
 import json
 import volvo
+from util import keys_exists
 from threading import Thread, Timer
 from datetime import datetime
 from babel.dates import format_datetime
@@ -21,7 +22,13 @@ def connect():
     client = mqtt.Client("volvoAAOS2mqtt")
     if settings["mqtt"]["username"] and settings["mqtt"]["password"]:
         client.username_pw_set(settings["mqtt"]["username"], settings["mqtt"]["password"])
-    client.connect(settings["mqtt"]["broker"])
+    port = 1883
+    if keys_exists(settings["mqtt"], "port"):
+        conf_port = settings["mqtt"]["port"]
+        if isinstance(conf_port, int):
+            if conf_port > 0:
+                port = settings["mqtt"]["port"]
+    client.connect(settings["mqtt"]["broker"], port)
     client.loop_start()
     client.on_message = on_message
     client.on_disconnect = on_disconnect

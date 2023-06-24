@@ -3,6 +3,7 @@
   "babelLocale": "de",
   "mqtt": {
     "broker": "",
+    "port": 1883,
     "username": "",
     "password": ""
   },
