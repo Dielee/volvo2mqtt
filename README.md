@@ -5,6 +5,7 @@ Maybe this component works also with other Volvo cars. Please try out the native
 
 ## Confirmed working with
 - XC40 BEV (2023)
+- XC40 BEV (2022)
 - V60 T8 PHEV (2023)
 - C40 PHEV (2023)
 - C40 PHEV (2022)
