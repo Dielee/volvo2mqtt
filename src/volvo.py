@@ -177,16 +177,32 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
 
     if url == RECHARGE_STATE_URL:
         # Minimize API calls for recharge state
-        response = pull_recharge_api(url, method, vin, force_update)
+        global recharge_cached_api_response, recharge_api_last_update
+        response, recharge_cached_api_response, recharge_api_last_update = cached_request(recharge_cached_api_response,
+                                                                                          recharge_api_last_update,
+                                                                                          url, method, vin,
+                                                                                          force_update)
     elif url == WINDOWS_STATE_URL:
         # Minimize API calls for window state
-        response = pull_window_api(url, method, vin, force_update)
+        global window_cached_api_response, window_api_last_update
+        response, recharge_cached_api_response, recharge_api_last_update = cached_request(window_cached_api_response,
+                                                                                          window_api_last_update,
+                                                                                          url, method, vin,
+                                                                                          force_update)
     elif url == LOCK_STATE_URL:
         # Minimize API calls for door state
-        response = pull_door_api(url, method, vin, force_update)
+        global door_cached_api_response, door_api_last_update
+        response, recharge_cached_api_response, recharge_api_last_update = cached_request(door_cached_api_response,
+                                                                                          door_api_last_update,
+                                                                                          url, method, vin,
+                                                                                          force_update)
     elif url == TYRE_STATE_URL:
         # Minimize API calls for tyre state
-        response = pull_tyre_api(url, method, vin, force_update)
+        global tyre_cached_api_response, tyre_api_last_update
+        response, recharge_cached_api_response, recharge_api_last_update = cached_request(tyre_cached_api_response,
+                                                                                          tyre_api_last_update,
+                                                                                          url, method, vin,
+                                                                                          force_update)
     elif method == "GET":
         print("Starting " + method + " call against " + url)
         response = session.get(url.format(vin), timeout=15)
@@ -213,88 +229,24 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
     return parse_api_data(data, sensor_id)
 
 
-def pull_tyre_api(url, method, vin, force_update=False):
-    global tyre_cached_api_response, tyre_api_last_update
-    if not vin in tyre_cached_api_response or force_update:
-        # No API Data for vin cached, get fresh data from API
+def cached_request(response_cache, update_cache, url, method, vin, force_update=False):
+    if not vin in response_cache or force_update:
+        # No API Data cached, get fresh data from API
         print("Starting " + method + " call against " + url)
         response = session.get(url.format(vin), timeout=15)
-        tyre_cached_api_response[vin] = response
-        tyre_api_last_update[vin] = datetime.now()
+        response_cache[vin] = response
+        update_cache[vin] = datetime.now()
     else:
-        if (datetime.now() - tyre_api_last_update[vin]).total_seconds() >= settings["updateInterval"]:
+        if (datetime.now() - update_cache[vin]).total_seconds() >= settings["updateInterval"]:
             # Old Data in Cache, updating
             print("Starting " + method + " call against " + url)
             response = session.get(url.format(vin), timeout=15)
-            tyre_cached_api_response[vin] = response
-            tyre_api_last_update[vin] = datetime.now()
+            response_cache[vin] = response
+            update_cache[vin] = datetime.now()
         else:
             # Data is up do date, returning cached data
-            response = tyre_cached_api_response[vin]
-    return response
-
-
-def pull_door_api(url, method, vin, force_update=False):
-    global door_cached_api_response, door_api_last_update
-    if not vin in door_cached_api_response or force_update:
-        # No API Data for vin cached, get fresh data from API
-        print("Starting " + method + " call against " + url)
-        response = session.get(url.format(vin), timeout=15)
-        door_cached_api_response[vin] = response
-        door_api_last_update[vin] = datetime.now()
-    else:
-        if (datetime.now() - door_api_last_update[vin]).total_seconds() >= settings["updateInterval"]:
-            # Old Data in Cache, updating
-            print("Starting " + method + " call against " + url)
-            response = session.get(url.format(vin), timeout=15)
-            door_cached_api_response[vin] = response
-            door_api_last_update[vin] = datetime.now()
-        else:
-            # Data is up do date, returning cached data
-            response = door_cached_api_response[vin]
-    return response
-
-
-def pull_window_api(url, method, vin, force_update=False):
-    global window_cached_api_response, window_api_last_update
-    if not vin in window_cached_api_response or force_update:
-        # No API Data for vin cached, get fresh data from API
-        print("Starting " + method + " call against " + url)
-        response = session.get(url.format(vin), timeout=15)
-        window_cached_api_response[vin] = response
-        window_api_last_update[vin] = datetime.now()
-    else:
-        if (datetime.now() - window_api_last_update[vin]).total_seconds() >= settings["updateInterval"]:
-            # Old Data in Cache, updating
-            print("Starting " + method + " call against " + url)
-            response = session.get(url.format(vin), timeout=15)
-            window_cached_api_response[vin] = response
-            window_api_last_update[vin] = datetime.now()
-        else:
-            # Data is up do date, returning cached data
-            response = window_cached_api_response[vin]
-    return response
-
-
-def pull_recharge_api(url, method, vin, force_update=False):
-    global recharge_cached_api_response, recharge_api_last_update
-    if not vin in recharge_cached_api_response or force_update:
-        # No API Data for vin cached, get fresh data from API
-        print("Starting " + method + " call against " + url)
-        response = session.get(url.format(vin), timeout=15)
-        recharge_cached_api_response[vin] = response
-        recharge_api_last_update[vin] = datetime.now()
-    else:
-        if (datetime.now() - recharge_api_last_update[vin]).total_seconds() >= settings["updateInterval"]:
-            # Old Data in Cache, updating
-            print("Starting " + method + " call against " + url)
-            response = session.get(url.format(vin), timeout=15)
-            recharge_cached_api_response[vin] = response
-            recharge_api_last_update[vin] = datetime.now()
-        else:
-            # Data is up do date, returning cached data
-            response = recharge_cached_api_response[vin]
-    return response
+            response = response_cache[vin]
+    return response, response_cache, update_cache
 
 
 def parse_api_data(data, sensor_id=None):
@@ -304,9 +256,11 @@ def parse_api_data(data, sensor_id=None):
     elif sensor_id == "electric_range":
         return data["electricRange"]["value"] if keys_exists(data, "electricRange") else None
     elif sensor_id == "charging_system_status":
-        return charging_system_states[data["chargingSystemStatus"]["value"]] if keys_exists(data, "chargingSystemStatus") else None
+        return charging_system_states[data["chargingSystemStatus"]["value"]] if keys_exists(data,
+                                                                                            "chargingSystemStatus") else None
     elif sensor_id == "charging_connection_status":
-        return charging_connection_states[data["chargingConnectionStatus"]["value"]] if keys_exists(data, "chargingConnectionStatus") else None
+        return charging_connection_states[data["chargingConnectionStatus"]["value"]] if keys_exists(data,
+                                                                                                    "chargingConnectionStatus") else None
     elif sensor_id == "estimated_charging_time":
         if keys_exists(data, "chargingSystemStatus"):
             charging_system_state = charging_system_states[data["chargingSystemStatus"]["value"]]
