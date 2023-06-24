@@ -8,7 +8,7 @@ from datetime import datetime
 from babel.dates import format_datetime
 from config import settings
 from const import CLIMATE_START_URL, CLIMATE_STOP_URL, CAR_LOCK_URL, \
-            CAR_UNLOCK_URL
+            CAR_UNLOCK_URL, availability_topic
 
 
 mqtt_client: mqtt.Client
@@ -20,6 +20,7 @@ climate_timer = {}
 
 def connect():
     client = mqtt.Client("volvoAAOS2mqtt")
+    client.will_set(availability_topic, "offline", 0, False)
     if settings["mqtt"]["username"] and settings["mqtt"]["password"]:
         client.username_pw_set(settings["mqtt"]["username"], settings["mqtt"]["password"])
     port = 1883
@@ -39,6 +40,7 @@ def connect():
 
 
 def on_connect(client, userdata, flags, rc):
+    mqtt_client.publish(availability_topic, "online")
     if len(subscribed_topics) > 0:
         for topic in subscribed_topics:
             mqtt_client.subscribe(topic)
@@ -142,7 +144,8 @@ def create_ha_devices():
                         "icon": f"mdi:{entity['icon']}",
                         "state_topic": f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/state",
                         "device": device,
-                        "unique_id": f"volvoAAOS2mqtt_{vin}_{entity['id']}"
+                        "unique_id": f"volvoAAOS2mqtt_{vin}_{entity['id']}",
+                        "availability_topic": availability_topic
                     }
             if entity.get('unit'):
                 config["unit_of_measurement"] = entity["unit"]
@@ -162,3 +165,4 @@ def create_ha_devices():
                 retain=True
             )
     time.sleep(2)
+    mqtt_client.publish(availability_topic, "online")
