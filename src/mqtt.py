@@ -2,7 +2,7 @@ import time
 import paho.mqtt.client as mqtt
 import json
 import volvo
-from util import keys_exists
+import util
 from threading import Thread, Timer
 from datetime import datetime
 from babel.dates import format_datetime
@@ -24,7 +24,7 @@ def connect():
     if settings["mqtt"]["username"] and settings["mqtt"]["password"]:
         client.username_pw_set(settings["mqtt"]["username"], settings["mqtt"]["password"])
     port = 1883
-    if keys_exists(settings["mqtt"], "port"):
+    if util.keys_exists(settings["mqtt"], "port"):
         conf_port = settings["mqtt"]["port"]
         if isinstance(conf_port, int):
             if conf_port > 0:
@@ -99,7 +99,7 @@ def update_loop():
 
 def update_car_data(force_update=False, overwrite={}):
     global last_data_update
-    last_data_update = format_datetime(datetime.now(), format="medium", locale=settings["babelLocale"])
+    last_data_update = format_datetime(datetime.now(util.TZ), format="medium", locale=settings["babelLocale"])
     for vin in volvo.vins:
         for entity in volvo.supported_endpoints[vin]:
             if entity["domain"] == "button":

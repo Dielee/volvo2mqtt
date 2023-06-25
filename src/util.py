@@ -1,3 +1,10 @@
+import pytz
+import os
+from config import settings
+
+TZ = None
+
+
 def keys_exists(element, *keys):
     """"
     Check if *keys (nested) exists in `element` (dict).
@@ -15,3 +22,15 @@ def keys_exists(element, *keys):
         except KeyError:
             return False
     return True
+
+
+def set_tz():
+    global TZ
+    env_tz = os.environ.get("TZ")
+    settings_tz = settings.get("TZ")
+    if env_tz:
+        TZ = pytz.timezone(env_tz)
+    elif settings_tz:
+        TZ = pytz.timezone(settings_tz)
+    else:
+        raise Exception("No timezone setting found! Please read the README!")

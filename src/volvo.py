@@ -1,9 +1,9 @@
 import requests
-from datetime import datetime, timedelta
 import mqtt
+import util
+from datetime import datetime, timedelta
 from config import settings
 from babel.dates import format_datetime
-from util import keys_exists
 from const import charging_system_states, charging_connection_states, CLIMATE_START_URL, \
     OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, \
     WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, supported_entities, BATTERY_CHARGE_STATE_URL
@@ -41,7 +41,7 @@ def authorize():
         session.headers.update({'authorization': "Bearer " + data["access_token"]})
 
         global token_expires_at, refresh_token
-        token_expires_at = datetime.now() + timedelta(seconds=(data["expires_in"] - 30))
+        token_expires_at = datetime.now(util.TZ) + timedelta(seconds=(data["expires_in"] - 30))
         refresh_token = data["refresh_token"]
 
         get_vehicles()
@@ -70,7 +70,7 @@ def refresh_auth():
         session.headers.update({'authorization': "Bearer " + data["access_token"]})
 
         global token_expires_at
-        token_expires_at = datetime.now() + timedelta(seconds=(data["expires_in"] - 30))
+        token_expires_at = datetime.now(util.TZ) + timedelta(seconds=(data["expires_in"] - 30))
         refresh_token = data["refresh_token"]
 
 
@@ -165,7 +165,7 @@ def disable_climate(vin):
 
 def api_call(url, method, vin, sensor_id=None, force_update=False):
     global token_expires_at
-    if datetime.now() >= token_expires_at:
+    if datetime.now(util.TZ) >= token_expires_at:
         refresh_auth()
 
     if url == RECHARGE_STATE_URL:
@@ -228,7 +228,7 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
 
 def cached_request(url, method, vin, force_update=False):
     global cached_requests
-    if not keys_exists(cached_requests, vin + "_" + url):
+    if not util.keys_exists(cached_requests, vin + "_" + url):
         # No API Data cached, get fresh data from API
         print("Starting " + method + " call against " + url)
         try:
@@ -237,11 +237,11 @@ def cached_request(url, method, vin, force_update=False):
             print("Error getting data: " + str(e))
             return None
 
-        data = {"response": response, "last_update": datetime.now()}
+        data = {"response": response, "last_update": datetime.now(util.TZ)}
         cached_requests[vin + "_" + url] = data
     else:
-        if (datetime.now() - cached_requests[vin + "_" + url]["last_update"]).total_seconds() >= settings["updateInterval"] \
-                or (force_update and (datetime.now() - cached_requests[vin + "_" + url]["last_update"]).total_seconds() >= 2):
+        if (datetime.now(util.TZ) - cached_requests[vin + "_" + url]["last_update"]).total_seconds() >= settings["updateInterval"] \
+                or (force_update and (datetime.now(util.TZ) - cached_requests[vin + "_" + url]["last_update"]).total_seconds() >= 2):
             # Old Data in Cache, or force mode active, updating
             print("Starting " + method + " call against " + url)
             try:
@@ -249,7 +249,7 @@ def cached_request(url, method, vin, force_update=False):
             except requests.exceptions.RequestException as e:
                 print("Error getting data: " + str(e))
                 return None
-            data = {"response": response, "last_update": datetime.now()}
+            data = {"response": response, "last_update": datetime.now(util.TZ)}
             cached_requests[vin + "_" + url] = data
         else:
             # Data is up do date, returning cached data
@@ -260,86 +260,86 @@ def cached_request(url, method, vin, force_update=False):
 def parse_api_data(data, sensor_id=None):
     data = data["data"]
     if sensor_id == "battery_charge_level":
-        return data["batteryChargeLevel"]["value"] if keys_exists(data, "batteryChargeLevel") else None
+        return data["batteryChargeLevel"]["value"] if util.keys_exists(data, "batteryChargeLevel") else None
     elif sensor_id == "electric_range":
-        return data["electricRange"]["value"] if keys_exists(data, "electricRange") else None
+        return data["electricRange"]["value"] if util.keys_exists(data, "electricRange") else None
     elif sensor_id == "charging_system_status":
-        return charging_system_states[data["chargingSystemStatus"]["value"]] if keys_exists(data,
+        return charging_system_states[data["chargingSystemStatus"]["value"]] if util.keys_exists(data,
                                                                                             "chargingSystemStatus") else None
     elif sensor_id == "charging_connection_status":
-        return charging_connection_states[data["chargingConnectionStatus"]["value"]] if keys_exists(data,
+        return charging_connection_states[data["chargingConnectionStatus"]["value"]] if util.keys_exists(data,
                                                                                                     "chargingConnectionStatus") else None
     elif sensor_id == "estimated_charging_time":
-        if keys_exists(data, "chargingSystemStatus"):
+        if util.keys_exists(data, "chargingSystemStatus"):
             charging_system_state = charging_system_states[data["chargingSystemStatus"]["value"]]
             if charging_system_state == "Charging":
-                return data["estimatedChargingTime"]["value"] if keys_exists(data, "estimatedChargingTime") else ""
+                return data["estimatedChargingTime"]["value"] if util.keys_exists(data, "estimatedChargingTime") else ""
             else:
                 return 0
         else:
             return None
     elif sensor_id == "estimated_charging_finish_time":
-        if keys_exists(data, "chargingSystemStatus"):
+        if util.keys_exists(data, "chargingSystemStatus"):
             charging_system_state = charging_system_states[data["chargingSystemStatus"]["value"]]
             if charging_system_state == "Charging":
-                charging_time = int(data["estimatedChargingTime"]["value"] if keys_exists(data, "estimatedChargingTime")
+                charging_time = int(data["estimatedChargingTime"]["value"] if util.keys_exists(data, "estimatedChargingTime")
                                     else 0)
-                charging_finished = datetime.now() + timedelta(minutes=charging_time)
+                charging_finished = datetime.now(util.TZ) + timedelta(minutes=charging_time)
                 return format_datetime(charging_finished, format="medium", locale=settings["babelLocale"])
             else:
                 return ""
         else:
             return None
     elif sensor_id == "lock_status":
-        return data["carLocked"]["value"] if keys_exists(data, "carLocked") else None
+        return data["carLocked"]["value"] if util.keys_exists(data, "carLocked") else None
     elif sensor_id == "odometer":
         multiplier = 1
-        if keys_exists(settings["volvoData"], "odometerMultiplier"):
+        if util.keys_exists(settings["volvoData"], "odometerMultiplier"):
             multiplier = settings["volvoData"]["odometerMultiplier"]
             if isinstance(multiplier, str):
                 multiplier = 1
             elif multiplier < 1:
                 multiplier = 1
-        return int(data["odometer"]["value"]) * multiplier if keys_exists(data, "odometer") else None
+        return int(data["odometer"]["value"]) * multiplier if util.keys_exists(data, "odometer") else None
     elif sensor_id == "window_front_left":
-        return data["frontLeftWindowOpen"]["value"] if keys_exists(data, "frontLeftWindowOpen") else None
+        return data["frontLeftWindowOpen"]["value"] if util.keys_exists(data, "frontLeftWindowOpen") else None
     elif sensor_id == "window_front_right":
-        return data["frontRightWindowOpen"]["value"] if keys_exists(data, "frontRightWindowOpen") else None
+        return data["frontRightWindowOpen"]["value"] if util.keys_exists(data, "frontRightWindowOpen") else None
     elif sensor_id == "window_rear_left":
-        return data["rearLeftWindowOpen"]["value"] if keys_exists(data, "rearLeftWindowOpen") else None
+        return data["rearLeftWindowOpen"]["value"] if util.keys_exists(data, "rearLeftWindowOpen") else None
     elif sensor_id == "window_rear_right":
-        return data["rearRightWindowOpen"]["value"] if keys_exists(data, "rearRightWindowOpen") else None
+        return data["rearRightWindowOpen"]["value"] if util.keys_exists(data, "rearRightWindowOpen") else None
     elif sensor_id == "door_front_left":
-        return data["frontLeftDoorOpen"]["value"] if keys_exists(data, "frontLeftDoorOpen") else None
+        return data["frontLeftDoorOpen"]["value"] if util.keys_exists(data, "frontLeftDoorOpen") else None
     elif sensor_id == "door_front_right":
-        return data["frontRightDoorOpen"]["value"] if keys_exists(data, "frontRightDoorOpen") else None
+        return data["frontRightDoorOpen"]["value"] if util.keys_exists(data, "frontRightDoorOpen") else None
     elif sensor_id == "door_rear_left":
-        return data["rearLeftDoorOpen"]["value"] if keys_exists(data, "rearLeftDoorOpen") else None
+        return data["rearLeftDoorOpen"]["value"] if util.keys_exists(data, "rearLeftDoorOpen") else None
     elif sensor_id == "door_rear_right":
-        return data["rearRightDoorOpen"]["value"] if keys_exists(data, "rearRightDoorOpen") else None
+        return data["rearRightDoorOpen"]["value"] if util.keys_exists(data, "rearRightDoorOpen") else None
     elif sensor_id == "tailgate":
-        return data["tailGateOpen"]["value"] if keys_exists(data, "tailGateOpen") else None
+        return data["tailGateOpen"]["value"] if util.keys_exists(data, "tailGateOpen") else None
     elif sensor_id == "engine_hood":
-        return data["hoodOpen"]["value"] if keys_exists(data, "hoodOpen") else None
+        return data["hoodOpen"]["value"] if util.keys_exists(data, "hoodOpen") else None
     elif sensor_id == "tank_lid":
-        return data["tankLidOpen"]["value"] if keys_exists(data, "tankLidOpen") else None
+        return data["tankLidOpen"]["value"] if util.keys_exists(data, "tankLidOpen") else None
     elif sensor_id == "tyre_front_left":
-        return data["frontLeftTyrePressure"]["value"] if keys_exists(data, "frontLeftTyrePressure") else None
+        return data["frontLeftTyrePressure"]["value"] if util.keys_exists(data, "frontLeftTyrePressure") else None
     elif sensor_id == "tyre_front_right":
-        return data["frontRightTyrePressure"]["value"] if keys_exists(data, "frontRightTyrePressure") else None
+        return data["frontRightTyrePressure"]["value"] if util.keys_exists(data, "frontRightTyrePressure") else None
     elif sensor_id == "tyre_rear_left":
-        return data["rearLeftTyrePressure"]["value"] if keys_exists(data, "rearLeftTyrePressure") else None
+        return data["rearLeftTyrePressure"]["value"] if util.keys_exists(data, "rearLeftTyrePressure") else None
     elif sensor_id == "tyre_rear_right":
-        return data["rearRightTyrePressure"]["value"] if keys_exists(data, "rearRightTyrePressure") else None
+        return data["rearRightTyrePressure"]["value"] if util.keys_exists(data, "rearRightTyrePressure") else None
     elif sensor_id == "engine_state":
-        return data["engineRunning"]["value"] if keys_exists(data, "engineRunning") else None
+        return data["engineRunning"]["value"] if util.keys_exists(data, "engineRunning") else None
     elif sensor_id == "fuel_level":
-        return data["fuelAmount"]["value"] if keys_exists(data, "fuelAmount") else None
+        return data["fuelAmount"]["value"] if util.keys_exists(data, "fuelAmount") else None
     elif sensor_id == "location":
         coordinates = {}
-        if keys_exists(data, "geometry"):
+        if util.keys_exists(data, "geometry"):
             raw_data = data["geometry"]
-            if keys_exists(raw_data, "coordinates"):
+            if util.keys_exists(raw_data, "coordinates"):
                 coordinates = {"longitude": raw_data["coordinates"][0],
                                "latitude": raw_data["coordinates"][1],
                                "gps_accuracy": 1}

@@ -8,6 +8,7 @@ apparmor: true
 options:
   updateInterval: 300
   babelLocale: null
+  TZ: null
   debug: false
   mqtt:
     broker: null
@@ -23,6 +24,7 @@ options:
 schema:
   updateInterval: int(10,)
   babelLocale: str
+  TZ: str
   debug: bool
   mqtt:
     broker: str

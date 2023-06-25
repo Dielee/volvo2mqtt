@@ -1,6 +1,7 @@
 {
   "updateInterval": 300,
   "babelLocale": "de",
+  "TZ": "Europe/Berlin",
   "mqtt": {
     "broker": "",
     "port": 1883,

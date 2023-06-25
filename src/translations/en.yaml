@@ -5,6 +5,9 @@ configuration:
   babelLocale:
     name: Babel locale
     description: Select your country code or take a look at the GitHub repo for more infos!
+  TZ:
+    name: Timezone
+    description: Set your local timezone eg. "Europe/Berlin" or "America/New_York"
   debug:
     name: API debug mode
     description: Enable Volvo API debug, normaly this can stay off
