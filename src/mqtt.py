@@ -79,10 +79,10 @@ def on_message(client, userdata, msg):
     elif "lock_status" in msg.topic:
         if payload == "LOCK":
             volvo.api_call(CAR_LOCK_URL, "POST", vin)
-            update_car_data(True, {"entity_id": "lock_status", "state": "LOCKED"})
+            update_car_data(True, {"entity_id": "lock_status", "vin": vin, "state": "LOCKED"})
         elif payload == "UNLOCK":
             volvo.api_call(CAR_UNLOCK_URL, "POST", vin)
-            update_car_data(True, {"entity_id": "lock_status", "state": "UNLOCKED"})
+            update_car_data(True, {"entity_id": "lock_status", "vin": vin, "state": "UNLOCKED"})
     elif "update_data" in msg.topic:
         if payload == "PRESS":
             update_car_data(True)
@@ -106,9 +106,11 @@ def update_car_data(force_update=False, overwrite={}):
                 continue
 
             ov_entity_id = ""
+            ov_vin = ""
             ov_state = ""
             if bool(overwrite):
                 ov_entity_id = overwrite["entity_id"]
+                ov_vin = overwrite["vin"]
                 ov_state = overwrite["state"]
 
             if entity["id"] == "climate_status":
@@ -116,7 +118,7 @@ def update_car_data(force_update=False, overwrite={}):
             elif entity["id"] == "last_data_update":
                 state = last_data_update
             else:
-                if entity["id"] == ov_entity_id:
+                if entity["id"] == ov_entity_id and vin == ov_vin:
                     state = ov_state
                 else:
                     state = volvo.api_call(entity["url"], "GET", vin, entity["id"], force_update)
