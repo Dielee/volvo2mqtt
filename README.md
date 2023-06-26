@@ -22,6 +22,7 @@ Maybe this component works also with other Volvo cars. Please try out the native
 - XC90 T8 PHEV (2023)
 - XC60 PHEV (2023)
 - XC60 PHEV (2022)
+- XC90 PHEV T8 (2023)
 - V90 PHEV T8 (2019)*
 
 *only partly working
