@@ -28,6 +28,9 @@ charging_system_states = {"CHARGING_SYSTEM_CHARGING": "Charging", "CHARGING_SYST
 charging_connection_states = {"CONNECTION_STATUS_DISCONNECTED": "Disconnected", "CONNECTION_STATUS_UNSPECIFIED": "Unspecified",
                               "CONNECTION_STATUS_CONNECTED_DC": "Connected DC", "CONNECTION_STATUS_CONNECTED_AC": "Connected AC"}
 
+window_states = {"CLOSED": "OFF", "OPEN": "ON"}
+door_states = {"CLOSED": "OFF", "OPEN": "ON"}
+
 supported_entities = [
                         {"name": "Battery Charge Level", "domain": "sensor", "id": "battery_charge_level", "unit": "%", "icon": "car-battery", "url": RECHARGE_STATE_URL},
                         {"name": "Battery Charge Level", "domain": "sensor", "id": "battery_charge_level", "unit": "%", "icon": "car-battery", "url": BATTERY_CHARGE_STATE_URL},
@@ -38,18 +41,18 @@ supported_entities = [
                         {"name": "Estimated Charging Finish Time", "domain": "sensor", "id": "estimated_charging_finish_time", "icon": "timer-sync-outline", "url": RECHARGE_STATE_URL},
                         {"name": "Odometer", "domain": "sensor", "id": "odometer", "unit": "km" if settings["babelLocale"] != "en_US" else "mi", "icon": "counter", "url": ODOMETER_STATE_URL},
                         {"name": "Last Data Update", "domain": "sensor", "id": "last_data_update", "icon": "timer", "url": ""},
-                        {"name": "Window Front Left", "domain": "sensor", "id": "window_front_left", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
-                        {"name": "Window Front Right", "domain": "sensor", "id": "window_front_right", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
-                        {"name": "Window Rear Left", "domain": "sensor", "id": "window_rear_left", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
-                        {"name": "Window Rear Right", "domain": "sensor", "id": "window_rear_right", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
-                        {"name": "Door Front Left", "domain": "sensor", "id": "door_front_left", "icon": "car-door-lock", "url": LOCK_STATE_URL},
-                        {"name": "Door Front Right", "domain": "sensor", "id": "door_front_right", "icon": "car-door-lock", "url": LOCK_STATE_URL},
-                        {"name": "Door Rear Left", "domain": "sensor", "id": "door_rear_left", "icon": "car-door-lock", "url": LOCK_STATE_URL},
-                        {"name": "Door Rear Right", "domain": "sensor", "id": "door_rear_right", "icon": "car-door-lock", "url": LOCK_STATE_URL},
-                        {"name": "Tailgate", "domain": "sensor", "id": "tailgate", "icon": "car-door-lock", "url": LOCK_STATE_URL},
-                        {"name": "Engine Hood", "domain": "sensor", "id": "engine_hood", "icon": "car-door-lock", "url": LOCK_STATE_URL},
-                        {"name": "Tank Lid", "domain": "sensor", "id": "tank_lid", "icon": "car-door-lock", "url": LOCK_STATE_URL},
-                        {"name": "Sunroof", "domain": "sensor", "id": "sunroof", "icon": "car-door-lock", "url": LOCK_STATE_URL},
+                        {"name": "Window Front Left", "domain": "binary_sensor", "device_class": "window", "id": "window_front_left", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
+                        {"name": "Window Front Right", "domain": "binary_sensor", "device_class": "window", "id": "window_front_right", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
+                        {"name": "Window Rear Left", "domain": "binary_sensor", "device_class": "window", "id": "window_rear_left", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
+                        {"name": "Window Rear Right", "domain": "binary_sensor", "device_class": "window", "id": "window_rear_right", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
+                        {"name": "Door Front Left", "domain": "binary_sensor", "device_class": "door", "id": "door_front_left", "icon": "car-door-lock", "url": LOCK_STATE_URL},
+                        {"name": "Door Front Right", "domain": "binary_sensor", "device_class": "door", "id": "door_front_right", "icon": "car-door-lock", "url": LOCK_STATE_URL},
+                        {"name": "Door Rear Left", "domain": "binary_sensor", "device_class": "door", "id": "door_rear_left", "icon": "car-door-lock", "url": LOCK_STATE_URL},
+                        {"name": "Door Rear Right", "domain": "binary_sensor", "device_class": "door", "id": "door_rear_right", "icon": "car-door-lock", "url": LOCK_STATE_URL},
+                        {"name": "Tailgate", "domain": "binary_sensor", "device_class": "door", "id": "tailgate", "icon": "car-door-lock", "url": LOCK_STATE_URL},
+                        {"name": "Engine Hood", "domain": "binary_sensor", "device_class": "door", "id": "engine_hood", "icon": "car-door-lock", "url": LOCK_STATE_URL},
+                        {"name": "Tank Lid", "domain": "binary_sensor", "device_class": "door", "id": "tank_lid", "icon": "car-door-lock", "url": LOCK_STATE_URL},
+                        {"name": "Sunroof", "domain": "binary_sensor", "device_class": "door", "id": "sunroof", "icon": "car-door-lock", "url": LOCK_STATE_URL},
                         {"name": "Air Conditioning", "domain": "switch", "id": "climate_status", "icon": "air-conditioner"},
                         {"name": "Lock state", "domain": "lock", "id": "lock_status", "icon": "lock", "url": LOCK_STATE_URL},
                         {"name": "Force Update Data", "domain": "button", "id": "update_data", "icon": "update", "url": ""},

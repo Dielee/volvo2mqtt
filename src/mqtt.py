@@ -150,13 +150,16 @@ def create_ha_devices():
                         "unique_id": f"volvoAAOS2mqtt_{vin}_{entity['id']}",
                         "availability_topic": availability_topic
                     }
-            if entity.get('unit'):
+            if entity.get("device_class"):
+                config["device_class"] = entity["device_class"]
+
+            if entity.get("unit"):
                 config["unit_of_measurement"] = entity["unit"]
 
-            if entity.get('domain') == "device_tracker":
+            if entity.get("domain") == "device_tracker":
                 config["json_attributes_topic"] = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/attributes"
 
-            if entity.get('domain') in ["switch", "lock", "button"]:
+            if entity.get("domain") in ["switch", "lock", "button"]:
                 command_topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/command"
                 config["command_topic"] = command_topic
                 subscribed_topics.append(command_topic)
