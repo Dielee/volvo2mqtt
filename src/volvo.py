@@ -323,7 +323,14 @@ def parse_api_data(data, sensor_id=None):
     elif sensor_id == "engine_state":
         return data["engineRunning"]["value"] if util.keys_exists(data, "engineRunning") else None
     elif sensor_id == "fuel_level":
-        return data["fuelAmount"]["value"] if util.keys_exists(data, "fuelAmount") else None
+        if util.keys_exists(data, "fuelAmount"):
+            fuel_amount = int(data["fuelAmount"]["value"])
+            if fuel_amount > 0:
+                return fuel_amount
+            else:
+                return None
+        else:
+            return None
     elif sensor_id == "average_fuel_consumption":
         if util.keys_exists(data, "averageFuelConsumption"):
             average_fuel_con = float(data["averageFuelConsumption"]["value"])
