@@ -65,8 +65,12 @@ Here is what every option means:
 ## Lovelace sample card
 <details>
   <summary>Show me more!</summary><blockquote>
-    <details>
-      <summary>Lovelace card sample</summary>
+  <br>
+    
+  ![alt text](https://raw.githubusercontent.com/Dielee/volvo2mqtt/main/img/lovelace_sample.png)<br>
+    
+  <details>
+  <summary>Lovelace card sample</summary>
         		
   ```
    type: vertical-stack
