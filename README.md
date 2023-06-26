@@ -39,7 +39,7 @@ Please let me know if your car works with this addon so I can expand the list!<b
 - Sensor "Charging Connection Status"
 - Sensor "Estimated Charging Finish Time"
 - Sensor "Door Lock Status (All doors, tank lid, and engine hood)"
-- Sensor "Window Lock Status (All windows and sunroof)"
+- Sensor "Window Lock Status (All windows and sunroof - Thanks to @navet)"
 - Sensor "Engine Status"
 - Sensor "Odometer"
 - Sensor "Tire Status"
