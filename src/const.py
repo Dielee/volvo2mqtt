@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.5.3"
+VERSION = "v1.5.4"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles"
@@ -52,7 +52,7 @@ supported_entities = [
                         {"name": "Tailgate", "domain": "binary_sensor", "device_class": "door", "id": "tailgate", "icon": "car-door-lock", "url": LOCK_STATE_URL},
                         {"name": "Engine Hood", "domain": "binary_sensor", "device_class": "door", "id": "engine_hood", "icon": "car-door-lock", "url": LOCK_STATE_URL},
                         {"name": "Tank Lid", "domain": "binary_sensor", "device_class": "door", "id": "tank_lid", "icon": "car-door-lock", "url": LOCK_STATE_URL},
-                        {"name": "Sunroof", "domain": "binary_sensor", "device_class": "door", "id": "sunroof", "icon": "car-door-lock", "url": LOCK_STATE_URL},
+                        {"name": "Sunroof", "domain": "binary_sensor", "device_class": "door", "id": "sunroof", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
                         {"name": "Air Conditioning", "domain": "switch", "id": "climate_status", "icon": "air-conditioner"},
                         {"name": "Lock state", "domain": "lock", "id": "lock_status", "icon": "lock", "url": LOCK_STATE_URL},
                         {"name": "Force Update Data", "domain": "button", "id": "update_data", "icon": "update", "url": ""},
