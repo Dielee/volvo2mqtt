@@ -319,6 +319,8 @@ def parse_api_data(data, sensor_id=None):
         return data["rearRightDoorOpen"]["value"] if util.keys_exists(data, "rearRightDoorOpen") else None
     elif sensor_id == "tailgate":
         return data["tailGateOpen"]["value"] if util.keys_exists(data, "tailGateOpen") else None
+    elif sensor_id == "sunroof":
+        return data["capOpen"]["value"] if util.keys_exists(data, "capOpen") else None
     elif sensor_id == "engine_hood":
         return data["hoodOpen"]["value"] if util.keys_exists(data, "hoodOpen") else None
     elif sensor_id == "tank_lid":
@@ -335,6 +337,10 @@ def parse_api_data(data, sensor_id=None):
         return data["engineRunning"]["value"] if util.keys_exists(data, "engineRunning") else None
     elif sensor_id == "fuel_level":
         return data["fuelAmount"]["value"] if util.keys_exists(data, "fuelAmount") else None
+    elif sensor_id == "average_fuel_consumption":
+        return data["averageFuelConsumption"]["value"] if util.keys_exists(data, "averageFuelConsumption") else None
+    elif sensor_id == "average_speed":
+        return data["averageSpeed"]["value"] if util.keys_exists(data, "averageSpeed") else None
     elif sensor_id == "location":
         coordinates = {}
         if util.keys_exists(data, "geometry"):

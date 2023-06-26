@@ -18,6 +18,7 @@ TYRE_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/ty
 ENGINE_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/engine-status"
 BATTERY_CHARGE_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/battery-charge-level"
 FUEL_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/fuel"
+STATISTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/statistics"
 
 availability_topic = "volvoAAOS2mqtt/availability"
 
@@ -48,6 +49,7 @@ supported_entities = [
                         {"name": "Tailgate", "domain": "sensor", "id": "tailgate", "icon": "car-door-lock", "url": LOCK_STATE_URL},
                         {"name": "Engine Hood", "domain": "sensor", "id": "engine_hood", "icon": "car-door-lock", "url": LOCK_STATE_URL},
                         {"name": "Tank Lid", "domain": "sensor", "id": "tank_lid", "icon": "car-door-lock", "url": LOCK_STATE_URL},
+                        {"name": "Sunroof", "domain": "sensor", "id": "sunroof", "icon": "car-door-lock", "url": LOCK_STATE_URL},
                         {"name": "Air Conditioning", "domain": "switch", "id": "climate_status", "icon": "air-conditioner"},
                         {"name": "Lock state", "domain": "lock", "id": "lock_status", "icon": "lock", "url": LOCK_STATE_URL},
                         {"name": "Force Update Data", "domain": "button", "id": "update_data", "icon": "update", "url": ""},
@@ -57,5 +59,7 @@ supported_entities = [
                         {"name": "Tire Rear Left", "domain": "sensor", "id": "tyre_rear_left", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
                         {"name": "Tire Rear Right", "domain": "sensor", "id": "tyre_rear_right", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
                         {"name": "Engine State", "domain": "sensor", "id": "engine_state", "icon": "engine", "url": ENGINE_STATE_URL},
-                        {"name": "Fuel Level", "domain": "sensor", "id": "fuel_level", "unit": "liters", "icon": "fuel", "url": FUEL_STATE_URL}
+                        {"name": "Fuel Level", "domain": "sensor", "id": "fuel_level", "unit": "liters", "icon": "fuel", "url": FUEL_STATE_URL},
+                        {"name": "Average Fuel Consumption", "domain": "sensor", "id": "average_fuel_consumption", "unit": "liters", "icon": "fuel", "url": STATISTICS_URL},
+                        {"name": "Average Speed", "domain": "sensor", "id": "average_speed", "unit": "km/h" if settings["babelLocale"] != "en_US" else "mp/h", "icon": "fuel", "url": STATISTICS_URL}
 ]
