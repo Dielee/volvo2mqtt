@@ -167,8 +167,8 @@ def create_ha_devices():
                 json.dumps(config),
                 retain=True
             )
-    send_heartbeat()
     time.sleep(2)
+    send_heartbeat()
 
 
 def send_heartbeat():
