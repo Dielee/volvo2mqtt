@@ -325,9 +325,23 @@ def parse_api_data(data, sensor_id=None):
     elif sensor_id == "fuel_level":
         return data["fuelAmount"]["value"] if util.keys_exists(data, "fuelAmount") else None
     elif sensor_id == "average_fuel_consumption":
-        return data["averageFuelConsumption"]["value"] if util.keys_exists(data, "averageFuelConsumption") else None
+        if util.keys_exists(data, "averageFuelConsumption"):
+            average_fuel_con = float(data["averageFuelConsumption"]["value"])
+            if average_fuel_con > 0:
+                return average_fuel_con
+            else:
+                return None
+        else:
+            return None
     elif sensor_id == "average_speed":
-        return data["averageSpeed"]["value"] if util.keys_exists(data, "averageSpeed") else None
+        if util.keys_exists(data, "averageSpeed"):
+            average_speed = int(data["averageSpeed"]["value"])
+            if average_speed > 0:
+                return average_speed
+            else:
+                return None
+        else:
+            return None
     elif sensor_id == "location":
         coordinates = {}
         if util.keys_exists(data, "geometry"):
