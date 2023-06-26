@@ -40,7 +40,7 @@ def connect():
 
 
 def on_connect(client, userdata, flags, rc):
-    mqtt_client.publish(availability_topic, "online")
+    send_heartbeat()
     if len(subscribed_topics) > 0:
         for topic in subscribed_topics:
             mqtt_client.subscribe(topic)
@@ -92,6 +92,7 @@ def update_loop():
     create_ha_devices()
     while True:
         print("Sending mqtt update...")
+        send_heartbeat()
         update_car_data()
         print("Mqtt update done. Next run in " + str(settings["updateInterval"]) + " seconds.")
         time.sleep(settings["updateInterval"])
@@ -166,5 +167,9 @@ def create_ha_devices():
                 json.dumps(config),
                 retain=True
             )
+    send_heartbeat()
     time.sleep(2)
+
+
+def send_heartbeat():
     mqtt_client.publish(availability_topic, "online")
