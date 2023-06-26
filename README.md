@@ -62,6 +62,67 @@ Here is what every option means:
 | `CONF_debug`              | `string`  |              | Debug option (true/false) - optional! |
 | `TZ`                 | `string`  |              | Container timezone eg "Europe/Berlin" from [here](https://docs.diladele.com/docker/timezones.html)|
 
-If you like my work:
+## Lovelace sample card
+<details>
+  <summary>Show me more!</summary><blockquote>
+    <details>
+      <summary>Lovelace card sample</summary>
+        		
+  ```
+   type: vertical-stack
+   title: Autostatus
+   cards:
+     - type: custom:vertical-stack-in-card
+       cards:
+         - type: custom:mushroom-lock-card
+           entity: lock.volvo_<your vin>_lock_status
+           name: Verrigelungsstatus
+         - type: horizontal-stack
+           cards:
+             - type: custom:mushroom-entity-card
+               entity: sensor.volvo_<your vin>_electric_range
+               name: Reichweite
+               layout: vertical
+             - type: custom:mushroom-entity-card
+               entity: sensor.volvo_<your vin>_battery_charge_level
+               name: Batteriestatus
+               layout: vertical
+             - type: custom:mushroom-entity-card
+               entity: sensor.volvo_<your vin>_estimated_charging_time
+               layout: vertical
+               name: Ladezeit
+         - type: horizontal-stack
+           cards:
+             - type: custom:mushroom-entity-card
+               entity: switch.volvo_<your vin>_climate_status
+               tap_action:
+                 action: toggle
+               layout: vertical
+               name: Klimatisieren/Heizen
+             - type: custom:mushroom-template-card
+               primary: Daten aktualisieren
+               secondary: '{{ states(''sensor.volvo_<your vin>_last_data_update'')}}'
+               icon: mdi:update
+               layout: vertical
+               entity: button.volvo_<your vin>_update_data
+         - type: conditional
+           conditions:
+             - entity: sensor.volvo_<your vin>_estimated_charging_time
+               state_not: '0'
+           card:
+             type: custom:mushroom-entity-card
+             entity: sensor.volvo_<your vin>_estimated_charging_finish_time
+             name: Ladung vorraussichtlich abgeschlossen
+             show_name: true
+         - type: map
+           entities:
+             - entity: device_tracker.volvo_<your vin>_location
+           default_zoom: 16
+           dark_mode: false
+           hours_to_show: 0
+           auto_fit: true
+           aspect_ratio: '16:9'
+  ```
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/U7U8MFXCF)
+</details>
+</blockquote></details>
