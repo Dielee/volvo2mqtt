@@ -57,7 +57,7 @@ NOTE: Energy status currently available only for cars in the Europe / Middle Eas
 Just install this addon with the following command.
 Please note to fill in your settings inside the environment variables.
 
-`docker run -d --pull=always -e CONF_updateInterval=300 -e CONF_babelLocale='de' -e CONF_mqtt='@json {"broker": "", "username": "", "password": "", "port": 1883}' -e CONF_volvoData='@json {"username": "", "password": "", "vin": "",   "vccapikey": "", "odometerMultiplier": 1}' -e TZ='Europe/Berlin' --name volvo2mqtt ghcr.io/dielee/volvo2mqtt:latest`
+`docker run -d --pull=always -e CONF_updateInterval=300 -e CONF_babelLocale='de' -e CONF_mqtt='@json {"broker": "", "username": "", "password": "", "port": 1883}' -e CONF_volvoData='@json {"username": "", "password": "", "vin": "",   "vccapikey": "", "odometerMultiplier": 1, "averageSpeedDivider": 1}' -e TZ='Europe/Berlin' --name volvo2mqtt ghcr.io/dielee/volvo2mqtt:latest`
 
 <b>HA Add-On:</b><br>
 
@@ -70,7 +70,7 @@ Here is what every option means:
 | `CONF_updateInterval`     | `int`     | **required** | Update intervall in seconds.                                     |
 | `CONF_babelLocale`        | `string`  | **required** | Select your country from this [list](https://www.ibm.com/docs/en/radfws/9.7?topic=overview-locales-code-pages-supported). "Locale name" is the column you need!                                        |
 | `CONF_mqtt`               | `json`    | **required** | Broker = Mqtt Broker IP / Username and Passwort are optional! Broker port can be changed. If no value is given, port 1883 will be used.  |
-| `CONF_volvoData`          | `json`    | **required** | Username and password are REQUIRED. Car vin can be a single vin or a list of multiple vins like `["vin1", "vin2"]`. If no vin is provided, <b>ALL</b> of your vehicles will be used. Vccapi key is REQUIRED. Get your Vccapi key from [here](https://developer.volvocars.com/account/). Odometer Multiplier is sometimes 10, sometimes 1. Try what's right for your car. If you leave it empty, the multiplier will be 1.                                 |
+| `CONF_volvoData`          | `json`    | **required** | Username and password are REQUIRED. Car vin can be a single vin or a list of multiple vins like `["vin1", "vin2"]`. If no vin is provided, <b>ALL</b> of your vehicles will be used. Vccapi key is REQUIRED. Get your Vccapi key from [here](https://developer.volvocars.com/account/). Odometer Multiplier is sometimes 10, sometimes 1. The same is applicable for average speed divider. Try what's right for your car. If you leave it empty, the multiplier and divider will be 1.                                 |
 | `CONF_debug`              | `string`  |              | Debug option (true/false) - optional! |
 | `TZ`                 | `string`  |              | Container timezone eg "Europe/Berlin" from [here](https://docs.diladele.com/docker/timezones.html)|
 
