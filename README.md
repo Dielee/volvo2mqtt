@@ -1,4 +1,13 @@
 # Volvo2Mqtt
+![Supports aarch64 Architecture][aarch64-shield]
+![Supports amd64 Architecture][amd64-shield]
+![Supports armhf Architecture][armhf-shield]
+![Supports armv7 Architecture][armv7-shield]
+![Supports i386 Architecture][i386-shield]
+<br>
+![Project Maintenance][maintenance-shield]
+[![GitHub Release][releases-shield]][releases]
+[![GitHub Activity][commits-shield]][commits]
 
 This component establishes a connection between the newer AAOS Volvo cars and Home Assistant via MQTT.<br>
 Maybe this component works also with other Volvo cars. Please try out the native Volvo [integration](https://www.home-assistant.io/integrations/volvooncall/) before using this component! If the native component doesn't work for your car, try this mqtt bridge.
@@ -130,3 +139,15 @@ Here is what every option means:
 
 </details>
 </blockquote></details>
+
+
+[aarch64-shield]: https://img.shields.io/badge/aarch64-yes-green.svg
+[amd64-shield]: https://img.shields.io/badge/amd64-yes-green.svg
+[armhf-shield]: https://img.shields.io/badge/armhf-yes-green.svg
+[armv7-shield]: https://img.shields.io/badge/armv7-yes-green.svg
+[i386-shield]: https://img.shields.io/badge/i386-yes-green.svg
+[releases]: https://github.com/Dielee/volvo2mqtt/releases
+[releases-shield]: https://img.shields.io/github/release/Dielee/volvo2mqtt.svg
+[maintenance-shield]: https://img.shields.io/maintenance/yes/2023.svg
+[commits-shield]: https://img.shields.io/github/commit-activity/y/Dielee/volvo2mqtt.svg
+[commits]: https://github.com/Dielee/volvo2mqtt/commits/main
