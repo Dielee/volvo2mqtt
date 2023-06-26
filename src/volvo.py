@@ -6,7 +6,8 @@ from config import settings
 from babel.dates import format_datetime
 from const import charging_system_states, charging_connection_states, CLIMATE_START_URL, \
     OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, \
-    WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, supported_entities, BATTERY_CHARGE_STATE_URL
+    WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, supported_entities, BATTERY_CHARGE_STATE_URL, \
+    STATISTICS_URL
 
 session = requests.Session()
 session.headers = {
@@ -168,30 +169,12 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
     if datetime.now(util.TZ) >= token_expires_at:
         refresh_auth()
 
-    if url == RECHARGE_STATE_URL:
-        # Minimize API calls for recharge state
+    if url in [RECHARGE_STATE_URL, WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, STATISTICS_URL]:
+        # Minimize API calls for endpoints with multiple values
         response = cached_request(url, method, vin, force_update)
         if response is None:
             # Exception caught while getting data from volvo api, doing nothing
             return None
-    elif url == WINDOWS_STATE_URL:
-        # Minimize API calls for window state
-        response = cached_request(url, method, vin, force_update)
-        if response is None:
-            # Exception caught while getting data from volvo api, doing nothing
-            return ""
-    elif url == LOCK_STATE_URL:
-        # Minimize API calls for door state
-        response = cached_request(url, method, vin, force_update)
-        if response is None:
-            # Exception caught while getting data from volvo api, doing nothing
-            return ""
-    elif url == TYRE_STATE_URL:
-        # Minimize API calls for tyre state
-        response = cached_request(url, method, vin, force_update)
-        if response is None:
-            # Exception caught while getting data from volvo api, doing nothing
-            return ""
     elif method == "GET":
         print("Starting " + method + " call against " + url)
         try:
