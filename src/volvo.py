@@ -307,7 +307,7 @@ def parse_api_data(data, sensor_id=None):
     elif sensor_id == "tailgate":
         return door_states[data["tailGateOpen"]["value"]] if util.keys_exists(data, "tailGateOpen") else None
     elif sensor_id == "sunroof":
-        return door_states[data["capOpen"]["value"]] if util.keys_exists(data, "capOpen") else None
+        return door_states[data["sunRoofOpen"]["value"]] if util.keys_exists(data, "sunRoofOpen") else None
     elif sensor_id == "engine_hood":
         return door_states[data["hoodOpen"]["value"]] if util.keys_exists(data, "hoodOpen") else None
     elif sensor_id == "tank_lid":
