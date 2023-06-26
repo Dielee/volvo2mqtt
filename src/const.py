@@ -64,5 +64,5 @@ supported_entities = [
                         {"name": "Engine State", "domain": "sensor", "id": "engine_state", "icon": "engine", "url": ENGINE_STATE_URL},
                         {"name": "Fuel Level", "domain": "sensor", "id": "fuel_level", "unit": "liters", "icon": "fuel", "url": FUEL_STATE_URL},
                         {"name": "Average Fuel Consumption", "domain": "sensor", "id": "average_fuel_consumption", "unit": "liters", "icon": "fuel", "url": STATISTICS_URL},
-                        {"name": "Average Speed", "domain": "sensor", "id": "average_speed", "unit": "km/h" if settings["babelLocale"] != "en_US" else "mp/h", "icon": "fuel", "url": STATISTICS_URL}
+                        {"name": "Average Speed", "domain": "sensor", "id": "average_speed", "unit": "km/h" if settings["babelLocale"] != "en_US" else "mp/h", "icon": "speedometer", "url": STATISTICS_URL}
 ]
