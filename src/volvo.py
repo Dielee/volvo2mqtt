@@ -88,7 +88,8 @@ def get_vehicles():
                 raise Exception("No vehicle in account " + settings.volvoData["username"] + " found.")
         else:
             error = vehicles.json()
-            raise Exception("Error getting vehicles: " + str(vehicles.status_code) + ". " + str(error["error"].get("message")))
+            raise Exception(
+                "Error getting vehicles: " + str(vehicles.status_code) + ". " + str(error["error"].get("message")))
     else:
         if isinstance(settings.volvoData["vin"], list):
             # If setting is a list, copy
@@ -224,8 +225,10 @@ def cached_request(url, method, vin, force_update=False):
         data = {"response": response, "last_update": datetime.now(util.TZ)}
         cached_requests[vin + "_" + url] = data
     else:
-        if (datetime.now(util.TZ) - cached_requests[vin + "_" + url]["last_update"]).total_seconds() >= settings["updateInterval"] \
-                or (force_update and (datetime.now(util.TZ) - cached_requests[vin + "_" + url]["last_update"]).total_seconds() >= 2):
+        if (datetime.now(util.TZ) - cached_requests[vin + "_" + url]["last_update"]).total_seconds() >= settings[
+            "updateInterval"] \
+                or (force_update and (
+                datetime.now(util.TZ) - cached_requests[vin + "_" + url]["last_update"]).total_seconds() >= 2):
             # Old Data in Cache, or force mode active, updating
             print("Starting " + method + " call against " + url)
             try:
@@ -246,13 +249,14 @@ def parse_api_data(data, sensor_id=None):
     if sensor_id == "battery_charge_level":
         return data["batteryChargeLevel"]["value"] if util.keys_exists(data, "batteryChargeLevel") else None
     elif sensor_id == "electric_range":
-        return data["electricRange"]["value"] if util.keys_exists(data, "electricRange") else None
+        return util.convert_metric_values(data["electricRange"]["value"], sensor_id) \
+            if util.keys_exists(data, "electricRange") else None
     elif sensor_id == "charging_system_status":
-        return charging_system_states[data["chargingSystemStatus"]["value"]] if util.keys_exists(data,
-                                                                                            "chargingSystemStatus") else None
+        return charging_system_states[data["chargingSystemStatus"]["value"]] \
+            if util.keys_exists(data, "chargingSystemStatus") else None
     elif sensor_id == "charging_connection_status":
-        return charging_connection_states[data["chargingConnectionStatus"]["value"]] if util.keys_exists(data,
-                                                                                                    "chargingConnectionStatus") else None
+        return charging_connection_states[data["chargingConnectionStatus"]["value"]] \
+            if util.keys_exists(data, "chargingConnectionStatus") else None
     elif sensor_id == "estimated_charging_time":
         if util.keys_exists(data, "chargingSystemStatus"):
             charging_system_state = charging_system_states[data["chargingSystemStatus"]["value"]]
@@ -266,8 +270,9 @@ def parse_api_data(data, sensor_id=None):
         if util.keys_exists(data, "chargingSystemStatus"):
             charging_system_state = charging_system_states[data["chargingSystemStatus"]["value"]]
             if charging_system_state == "Charging":
-                charging_time = int(data["estimatedChargingTime"]["value"] if util.keys_exists(data, "estimatedChargingTime")
-                                    else 0)
+                charging_time = int(
+                    data["estimatedChargingTime"]["value"] if util.keys_exists(data, "estimatedChargingTime")
+                    else 0)
                 charging_finished = datetime.now(util.TZ) + timedelta(minutes=charging_time)
                 return format_datetime(charging_finished, format="medium", locale=settings["babelLocale"])
             else:
@@ -284,7 +289,8 @@ def parse_api_data(data, sensor_id=None):
                 multiplier = 1
             elif multiplier < 1:
                 multiplier = 1
-        return int(data["odometer"]["value"]) * multiplier if util.keys_exists(data, "odometer") else None
+        return util.convert_metric_values(int(data["odometer"]["value"]) * multiplier, sensor_id) \
+            if util.keys_exists(data, "odometer") else None
     elif sensor_id == "window_front_left":
         return window_states[data["frontLeftWindowOpen"]["value"]] if util.keys_exists(data, "frontLeftWindowOpen") \
             else None
@@ -300,7 +306,8 @@ def parse_api_data(data, sensor_id=None):
     elif sensor_id == "door_front_left":
         return door_states[data["frontLeftDoorOpen"]["value"]] if util.keys_exists(data, "frontLeftDoorOpen") else None
     elif sensor_id == "door_front_right":
-        return door_states[data["frontRightDoorOpen"]["value"]] if util.keys_exists(data, "frontRightDoorOpen") else None
+        return door_states[data["frontRightDoorOpen"]["value"]] \
+            if util.keys_exists(data, "frontRightDoorOpen") else None
     elif sensor_id == "door_rear_left":
         return door_states[data["rearLeftDoorOpen"]["value"]] if util.keys_exists(data, "rearLeftDoorOpen") else None
     elif sensor_id == "door_rear_right":
@@ -359,7 +366,7 @@ def parse_api_data(data, sensor_id=None):
                         divider = 1
                     elif divider < 1:
                         divider = 1
-                return average_speed / divider
+                return util.convert_metric_values(average_speed / divider, sensor_id)
             else:
                 return None
         else:
