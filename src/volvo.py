@@ -343,7 +343,7 @@ def parse_api_data(data, sensor_id=None):
     elif sensor_id == "average_speed":
         if util.keys_exists(data, "averageSpeed"):
             average_speed = int(data["averageSpeed"]["value"])
-            if average_speed > 0:
+            if average_speed > 1:
                 divider = 1
                 if util.keys_exists(settings["volvoData"], "averageSpeedDivider"):
                     divider = settings["volvoData"]["averageSpeedDivider"]
