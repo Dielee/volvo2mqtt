@@ -37,7 +37,7 @@ def set_tz():
         raise Exception("No timezone setting found! Please read the README!")
 
 
-def convert_metric_values(value, sensor_id):
+def convert_metric_values(value):
     if keys_exists(units, settings["babelLocale"]):
         divider = units[settings["babelLocale"]]["divider"]
         return round((float(value) / divider), 2)

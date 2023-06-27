@@ -249,7 +249,7 @@ def parse_api_data(data, sensor_id=None):
     if sensor_id == "battery_charge_level":
         return data["batteryChargeLevel"]["value"] if util.keys_exists(data, "batteryChargeLevel") else None
     elif sensor_id == "electric_range":
-        return util.convert_metric_values(data["electricRange"]["value"], sensor_id) \
+        return util.convert_metric_values(data["electricRange"]["value"]) \
             if util.keys_exists(data, "electricRange") else None
     elif sensor_id == "charging_system_status":
         return charging_system_states[data["chargingSystemStatus"]["value"]] \
@@ -289,7 +289,7 @@ def parse_api_data(data, sensor_id=None):
                 multiplier = 1
             elif multiplier < 1:
                 multiplier = 1
-        return util.convert_metric_values(int(data["odometer"]["value"]) * multiplier, sensor_id) \
+        return util.convert_metric_values(int(data["odometer"]["value"]) * multiplier) \
             if util.keys_exists(data, "odometer") else None
     elif sensor_id == "window_front_left":
         return window_states[data["frontLeftWindowOpen"]["value"]] if util.keys_exists(data, "frontLeftWindowOpen") \
@@ -366,7 +366,7 @@ def parse_api_data(data, sensor_id=None):
                         divider = 1
                     elif divider < 1:
                         divider = 1
-                return util.convert_metric_values(average_speed / divider, sensor_id)
+                return util.convert_metric_values(average_speed / divider)
             else:
                 return None
         else:
