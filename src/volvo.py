@@ -88,12 +88,7 @@ def get_vehicles():
                 raise Exception("No vehicle in account " + settings.volvoData["username"] + " found.")
         else:
             error = vehicles.json()
-            if util.keys_exists(error["error"], "message"):
-                raise Exception(
-                    "Error getting vehicles: " + str(vehicles.status_code) + ". " + error["error"]["message"])
-            else:
-                raise Exception(
-                    "Unkown Error getting vehicles: " + str(vehicles.status_code))
+            raise Exception("Error getting vehicles: " + str(vehicles.status_code) + ". " + str(error["error"].get("message")))
     else:
         if isinstance(settings.volvoData["vin"], list):
             # If setting is a list, copy
