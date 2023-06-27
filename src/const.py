@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.5.6"
+VERSION = "v1.6.0"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles"
@@ -20,6 +20,21 @@ BATTERY_CHARGE_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehic
 FUEL_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/fuel"
 STATISTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/statistics"
 
+units = {
+            "en_GB": {
+                "divider": 1.60934,
+                "electric_range": {"unit": "mi"},
+                "odometer": {"unit": "mi"},
+                "average_speed": {"unit": "mph"}
+            },
+            "en_US": {
+                "divider": 1.60934,
+                "electric_range": {"unit": "mi"},
+                "odometer": {"unit": "mi"},
+                "average_speed": {"unit": "mph"}
+            }
+        }
+
 availability_topic = "volvoAAOS2mqtt/availability"
 
 charging_system_states = {"CHARGING_SYSTEM_CHARGING": "Charging", "CHARGING_SYSTEM_IDLE": "Idle",
@@ -34,12 +49,12 @@ door_states = {"CLOSED": "OFF", "OPEN": "ON"}
 supported_entities = [
                         {"name": "Battery Charge Level", "domain": "sensor", "id": "battery_charge_level", "unit": "%", "icon": "car-battery", "url": RECHARGE_STATE_URL},
                         {"name": "Battery Charge Level", "domain": "sensor", "id": "battery_charge_level", "unit": "%", "icon": "car-battery", "url": BATTERY_CHARGE_STATE_URL},
-                        {"name": "Electric Range", "domain": "sensor", "id": "electric_range", "unit": "km" if settings["babelLocale"] != "en_US" else "mi", "icon": "map-marker-distance", "url": RECHARGE_STATE_URL},
+                        {"name": "Electric Range", "domain": "sensor", "id": "electric_range", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["electric_range"]["unit"], "icon": "map-marker-distance", "url": RECHARGE_STATE_URL},
                         {"name": "Estimated Charging Time", "domain": "sensor", "id": "estimated_charging_time", "unit": "minutes", "icon": "timer-sync-outline", "url": RECHARGE_STATE_URL},
                         {"name": "Charging System Status", "domain": "sensor", "id": "charging_system_status", "icon": "ev-station", "url": RECHARGE_STATE_URL},
                         {"name": "Charging Connection Status", "domain": "sensor", "id": "charging_connection_status", "icon": "ev-plug-ccs2", "url": RECHARGE_STATE_URL},
                         {"name": "Estimated Charging Finish Time", "domain": "sensor", "id": "estimated_charging_finish_time", "icon": "timer-sync-outline", "url": RECHARGE_STATE_URL},
-                        {"name": "Odometer", "domain": "sensor", "id": "odometer", "unit": "km" if settings["babelLocale"] != "en_US" else "mi", "icon": "counter", "url": ODOMETER_STATE_URL},
+                        {"name": "Odometer", "domain": "sensor", "id": "odometer", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["odometer"]["unit"], "icon": "counter", "url": ODOMETER_STATE_URL},
                         {"name": "Last Data Update", "domain": "sensor", "id": "last_data_update", "icon": "timer", "url": ""},
                         {"name": "Window Front Left", "domain": "binary_sensor", "device_class": "window", "id": "window_front_left", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
                         {"name": "Window Front Right", "domain": "binary_sensor", "device_class": "window", "id": "window_front_right", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
@@ -64,5 +79,5 @@ supported_entities = [
                         {"name": "Engine State", "domain": "sensor", "id": "engine_state", "icon": "engine", "url": ENGINE_STATE_URL},
                         {"name": "Fuel Level", "domain": "sensor", "id": "fuel_level", "unit": "liters", "icon": "fuel", "url": FUEL_STATE_URL},
                         {"name": "Average Fuel Consumption", "domain": "sensor", "id": "average_fuel_consumption", "unit": "liters", "icon": "fuel", "url": STATISTICS_URL},
-                        {"name": "Average Speed", "domain": "sensor", "id": "average_speed", "unit": "km/h" if settings["babelLocale"] != "en_US" else "mp/h", "icon": "speedometer", "url": STATISTICS_URL}
+                        {"name": "Average Speed", "domain": "sensor", "id": "average_speed", "unit": "km/h" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["average_speed"]["unit"], "icon": "speedometer", "url": STATISTICS_URL}
 ]

@@ -1,5 +1,6 @@
 import pytz
 import os
+from const import units
 from config import settings
 
 TZ = None
@@ -34,3 +35,11 @@ def set_tz():
         TZ = pytz.timezone(settings_tz)
     else:
         raise Exception("No timezone setting found! Please read the README!")
+
+
+def convert_metric_values(value):
+    if keys_exists(units, settings["babelLocale"]):
+        divider = units[settings["babelLocale"]]["divider"]
+        return round((float(value) / divider), 2)
+    else:
+        return value
