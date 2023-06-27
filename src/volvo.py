@@ -335,7 +335,14 @@ def parse_api_data(data, sensor_id=None):
         if util.keys_exists(data, "averageFuelConsumption"):
             average_fuel_con = float(data["averageFuelConsumption"]["value"])
             if average_fuel_con > 0:
-                return average_fuel_con
+                multiplier = 1
+                if util.keys_exists(settings["volvoData"], "averageFuelConsumptionMultiplier"):
+                    multiplier = settings["volvoData"]["averageFuelConsumptionMultiplier"]
+                    if isinstance(multiplier, str):
+                        multiplier = 1
+                    elif multiplier < 1:
+                        multiplier = 1
+                return average_fuel_con * multiplier
             else:
                 return None
         else:

@@ -11,6 +11,9 @@
 
 This component establishes a connection between the newer AAOS Volvo cars and Home Assistant via MQTT.<br>
 Maybe this component works also with other Volvo cars. Please try out the native Volvo [integration](https://www.home-assistant.io/integrations/volvooncall/) before using this component! If the native component doesn't work for your car, try this mqtt bridge.
+<p>
+
+Home Assistant thread can be found [here](https://community.home-assistant.io/t/volvo2mqtt-connect-your-aaos-volvo/585699).
 
 ## Confirmed working with
 - XC40 BEV (2023)
@@ -57,7 +60,7 @@ NOTE: Energy status currently available only for cars in the Europe / Middle Eas
 Just install this addon with the following command.
 Please note to fill in your settings inside the environment variables.
 
-`docker run -d --pull=always -e CONF_updateInterval=300 -e CONF_babelLocale='de' -e CONF_mqtt='@json {"broker": "", "username": "", "password": "", "port": 1883}' -e CONF_volvoData='@json {"username": "", "password": "", "vin": "",   "vccapikey": "", "odometerMultiplier": 1, "averageSpeedDivider": 1}' -e TZ='Europe/Berlin' --name volvo2mqtt ghcr.io/dielee/volvo2mqtt:latest`
+`docker run -d --pull=always -e CONF_updateInterval=300 -e CONF_babelLocale='de' -e CONF_mqtt='@json {"broker": "", "username": "", "password": "", "port": 1883}' -e CONF_volvoData='@json {"username": "", "password": "", "vin": "",   "vccapikey": "", "odometerMultiplier": 1, "averageSpeedDivider": 1, "averageFuelConsumptionMultiplier": 1}' -e TZ='Europe/Berlin' --name volvo2mqtt ghcr.io/dielee/volvo2mqtt:latest`
 
 <b>HA Add-On:</b><br>
 
@@ -65,14 +68,23 @@ Please note to fill in your settings inside the environment variables.
 
 Here is what every option means:
 
-| Name                 |   Type    |   Default    | Description                                                     |
-| -------------------- | :-------: | :----------: | --------------------------------------------------------------- |
-| `CONF_updateInterval`     | `int`     | **required** | Update intervall in seconds.                                     |
-| `CONF_babelLocale`        | `string`  | **required** | Select your country from this [list](https://www.ibm.com/docs/en/radfws/9.7?topic=overview-locales-code-pages-supported). "Locale name" is the column you need!                                        |
-| `CONF_mqtt`               | `json`    | **required** | Broker = Mqtt Broker IP / Username and Passwort are optional! Broker port can be changed. If no value is given, port 1883 will be used.  |
-| `CONF_volvoData`          | `json`    | **required** | Username and password are REQUIRED. Car vin can be a single vin or a list of multiple vins like `["vin1", "vin2"]`. If no vin is provided, <b>ALL</b> of your vehicles will be used. Vccapi key is REQUIRED. Get your Vccapi key from [here](https://developer.volvocars.com/account/). Odometer Multiplier is sometimes 10, sometimes 1. The same is applicable for average speed divider. Try what's right for your car. If you leave it empty, the multiplier and divider will be 1.                                 |
-| `CONF_debug`              | `string`  |              | Debug option (true/false) - optional! |
-| `TZ`                 | `string`  |              | Container timezone eg "Europe/Berlin" from [here](https://docs.diladele.com/docker/timezones.html)|
+| Environment Variable Name |   Type    | Json Option                           |   Default    | Description                                                     |
+| ------------------------- | :-------: | :-----------------------------------: | :----------: | --------------------------------------------------------------- |
+| `CONF_updateInterval`     | `int`     |                                       | **required** | Update intervall in seconds.                                     |
+| `CONF_babelLocale`        | `string`  |                                       | **required** | Select your country from this [list](https://www.ibm.com/docs/en/radfws/9.7?topic=overview-locales-code-pages-supported). "Locale name" is the column you need!                                        |
+| `CONF_mqtt`               | `json`    | `broker`                              | **required** | Your MQTT Broker IP. Eg. 192.168.0.5.
+| `CONF_mqtt`               | `json`    | `port`                                | 1883         | Your MQTT Broker Port. If no value is given, port 1883 will be used.  |
+| `CONF_mqtt`               | `json`    | `username`                            | optional     | MQTT Username for your broker.
+| `CONF_mqtt`               | `json`    | `password`                            | optional     | MQTT Password for your broker.
+| `CONF_volvoData`          | `json`    | `username`                            | **required** | Normally your email address to login into the Volvo App.
+| `CONF_volvoData`          | `json`    | `password`                            | **required** | Your password to login into the Volvo App.
+| `CONF_volvoData`          | `json`    | `vin`                                 | optional     | A single VIN like "VIN1" or a list of VINs like "["VIN1", "VIN2"]". Leave this empty if you don't know your VIN. The addon will use every car that is tied to your account.
+| `CONF_volvoData`          | `json`    | `vccapikey`                           | **required** | API key linked with your volvo developer account. Get your Vccapi key from [here](https://developer.volvocars.com/account/)
+| `CONF_volvoData`          | `json`    | `odometerMultiplier`                  | optional     | The multiplier value for the odometer value, as the volvo api delivers inconsistent data. For some cars this setting is 10, for some 1. Try what's right for your car. If you leave it empty, the multiplier will be 1.
+| `CONF_volvoData`          | `json`    | `averageSpeedDivider`                 | optional     | The divider value for the average speed value, as the volvo api delivers inconsistent data. For some cars this setting is 10, for some 1. Try what's right for your car. If you leave it empty, the divider will be 1.
+| `CONF_volvoData`          | `json`    | `averageFuelConsumptionMultiplier`    | optional     | The multiplier value for the average fuel consumption value, as the volvo api delivers inconsistent data. For some cars this setting is 10, for some 1. Try what's right for your car. If you leave it empty, the multiplier will be 1.
+| `CONF_debug`              | `string`  |                                       | optional     | Debug option (true/false). Normally you don't need this. |
+| `TZ`                      | `string`  |                                       | **required** | Container timezone eg "Europe/Berlin" from [here](https://docs.diladele.com/docker/timezones.html)|
 
 ## Lovelace sample card
 <details>
