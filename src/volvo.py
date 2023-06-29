@@ -205,6 +205,9 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
             print("Car in use, cannot start pre climatization")
             mqtt.assumed_climate_state[vin] = "OFF"
             mqtt.update_car_data()
+        elif "extended-vehicle" in url and response.status_code == 403:
+            # Suppress 403 errors for unsupported extended-vehicle api cars
+            return None
         else:
             print("API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
         return None
@@ -225,10 +228,10 @@ def cached_request(url, method, vin, force_update=False):
         data = {"response": response, "last_update": datetime.now(util.TZ)}
         cached_requests[vin + "_" + url] = data
     else:
-        if (datetime.now(util.TZ) - cached_requests[vin + "_" + url]["last_update"]).total_seconds() >= settings[
-            "updateInterval"] \
-                or (force_update and (
-                datetime.now(util.TZ) - cached_requests[vin + "_" + url]["last_update"]).total_seconds() >= 2):
+        if (datetime.now(util.TZ) - cached_requests[vin + "_" + url]["last_update"]).total_seconds() \
+                >= settings["updateInterval"] or (force_update and
+                                                  (datetime.now(util.TZ) - cached_requests[vin + "_" + url]
+                                                      ["last_update"]).total_seconds() >= 2):
             # Old Data in Cache, or force mode active, updating
             print("Starting " + method + " call against " + url)
             try:
@@ -380,5 +383,10 @@ def parse_api_data(data, sensor_id=None):
                                "latitude": raw_data["coordinates"][1],
                                "gps_accuracy": 1}
         return coordinates
+    elif sensor_id == "distance_to_empty":
+        return util.convert_metric_values(data["distanceToEmpty"]["value"]) \
+            if util.keys_exists(data, "distanceToEmpty") else None
+    elif sensor_id == "washer_fluid_level":
+        return data["washerFluidLevel"]["value"] if util.keys_exists(data, "washerFluidLevel") else None
     else:
         return None
