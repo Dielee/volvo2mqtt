@@ -182,6 +182,7 @@ def check_door_status(vin):
         if lock_state == "ON":
             Thread(target=api_call, args=(CLIMATE_STOP_URL, "POST", vin)).start()
             mqtt.assumed_climate_state[vin] = "OFF"
+            mqtt.update_car_data()
             break
         time.sleep(5)
 
