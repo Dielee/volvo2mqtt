@@ -178,8 +178,9 @@ def disable_climate(vin):
 def check_door_status(vin):
     t = currentThread()
     while getattr(t, "do_run", True):
-        lock_state = api_call(LOCK_STATE_URL, "GET", vin, "door_front_left", True)
-        if lock_state == "ON":
+        lock_door_left = api_call(LOCK_STATE_URL, "GET", vin, "door_front_left", True)
+        lock_door_right = api_call(LOCK_STATE_URL, "GET", vin, "door_front_right", True)
+        if lock_door_left == "ON" or lock_door_right == "ON":
             Thread(target=api_call, args=(CLIMATE_STOP_URL, "POST", vin)).start()
             mqtt.assumed_climate_state[vin] = "OFF"
             mqtt.update_car_data()
