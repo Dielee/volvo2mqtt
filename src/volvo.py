@@ -65,7 +65,13 @@ def refresh_auth():
         "grant_type": "refresh_token",
         "refresh_token": refresh_token
     }
-    auth = requests.post(OAUTH_URL, data=body, headers=headers)
+
+    try:
+        auth = requests.post(OAUTH_URL, data=body, headers=headers)
+    except requests.exceptions.RequestException as e:
+        print("Error refreshing credentials data: " + str(e))
+        return None
+
     if auth.status_code == 200:
         data = auth.json()
         session.headers.update({'authorization': "Bearer " + data["access_token"]})
