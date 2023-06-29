@@ -85,6 +85,7 @@ def on_message(client, userdata, msg):
             update_car_data(True, {"entity_id": "lock_status", "vin": vin, "state": "UNLOCKED"})
     elif "update_data" in msg.topic:
         if payload == "PRESS":
+
             update_car_data(True)
 
 
