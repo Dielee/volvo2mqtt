@@ -16,6 +16,7 @@ subscribed_topics = []
 assumed_climate_state = {}
 last_data_update = None
 climate_timer = {}
+door_status = {}
 
 
 def connect():
@@ -59,29 +60,48 @@ def on_message(client, userdata, msg):
 
     payload = msg.payload.decode("UTF-8")
     if "climate_status" in msg.topic:
-        global assumed_climate_state, climate_timer
+        global assumed_climate_state, climate_timer, door_status
         if payload == "ON":
-            api_thread = Thread(target=volvo.api_call, args=(CLIMATE_START_URL, "POST", vin))
-            api_thread.start()
-            assumed_climate_state[vin] = "ON"
+            # Start the api call in another thread for HA performance
+            Thread(target=volvo.api_call, args=(CLIMATE_START_URL, "POST", vin)).start()
+
+            # Start door check thread to turn off climate if driver door is opened
+            door_thread = Thread(target=volvo.check_door_status, args=(vin, ))
+            door_thread.start()
+            door_status[vin] = door_thread
             # Starting timer to disable climate after 30 mins
+
             climate_timer[vin] = Timer(30 * 60, volvo.disable_climate, (vin, ))
             climate_timer[vin].start()
+            # Set and update switch status
+
+            assumed_climate_state[vin] = "ON"
             update_car_data()
         elif payload == "OFF":
-            api_thread = Thread(target=volvo.api_call, args=(CLIMATE_STOP_URL, "POST", vin))
-            api_thread.start()
-            assumed_climate_state[vin] = "OFF"
-            # Stop timer if active
+            # Start the api call in another thread for HA performance
+            Thread(target=volvo.api_call, args=(CLIMATE_STOP_URL, "POST", vin)).start()
+
+            # Stop door check thread if running
+            if door_status[vin].is_alive():
+                door_status[vin].do_run = False
+
+            # Stop climate timer if active
             if climate_timer[vin].is_alive():
                 climate_timer[vin].cancel()
+
+            # Set and update switch status
+            assumed_climate_state[vin] = "OFF"
             update_car_data()
     elif "lock_status" in msg.topic:
         if payload == "LOCK":
             volvo.api_call(CAR_LOCK_URL, "POST", vin)
+
+            # Force set unlocked state in HA because of slow api response
             update_car_data(True, {"entity_id": "lock_status", "vin": vin, "state": "LOCKED"})
         elif payload == "UNLOCK":
             volvo.api_call(CAR_UNLOCK_URL, "POST", vin)
+
+            # Force set unlocked state in HA because of slow api response
             update_car_data(True, {"entity_id": "lock_status", "vin": vin, "state": "UNLOCKED"})
     elif "update_data" in msg.topic:
         if payload == "PRESS":
