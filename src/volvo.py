@@ -183,17 +183,17 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
             response = session.get(url.format(vin), timeout=15)
         except requests.exceptions.RequestException as e:
             print("Error getting data: " + str(e))
-            return ""
+            return None
     elif method == "POST":
         print("Starting " + method + " call against " + url)
         try:
             response = session.post(url.format(vin), timeout=20)
         except requests.exceptions.RequestException as e:
             print("Error getting data: " + str(e))
-            return ""
+            return None
     else:
         print("Unkown method posted: " + method + ". Returning nothing")
-        return ""
+        return None
 
     if response.status_code == 200:
         data = response.json()
@@ -207,7 +207,7 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
             mqtt.update_car_data()
         else:
             print("API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
-        return ""
+        return None
     return parse_api_data(data, sensor_id)
 
 
