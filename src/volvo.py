@@ -1,13 +1,15 @@
 import requests
 import mqtt
 import util
+import time
+from threading import Thread, currentThread
 from datetime import datetime, timedelta
 from config import settings
 from babel.dates import format_datetime
 from const import charging_system_states, charging_connection_states, door_states, window_states, \
     OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, CLIMATE_START_URL, \
     WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, supported_entities, BATTERY_CHARGE_STATE_URL, \
-    STATISTICS_URL
+    STATISTICS_URL, CLIMATE_STOP_URL
 
 session = requests.Session()
 session.headers = {
@@ -168,8 +170,20 @@ def initialize_climate(vins):
 
 def disable_climate(vin):
     print("Turning climate off by timer!")
+    mqtt.door_status[vin].do_run = False
     mqtt.assumed_climate_state[vin] = "OFF"
     mqtt.update_car_data()
+
+
+def check_door_status(vin):
+    t = currentThread()
+    while getattr(t, "do_run", True):
+        lock_state = api_call(LOCK_STATE_URL, "GET", vin, "door_front_left", True)
+        if lock_state == "ON":
+            Thread(target=api_call, args=(CLIMATE_STOP_URL, "POST", vin)).start()
+            mqtt.assumed_climate_state[vin] = "OFF"
+            break
+        time.sleep(5)
 
 
 def api_call(url, method, vin, sensor_id=None, force_update=False):
