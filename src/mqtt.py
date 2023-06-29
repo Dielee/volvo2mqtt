@@ -84,6 +84,7 @@ def on_message(client, userdata, msg):
             volvo.api_call(CAR_UNLOCK_URL, "POST", vin)
             update_car_data(True, {"entity_id": "lock_status", "vin": vin, "state": "UNLOCKED"})
     elif "update_data" in msg.topic:
+
         if payload == "PRESS":
             update_car_data(True)
 
