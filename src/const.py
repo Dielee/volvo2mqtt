@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.6.2"
+VERSION = "v1.6.3"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles"
@@ -19,8 +19,6 @@ ENGINE_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/
 BATTERY_CHARGE_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/battery-charge-level"
 FUEL_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/fuel"
 STATISTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/statistics"
-DISTANCE_TO_EMPTY_URL = "https://api.volvocars.com/extended-vehicle/v1/vehicles/{0}/resources/distanceToEmpty"
-WASHER_FLUID_LEVEL_URL = "https://api.volvocars.com/extended-vehicle/v1/vehicles/{0}/resources/washerFluidLevel"
 
 units = {
             "en_GB": {
@@ -81,7 +79,6 @@ supported_entities = [
                         {"name": "Engine State", "domain": "sensor", "id": "engine_state", "icon": "engine", "url": ENGINE_STATE_URL},
                         {"name": "Fuel Level", "domain": "sensor", "id": "fuel_level", "unit": "liters", "icon": "fuel", "url": FUEL_STATE_URL},
                         {"name": "Average Fuel Consumption", "domain": "sensor", "id": "average_fuel_consumption", "unit": "liters", "icon": "fuel", "url": STATISTICS_URL},
-                        {"name": "Average Speed", "domain": "sensor", "id": "average_speed", "unit": "km/h" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["average_speed"]["unit"], "icon": "speedometer", "url": STATISTICS_URL},
-                        {"name": "Distance to Empty", "domain": "sensor", "id": "distance_to_empty", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["odometer"]["unit"], "icon": "map-marker-distance", "url": DISTANCE_TO_EMPTY_URL},
-                        {"name": "Washer Fluid Level", "domain": "sensor", "id": "washer_fluid_level", "icon": "wiper-wash", "url": WASHER_FLUID_LEVEL_URL},
+                        {"name": "Distance to Empty", "domain": "sensor", "id": "distance_to_empty", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["odometer"]["unit"], "icon": "map-marker-distance", "url": STATISTICS_URL},
+                        {"name": "Average Speed", "domain": "sensor", "id": "average_speed", "unit": "km/h" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["average_speed"]["unit"], "icon": "speedometer", "url": STATISTICS_URL}
 ]

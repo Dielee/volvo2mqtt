@@ -1,5 +1,4 @@
 import logging
-
 import requests
 import mqtt
 import util
@@ -290,8 +289,7 @@ def parse_api_data(data, sensor_id=None):
                 return data["estimatedChargingTime"]["value"] if util.keys_exists(data, "estimatedChargingTime") else ""
             else:
                 return 0
-        else:
-            return None
+        return None
     elif sensor_id == "estimated_charging_finish_time":
         if util.keys_exists(data, "chargingSystemStatus"):
             charging_system_state = charging_system_states[data["chargingSystemStatus"]["value"]]
@@ -303,8 +301,7 @@ def parse_api_data(data, sensor_id=None):
                 return format_datetime(charging_finished, format="medium", locale=settings["babelLocale"])
             else:
                 return ""
-        else:
-            return None
+        return None
     elif sensor_id == "lock_status":
         return data["carLocked"]["value"] if util.keys_exists(data, "carLocked") else None
     elif sensor_id == "odometer":
@@ -361,10 +358,7 @@ def parse_api_data(data, sensor_id=None):
             fuel_amount = int(data["fuelAmount"]["value"])
             if fuel_amount > 0:
                 return fuel_amount
-            else:
-                return None
-        else:
-            return None
+        return None
     elif sensor_id == "average_fuel_consumption":
         if util.keys_exists(data, "averageFuelConsumption"):
             average_fuel_con = float(data["averageFuelConsumption"]["value"])
@@ -377,10 +371,7 @@ def parse_api_data(data, sensor_id=None):
                     elif multiplier < 1:
                         multiplier = 1
                 return average_fuel_con * multiplier
-            else:
-                return None
-        else:
-            return None
+        return None
     elif sensor_id == "average_speed":
         if util.keys_exists(data, "averageSpeed"):
             average_speed = int(data["averageSpeed"]["value"])
@@ -393,10 +384,7 @@ def parse_api_data(data, sensor_id=None):
                     elif divider < 1:
                         divider = 1
                 return util.convert_metric_values(average_speed / divider)
-            else:
-                return None
-        else:
-            return None
+        return None
     elif sensor_id == "location":
         coordinates = {}
         if util.keys_exists(data, "geometry"):
@@ -407,9 +395,10 @@ def parse_api_data(data, sensor_id=None):
                                "gps_accuracy": 1}
         return coordinates
     elif sensor_id == "distance_to_empty":
-        return util.convert_metric_values(data["distanceToEmpty"]["value"]) \
-            if util.keys_exists(data, "distanceToEmpty") else None
-    elif sensor_id == "washer_fluid_level":
-        return data["washerFluidLevel"]["value"] if util.keys_exists(data, "washerFluidLevel") else None
+        if util.keys_exists(data, "distanceToEmpty"):
+            distance_to_empty = int(data["distanceToEmpty"]["value"])
+            if distance_to_empty > 0:
+                return util.convert_metric_values(data["distanceToEmpty"]["value"])
+        return None
     else:
         return None
