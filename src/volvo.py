@@ -217,16 +217,19 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
         logging.error("Unkown method posted: " + method + ". Returning nothing")
         return None
 
+    logging.debug("Response status code: " + str(response.status_code))
     if response.status_code == 200:
         data = response.json()
         logging.debug(response.text)
     else:
+        logging.debug(response.text)
         if url == CLIMATE_START_URL and response.status_code == 503:
             logging.warning("Car in use, cannot start pre climatization")
             mqtt.assumed_climate_state[vin] = "OFF"
             mqtt.update_car_data()
         elif "extended-vehicle" in url and response.status_code == 403:
             # Suppress 403 errors for unsupported extended-vehicle api cars
+            logging.debug("Suppressed 403 for extended-vehicle API")
             return None
         else:
             logging.error("API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
