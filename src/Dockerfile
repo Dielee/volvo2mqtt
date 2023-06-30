@@ -15,6 +15,7 @@ RUN pip install -r requirements.txt
 
 # copy the content of the local src directory to the working directory
 COPY / .
+RUN chmod a+x /volvoAAOS2mqtt/run.sh
 
 # command to run on container start
-CMD [ "python", "-u", "./main.py" ]
+CMD [ "/volvoAAOS2mqtt/run.sh" ]

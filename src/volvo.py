@@ -1,3 +1,5 @@
+import logging
+
 import requests
 import mqtt
 import util
@@ -55,7 +57,7 @@ def authorize():
 
 
 def refresh_auth():
-    print("Refreshing credentials")
+    logging.info("Refreshing credentials")
     global refresh_token
     headers = {
         "authorization": "Basic aDRZZjBiOlU4WWtTYlZsNnh3c2c1WVFxWmZyZ1ZtSWFEcGhPc3kxUENhVXNpY1F0bzNUUjVrd2FKc2U0QVpkZ2ZJZmNMeXc=",
@@ -71,7 +73,7 @@ def refresh_auth():
     try:
         auth = requests.post(OAUTH_URL, data=body, headers=headers)
     except requests.exceptions.RequestException as e:
-        print("Error refreshing credentials data: " + str(e))
+        logging.error("Error refreshing credentials data: " + str(e))
         return None
 
     if auth.status_code == 200:
@@ -110,16 +112,14 @@ def get_vehicles():
         raise Exception("No vehicle found, exiting application!")
     else:
         initialize_climate(vins)
-        print("Vin: " + str(vins) + " found!")
+        logging.info("Vin: " + str(vins) + " found!")
 
 
 def get_vehicle_details(vin):
     response = session.get(VEHICLE_DETAILS_URL.format(vin), timeout=15)
     if response.status_code == 200:
         data = response.json()["data"]
-        if "debug" in settings:
-            if settings["debug"]:
-                print(response.text)
+        logging.debug(response.text)
         device = {
             "identifiers": [f"volvoAAOS2mqtt_{vin}"],
             "manufacturer": "Volvo",
@@ -157,10 +157,10 @@ def check_supported_endpoints():
                 state = ""
 
             if state is not None:
-                print("Success! " + entity["name"] + " is supported by your vehicle.")
+                logging.info("Success! " + entity["name"] + " is supported by your vehicle.")
                 supported_endpoints[vin].append(entity)
             else:
-                print("Failed, " + entity["name"] + " is unfortunately not supported by your vehicle.")
+                logging.info("Failed, " + entity["name"] + " is unfortunately not supported by your vehicle.")
 
 
 def initialize_climate(vins):
@@ -169,7 +169,7 @@ def initialize_climate(vins):
 
 
 def disable_climate(vin):
-    print("Turning climate off by timer!")
+    logging.info("Turning climate off by timer!")
     mqtt.door_status[vin].do_run = False
     mqtt.assumed_climate_state[vin] = "OFF"
     mqtt.update_car_data()
@@ -200,38 +200,39 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
             # Exception caught while getting data from volvo api, doing nothing
             return None
     elif method == "GET":
-        print("Starting " + method + " call against " + url)
+        logging.debug("Starting " + method + " call against " + url)
         try:
             response = session.get(url.format(vin), timeout=15)
         except requests.exceptions.RequestException as e:
-            print("Error getting data: " + str(e))
+            logging.error("Error getting data: " + str(e))
             return None
     elif method == "POST":
-        print("Starting " + method + " call against " + url)
+        logging.debug("Starting " + method + " call against " + url)
         try:
             response = session.post(url.format(vin), timeout=20)
         except requests.exceptions.RequestException as e:
-            print("Error getting data: " + str(e))
+            logging.error("Error getting data: " + str(e))
             return None
     else:
-        print("Unkown method posted: " + method + ". Returning nothing")
+        logging.error("Unkown method posted: " + method + ". Returning nothing")
         return None
 
+    logging.debug("Response status code: " + str(response.status_code))
     if response.status_code == 200:
         data = response.json()
-        if "debug" in settings:
-            if settings["debug"]:
-                print(response.text)
+        logging.debug(response.text)
     else:
+        logging.debug(response.text)
         if url == CLIMATE_START_URL and response.status_code == 503:
-            print("Car in use, cannot start pre climatization")
+            logging.warning("Car in use, cannot start pre climatization")
             mqtt.assumed_climate_state[vin] = "OFF"
             mqtt.update_car_data()
         elif "extended-vehicle" in url and response.status_code == 403:
             # Suppress 403 errors for unsupported extended-vehicle api cars
+            logging.debug("Suppressed 403 for extended-vehicle API")
             return None
         else:
-            print("API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
+            logging.error("API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
         return None
     return parse_api_data(data, sensor_id)
 
@@ -240,11 +241,11 @@ def cached_request(url, method, vin, force_update=False):
     global cached_requests
     if not util.keys_exists(cached_requests, vin + "_" + url):
         # No API Data cached, get fresh data from API
-        print("Starting " + method + " call against " + url)
+        logging.debug("Starting " + method + " call against " + url)
         try:
             response = session.get(url.format(vin), timeout=15)
         except requests.exceptions.RequestException as e:
-            print("Error getting data: " + str(e))
+            logging.error("Error getting data: " + str(e))
             return None
 
         data = {"response": response, "last_update": datetime.now(util.TZ)}
@@ -255,11 +256,11 @@ def cached_request(url, method, vin, force_update=False):
                                                   (datetime.now(util.TZ) - cached_requests[vin + "_" + url]
                                                       ["last_update"]).total_seconds() >= 2):
             # Old Data in Cache, or force mode active, updating
-            print("Starting " + method + " call against " + url)
+            logging.debug("Starting " + method + " call against " + url)
             try:
                 response = session.get(url.format(vin), timeout=15)
             except requests.exceptions.RequestException as e:
-                print("Error getting data: " + str(e))
+                logging.error("Error getting data: " + str(e))
                 return None
             data = {"response": response, "last_update": datetime.now(util.TZ)}
             cached_requests[vin + "_" + url] = data

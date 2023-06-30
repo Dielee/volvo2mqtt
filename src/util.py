@@ -1,9 +1,44 @@
+import logging
 import pytz
 import os
+import sys
+from logging import handlers
+from datetime import datetime
 from const import units
 from config import settings
+from pathlib import Path
 
 TZ = None
+
+
+def setup_logging():
+    log_location = "volvo2mqtt.log"
+    if os.environ.get("IS_HA_ADDON"):
+        check_existing_folder()
+        log_location = "/addons/volvo2mqtt/log/volvo2mqtt.log"
+
+    logging.Formatter.converter = lambda *args: datetime.now(tz=TZ).timetuple()
+    file_log_handler = logging.handlers.RotatingFileHandler(log_location, maxBytes=1000000, backupCount=1)
+    formatter = logging.Formatter(
+        '%(asctime)s volvo2mqtt [%(process)d] - %(levelname)s: %(message)s',
+        '%b %d %H:%M:%S')
+    file_log_handler.setFormatter(formatter)
+    logger = logging.getLogger()
+
+    console_log_handler = logging.StreamHandler(sys.stdout)
+    console_log_handler.setFormatter(formatter)
+
+    logger.addHandler(console_log_handler)
+    logger.addHandler(file_log_handler)
+
+    logger.setLevel(logging.INFO)
+    if "debug" in settings:
+        if settings["debug"]:
+            logger.setLevel(logging.DEBUG)
+
+
+def check_existing_folder():
+    Path("/addons/volvo2mqtt/log/").mkdir(parents=True, exist_ok=True)
 
 
 def keys_exists(element, *keys):
@@ -43,3 +78,4 @@ def convert_metric_values(value):
         return round((float(value) / divider), 2)
     else:
         return value
+
