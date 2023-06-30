@@ -1,9 +1,32 @@
+import logging
 import pytz
 import os
+from logging import handlers
+import sys
 from const import units
 from config import settings
 
 TZ = None
+
+
+def setup_logging():
+    file_log_handler = logging.handlers.RotatingFileHandler('volvo2mqtt.log', maxBytes=1000000, backupCount=1)
+    formatter = logging.Formatter(
+        '%(asctime)s volvo2mqtt [%(process)d] - %(levelname)s: %(message)s',
+        '%b %d %H:%M:%S')
+    file_log_handler.setFormatter(formatter)
+    logger = logging.getLogger()
+
+    console_log_handler = logging.StreamHandler(sys.stdout)
+    console_log_handler.setFormatter(formatter)
+
+    logger.addHandler(console_log_handler)
+    logger.addHandler(file_log_handler)
+
+    logger.setLevel(logging.INFO)
+    if "debug" in settings:
+        if settings["debug"]:
+            logger.setLevel(logging.DEBUG)
 
 
 def keys_exists(element, *keys):
@@ -43,3 +66,4 @@ def convert_metric_values(value):
         return round((float(value) / divider), 2)
     else:
         return value
+

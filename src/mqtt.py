@@ -1,3 +1,4 @@
+import logging
 import time
 import paho.mqtt.client as mqtt
 import json
@@ -48,14 +49,14 @@ def on_connect(client, userdata, flags, rc):
 
 
 def on_disconnect(client, userdata,  rc):
-    print("MQTT disconnected, reconnecting automatically")
+    logging.warning("MQTT disconnected, reconnecting automatically")
 
 
 def on_message(client, userdata, msg):
     try:
         vin = msg.topic.split('/')[2].split('_')[0]
     except IndexError:
-        print("Error - Cannot get vin from MQTT topic!")
+        logging.error("Error - Cannot get vin from MQTT topic!")
         return None
 
     payload = msg.payload.decode("UTF-8")
@@ -111,10 +112,10 @@ def on_message(client, userdata, msg):
 def update_loop():
     create_ha_devices()
     while True:
-        print("Sending mqtt update...")
+        logging.info("Sending mqtt update...")
         send_heartbeat()
         update_car_data()
-        print("Mqtt update done. Next run in " + str(settings["updateInterval"]) + " seconds.")
+        logging.info("Mqtt update done. Next run in " + str(settings["updateInterval"]) + " seconds.")
         time.sleep(settings["updateInterval"])
 
 
