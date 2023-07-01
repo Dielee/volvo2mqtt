@@ -9,7 +9,7 @@ from datetime import datetime
 from babel.dates import format_datetime
 from config import settings
 from const import CLIMATE_START_URL, CLIMATE_STOP_URL, CAR_LOCK_URL, \
-            CAR_UNLOCK_URL, availability_topic
+            CAR_UNLOCK_URL, availability_topic, icon_states
 
 
 mqtt_client: mqtt.Client
@@ -18,6 +18,7 @@ assumed_climate_state = {}
 last_data_update = None
 climate_timer = {}
 door_status = {}
+devices = {}
 
 
 def connect():
@@ -154,12 +155,58 @@ def update_car_data(force_update=False, overwrite={}):
                 topic,
                 json.dumps(state) if isinstance(state, dict) else state
             )
+            update_ha_device(entity, vin, state)
+
+
+def update_ha_device(entity, vin, state):
+    icon_config = icon_states.get(entity["id"])
+    if icon_config and state:
+        if state.replace(".", "").isnumeric():
+            state = float(state)
+            icon = util.get_icon_between(icon_config, state)
+        else:
+            icon = icon_config[state]
+    else:
+        return None
+
+    logging.debug("Updating icon to " + icon + " for " + entity["id"])
+    config = {
+        "name": entity['name'],
+        "object_id": f"volvo_{vin}_{entity['id']}",
+        "schema": "state",
+        "icon": f"mdi:{icon}" if icon else f"mdi:{entity['icon']}",
+        "state_topic": f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/state",
+        "device": devices[vin],
+        "unique_id": f"volvoAAOS2mqtt_{vin}_{entity['id']}",
+        "availability_topic": availability_topic
+    }
+    if entity.get("device_class"):
+        config["device_class"] = entity["device_class"]
+
+    if entity.get("unit"):
+        config["unit_of_measurement"] = entity["unit"]
+
+    if entity.get("domain") == "device_tracker":
+        config["json_attributes_topic"] = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/attributes"
+
+    if entity.get("domain") in ["switch", "lock", "button"]:
+        command_topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/command"
+        config["command_topic"] = command_topic
+        subscribed_topics.append(command_topic)
+        mqtt_client.subscribe(command_topic)
+
+    mqtt_client.publish(
+        f"homeassistant/{entity['domain']}/volvoAAOS2mqtt/{vin}_{entity['id']}/config",
+        json.dumps(config),
+        retain=True
+    )
 
 
 def create_ha_devices():
-    global subscribed_topics
+    global subscribed_topics, devices
     for vin in volvo.vins:
         device = volvo.get_vehicle_details(vin)
+        devices[vin] = device
         for entity in volvo.supported_endpoints[vin]:
             config = {
                         "name": entity['name'],
