@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.6.3"
+VERSION = "v1.6.4"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles"
@@ -45,6 +45,27 @@ charging_connection_states = {"CONNECTION_STATUS_DISCONNECTED": "Disconnected", 
 
 window_states = {"CLOSED": "OFF", "OPEN": "ON"}
 door_states = {"CLOSED": "OFF", "OPEN": "ON"}
+
+icon_states = {
+    "lock_status": {"UNLOCKED": "lock-open-alert", "LOCKED": "lock"},
+    "door_front_left": {"ON": "car-door", "OFF": "car-door-lock"},
+    "door_front_right": {"ON": "car-door", "OFF": "car-door-lock"},
+    "door_rear_left": {"ON": "car-door", "OFF": "car-door-lock"},
+    "door_rear_right": {"ON": "car-door", "OFF": "car-door-lock"},
+    "battery_charge_level": [
+                    {"from": 100, "to": 100, "icon": "battery"},
+                    {"from": 99, "to": 90, "icon": "battery-90"},
+                    {"from": 89, "to": 80, "icon": "battery-80"},
+                    {"from": 79, "to": 70, "icon": "battery-70"},
+                    {"from": 69, "to": 60, "icon": "battery-60"},
+                    {"from": 59, "to": 50, "icon": "battery-50"},
+                    {"from": 49, "to": 40, "icon": "battery-40"},
+                    {"from": 39, "to": 30, "icon": "battery-30"},
+                    {"from": 29, "to": 20, "icon": "battery-20"},
+                    {"from": 19, "to": 10, "icon": "battery-10"},
+                    {"from": 9, "to": 0, "icon": "battery-alert-variant-outline"},
+    ]
+}
 
 supported_entities = [
                         {"name": "Battery Charge Level", "domain": "sensor", "id": "battery_charge_level", "unit": "%", "icon": "car-battery", "url": RECHARGE_STATE_URL},

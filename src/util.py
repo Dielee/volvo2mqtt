@@ -11,6 +11,14 @@ from pathlib import Path
 TZ = None
 
 
+def get_icon_between(icon_list, state):
+    icon = None
+    for s in icon_list:
+        if s["to"] <= state <= s["from"]:
+            icon = s["icon"]
+    return icon
+
+
 def setup_logging():
     log_location = "volvo2mqtt.log"
     if os.environ.get("IS_HA_ADDON"):
