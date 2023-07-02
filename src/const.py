@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.6.4"
+VERSION = "v1.6.5"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles"
@@ -25,13 +25,15 @@ units = {
                 "divider": 1.60934,
                 "electric_range": {"unit": "mi"},
                 "odometer": {"unit": "mi"},
-                "average_speed": {"unit": "mph"}
+                "average_speed": {"unit": "mph"},
+                "distance_to_empty": {"unit": "mi"}
             },
             "en_US": {
                 "divider": 1.60934,
                 "electric_range": {"unit": "mi"},
                 "odometer": {"unit": "mi"},
-                "average_speed": {"unit": "mph"}
+                "average_speed": {"unit": "mph"},
+                "distance_to_empty": {"unit": "mi"}
             }
         }
 
@@ -100,6 +102,6 @@ supported_entities = [
                         {"name": "Engine State", "domain": "sensor", "id": "engine_state", "icon": "engine", "url": ENGINE_STATE_URL},
                         {"name": "Fuel Level", "domain": "sensor", "id": "fuel_level", "unit": "liters", "icon": "fuel", "url": FUEL_STATE_URL},
                         {"name": "Average Fuel Consumption", "domain": "sensor", "id": "average_fuel_consumption", "unit": "liters", "icon": "fuel", "url": STATISTICS_URL},
-                        {"name": "Distance to Empty", "domain": "sensor", "id": "distance_to_empty", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["odometer"]["unit"], "icon": "map-marker-distance", "url": STATISTICS_URL},
+                        {"name": "Distance to Empty", "domain": "sensor", "id": "distance_to_empty", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["distance_to_empty"]["unit"], "icon": "map-marker-distance", "url": STATISTICS_URL},
                         {"name": "Average Speed", "domain": "sensor", "id": "average_speed", "unit": "km/h" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["average_speed"]["unit"], "icon": "speedometer", "url": STATISTICS_URL}
 ]
