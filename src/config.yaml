@@ -1,10 +1,12 @@
 name: "Volvo2Mqtt"
 description: "Volvo AAOS MQTT bridge"
-version: "1.6.5"
+version: "1.7.0"
 slug: "volvo2mqtt"
 init: false
 url: "https://github.com/Dielee/volvo2mqtt"
 apparmor: true
+services:
+  - 'mqtt:need'
 map: 
   - addons:rw
 options:
@@ -13,10 +15,10 @@ options:
   TZ: null
   debug: false
   mqtt:
-    broker: null
-    port: 1883
-    username: ""
-    password: ""
+    broker: "auto_broker"
+    port: "auto_port"
+    username: "auto_user"
+    password: "auto_password"
   volvoData:
     username: null
     password: null
@@ -32,7 +34,7 @@ schema:
   debug: bool
   mqtt:
     broker: str
-    port: int(1,)
+    port: str
     username: str?
     password: str?
   volvoData:

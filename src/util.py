@@ -2,6 +2,7 @@ import logging
 import pytz
 import os
 import sys
+import config
 from logging import handlers
 from datetime import datetime
 from const import units
@@ -87,3 +88,28 @@ def convert_metric_values(value):
     else:
         return value
 
+
+def set_mqtt_settings():
+    if os.environ.get("IS_HA_ADDON"):
+        if config.settings["mqtt"]["broker"] != "auto_broker" \
+                or config.settings["mqtt"]["port"] != "auto_port" \
+                or config.settings["mqtt"]["username"] != "auto_user" \
+                or config.settings["mqtt"]["password"] != "auto_password":
+            # If settings were manually set, use the manually set settings
+            return None
+
+        broker_host = os.getenv("MQTTHOST", None)
+        broker_port = os.getenv("MQTTPORT", None)
+        broker_user = os.getenv("MQTTUSER", None)
+        broker_pass = os.getenv("MQTTPASS", None)
+
+        if not broker_host or not broker_port:
+            raise Exception("MQTT connection could not be established. Please check if your MQTT Add-On is running!")
+
+        logging.debug("MQTT Credentials - Host " + broker_host + " Port: " + str(broker_port) +
+                      " User: " + str(broker_user) + " Pass: " + str(broker_pass))
+
+        config.settings["mqtt"]["broker"] = broker_host
+        config.settings["mqtt"]["port"] = broker_port
+        config.settings["mqtt"]["username"] = broker_user
+        config.settings["mqtt"]["password"] = broker_pass
