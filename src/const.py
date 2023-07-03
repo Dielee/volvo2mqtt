@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.7.0"
+VERSION = "v1.7.1"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles"
@@ -48,6 +48,7 @@ charging_connection_states = {"CONNECTION_STATUS_DISCONNECTED": "Disconnected", 
 
 window_states = {"CLOSED": "OFF", "OPEN": "ON"}
 door_states = {"CLOSED": "OFF", "OPEN": "ON"}
+engine_states = {"RUNNING": "ON", "STOPPED": "OFF"}
 
 icon_states = {
     "lock_status": {"UNLOCKED": "lock-open-alert", "LOCKED": "lock"},
@@ -55,7 +56,7 @@ icon_states = {
     "door_front_right": {"ON": "car-door", "OFF": "car-door-lock"},
     "door_rear_left": {"ON": "car-door", "OFF": "car-door-lock"},
     "door_rear_right": {"ON": "car-door", "OFF": "car-door-lock"},
-    "engine_state": {"RUNNING": "engine-outline", "STOPPED": "engine-off-outline"},
+    "engine_state": {"ON": "engine-outline", "OFF": "engine-off-outline"},
     "battery_charge_level": [
                     {"from": 100, "to": 100, "icon": "battery"},
                     {"from": 99, "to": 90, "icon": "battery-90"},
@@ -101,8 +102,8 @@ supported_entities = [
                         {"name": "Tire Front Right", "domain": "sensor", "id": "tyre_front_right", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
                         {"name": "Tire Rear Left", "domain": "sensor", "id": "tyre_rear_left", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
                         {"name": "Tire Rear Right", "domain": "sensor", "id": "tyre_rear_right", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
-                        {"name": "Engine State", "domain": "sensor", "id": "engine_state", "icon": "engine", "url": ENGINE_STATE_URL},
-                        {"name": "Engine State", "domain": "sensor", "id": "engine_state", "icon": "engine", "url": ENGINE_DIAGNOSTICS_URL},
+                        {"name": "Engine State", "domain": "binary_sensor", "device_class": "running", "id": "engine_state", "icon": "engine", "url": ENGINE_STATE_URL},
+                        {"name": "Engine State", "domain": "binary_sensor", "device_class": "running", "id": "engine_state", "icon": "engine", "url": ENGINE_DIAGNOSTICS_URL},
                         {"name": "Fuel Level", "domain": "sensor", "id": "fuel_level", "unit": "liters", "icon": "fuel", "url": FUEL_STATE_URL},
                         {"name": "Average Fuel Consumption", "domain": "sensor", "id": "average_fuel_consumption", "unit": "liters", "icon": "fuel", "url": STATISTICS_URL},
                         {"name": "Distance to Empty", "domain": "sensor", "id": "distance_to_empty", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["distance_to_empty"]["unit"], "icon": "map-marker-distance", "url": STATISTICS_URL},

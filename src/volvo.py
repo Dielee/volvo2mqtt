@@ -3,14 +3,14 @@ import requests
 import mqtt
 import util
 import time
-from threading import Thread, currentThread
+from threading import currentThread
 from datetime import datetime, timedelta
 from config import settings
 from babel.dates import format_datetime
 from const import charging_system_states, charging_connection_states, door_states, window_states, \
     OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, CLIMATE_START_URL, \
     WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, supported_entities, BATTERY_CHARGE_STATE_URL, \
-    STATISTICS_URL, CLIMATE_STOP_URL, ENGINE_DIAGNOSTICS_URL
+    STATISTICS_URL, ENGINE_DIAGNOSTICS_URL, engine_states
 
 session = requests.Session()
 session.headers = {
@@ -194,7 +194,7 @@ def check_engine_status(vin):
     t = currentThread()
     while getattr(t, "do_run", True):
         engine_state = api_call(endpoint_url, "GET", vin, "engine_state", True)
-        if engine_state == "RUNNING":
+        if engine_state == "ON":
             mqtt.assumed_climate_state[vin] = "OFF"
             mqtt.update_car_data()
             break
@@ -366,7 +366,7 @@ def parse_api_data(data, sensor_id=None):
     elif sensor_id == "tyre_rear_right":
         return data["rearRightTyrePressure"]["value"] if util.keys_exists(data, "rearRightTyrePressure") else None
     elif sensor_id == "engine_state":
-        return data["engineRunning"]["value"] if util.keys_exists(data, "engineRunning") else None
+        return engine_states[data["engineRunning"]["value"]] if util.keys_exists(data, "engineRunning") else None
     elif sensor_id == "fuel_level":
         if util.keys_exists(data, "fuelAmount"):
             fuel_amount = int(data["fuelAmount"]["value"])
