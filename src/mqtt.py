@@ -17,7 +17,7 @@ subscribed_topics = []
 assumed_climate_state = {}
 last_data_update = None
 climate_timer = {}
-door_status = {}
+engine_status = {}
 devices = {}
 
 
@@ -62,21 +62,21 @@ def on_message(client, userdata, msg):
 
     payload = msg.payload.decode("UTF-8")
     if "climate_status" in msg.topic:
-        global assumed_climate_state, climate_timer, door_status
+        global assumed_climate_state, climate_timer, engine_status
         if payload == "ON":
             # Start the api call in another thread for HA performance
             Thread(target=volvo.api_call, args=(CLIMATE_START_URL, "POST", vin)).start()
 
             # Start door check thread to turn off climate if driver door is opened
-            door_thread = Thread(target=volvo.check_door_status, args=(vin, ))
-            door_thread.start()
-            door_status[vin] = door_thread
-            # Starting timer to disable climate after 30 mins
+            check_engine_thread = Thread(target=volvo.check_engine_status, args=(vin, ))
+            check_engine_thread.start()
+            engine_status[vin] = check_engine_thread
 
+            # Starting timer to disable climate after 30 mins
             climate_timer[vin] = Timer(30 * 60, volvo.disable_climate, (vin, ))
             climate_timer[vin].start()
-            # Set and update switch status
 
+            # Set and update switch status
             assumed_climate_state[vin] = "ON"
             update_car_data()
         elif payload == "OFF":
@@ -84,8 +84,8 @@ def on_message(client, userdata, msg):
             Thread(target=volvo.api_call, args=(CLIMATE_STOP_URL, "POST", vin)).start()
 
             # Stop door check thread if running
-            if door_status[vin].is_alive():
-                door_status[vin].do_run = False
+            if engine_status[vin].is_alive():
+                engine_status[vin].do_run = False
 
             # Stop climate timer if active
             if climate_timer[vin].is_alive():

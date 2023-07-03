@@ -174,18 +174,27 @@ def initialize_climate(vins):
 
 def disable_climate(vin):
     logging.info("Turning climate off by timer!")
-    mqtt.door_status[vin].do_run = False
+    mqtt.engine_status[vin].do_run = False
     mqtt.assumed_climate_state[vin] = "OFF"
     mqtt.update_car_data()
 
 
-def check_door_status(vin):
+def check_engine_status(vin):
+    endpoint_url = ""
+    engine_state_supported = False
+    for endpoint in supported_endpoints[vin]:
+        if "engine_state" == endpoint["id"]:
+            engine_state_supported = True
+            endpoint_url = endpoint["url"]
+
+    if not engine_state_supported:
+        # Exit thread as engine state is unsupported by car
+        return None
+
     t = currentThread()
     while getattr(t, "do_run", True):
-        lock_door_left = api_call(LOCK_STATE_URL, "GET", vin, "door_front_left", True)
-        lock_door_right = api_call(LOCK_STATE_URL, "GET", vin, "door_front_right", True)
-        if lock_door_left == "ON" or lock_door_right == "ON":
-            Thread(target=api_call, args=(CLIMATE_STOP_URL, "POST", vin)).start()
+        engine_state = api_call(endpoint_url, "GET", vin, "engine_state", True)
+        if engine_state == "RUNNING":
             mqtt.assumed_climate_state[vin] = "OFF"
             mqtt.update_car_data()
             break
@@ -258,7 +267,7 @@ def cached_request(url, method, vin, force_update=False):
         if (datetime.now(util.TZ) - cached_requests[vin + "_" + url]["last_update"]).total_seconds() \
                 >= settings["updateInterval"] or (force_update and
                                                   (datetime.now(util.TZ) - cached_requests[vin + "_" + url]
-                                                      ["last_update"]).total_seconds() >= 2):
+                                                  ["last_update"]).total_seconds() >= 2):
             # Old Data in Cache, or force mode active, updating
             logging.debug("Starting " + method + " call against " + url)
             try:
