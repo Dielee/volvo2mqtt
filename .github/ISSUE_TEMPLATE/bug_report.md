@@ -1,22 +1,38 @@
+---
+name: Bug report
+about: Create a report to help us improve
+title: ''
+labels: ''
+assignees: ''
+
+---
+
 **Describe the bug**
 A clear and concise description of what the bug is.
 
-**To Reproduce**:<br>
+**To Reproduce**
 Steps to reproduce the behavior:
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
 4. See error
 
-**Expected behavior**:<br>
+**Expected behavior**
 A clear and concise description of what you expected to happen.
 
-**Screenshots**:<br>
+**Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Version info**:<br>
-The version you are using and the method you are using (Docker container/HA Addon/Cloned repo)
+**Desktop (please complete the following information):**
+ - OS: [e.g. iOS]
+ - Browser [e.g. chrome, safari]
+ - Version [e.g. 22]
 
-**Logs**:<br>
-Enable the debug option and upload your logfile here. <br>
-<b>If you are using the HA Addon the log location is `\\<Your HA Host IP>\addons\volvo2mqtt\log\volvo2mqtt.log`
+**Smartphone (please complete the following information):**
+ - Device: [e.g. iPhone6]
+ - OS: [e.g. iOS8.1]
+ - Browser [e.g. stock browser, safari]
+ - Version [e.g. 22]
+
+**Additional context**
+Add any other context about the problem here.
