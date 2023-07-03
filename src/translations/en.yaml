@@ -10,7 +10,7 @@ configuration:
     description: Set your local timezone eg. "Europe/Berlin" or "America/New_York"
   debug:
     name: API debug mode
-    description: Enable Volvo API debug, normaly this can stay off
+    description: Enable Volvo API debug, normaly this can stay off. If enabled, the complete log file can be found under \\<Your HA Host IP>\addons\volvo2mqtt\log\volvo2mqtt.log.
   mqtt:
     name: MQTT Broker settings
     description: Broker is your mqtt broker IP eg "192.168.0.1". Mqtt username and password are optional. Broker port can be changed. If no value is given, port 1883 will be used.
