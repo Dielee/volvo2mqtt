@@ -10,7 +10,7 @@ from babel.dates import format_datetime
 from const import charging_system_states, charging_connection_states, door_states, window_states, \
     OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, CLIMATE_START_URL, \
     WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, supported_entities, BATTERY_CHARGE_STATE_URL, \
-    STATISTICS_URL, CLIMATE_STOP_URL
+    STATISTICS_URL, CLIMATE_STOP_URL, ENGINE_DIAGNOSTICS_URL
 
 session = requests.Session()
 session.headers = {
@@ -148,6 +148,11 @@ def check_supported_endpoints():
             if entity["id"] == "battery_charge_level" and entity["url"] == BATTERY_CHARGE_STATE_URL \
                     and any("battery_charge_level" in d["id"] for d in supported_endpoints[vin]):
                 # If battery charge level could be found in recharge-api, skip the second battery charge sensor
+                continue
+
+            if entity["id"] == "engine_state" and entity["url"] == ENGINE_DIAGNOSTICS_URL \
+                    and any("engine_state" in d["id"] for d in supported_endpoints[vin]):
+                # If engine state could be found in engine state endpoint, skip the second engine running sensor
                 continue
 
             if entity.get('url'):

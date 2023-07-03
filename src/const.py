@@ -19,6 +19,7 @@ ENGINE_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/
 BATTERY_CHARGE_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/battery-charge-level"
 FUEL_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/fuel"
 STATISTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/statistics"
+ENGINE_DIAGNOSTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/engine"
 
 units = {
             "en_GB": {
@@ -54,6 +55,7 @@ icon_states = {
     "door_front_right": {"ON": "car-door", "OFF": "car-door-lock"},
     "door_rear_left": {"ON": "car-door", "OFF": "car-door-lock"},
     "door_rear_right": {"ON": "car-door", "OFF": "car-door-lock"},
+    "engine_state": {"RUNNING": "engine-outline", "STOPPED": "engine-off-outline"},
     "battery_charge_level": [
                     {"from": 100, "to": 100, "icon": "battery"},
                     {"from": 99, "to": 90, "icon": "battery-90"},
@@ -100,6 +102,7 @@ supported_entities = [
                         {"name": "Tire Rear Left", "domain": "sensor", "id": "tyre_rear_left", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
                         {"name": "Tire Rear Right", "domain": "sensor", "id": "tyre_rear_right", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
                         {"name": "Engine State", "domain": "sensor", "id": "engine_state", "icon": "engine", "url": ENGINE_STATE_URL},
+                        {"name": "Engine State", "domain": "sensor", "id": "engine_state", "icon": "engine", "url": ENGINE_DIAGNOSTICS_URL},
                         {"name": "Fuel Level", "domain": "sensor", "id": "fuel_level", "unit": "liters", "icon": "fuel", "url": FUEL_STATE_URL},
                         {"name": "Average Fuel Consumption", "domain": "sensor", "id": "average_fuel_consumption", "unit": "liters", "icon": "fuel", "url": STATISTICS_URL},
                         {"name": "Distance to Empty", "domain": "sensor", "id": "distance_to_empty", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["distance_to_empty"]["unit"], "icon": "map-marker-distance", "url": STATISTICS_URL},
