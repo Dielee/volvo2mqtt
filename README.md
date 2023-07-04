@@ -15,7 +15,7 @@ Maybe this component works also with other Volvo cars. Please try out the native
 
 Home Assistant thread can be found [here](https://community.home-assistant.io/t/volvo2mqtt-connect-your-aaos-volvo/585699).
 
-If you like my work:
+If you like my work:<br>
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/U7U8MFXCF)
 
 ## Confirmed working with
