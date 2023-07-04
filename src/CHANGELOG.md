@@ -1,0 +1,63 @@
+## v1.7.2
+### 🐛 Bug Fixes:
+
+- Fixed "Engine State" can be "true" or "false", not "RUNNING" or "STOPPED" #47
+
+## v1.7.1
+### 🚀 Features:
+
+- Moved "Engine State" from "sensor" to the "binary_sensor" domain
+- Improved HA Add-On security level to 7
+
+<b>NOTE: The old "sensor" entity will be not deleted automatically. If you want to clean up your mqtt device, just delete it and restart the volvo2mqtt addon.
+</b>
+
+## v1.7.0
+### 🚀 Features:
+
+- Added MQTT autodiscovery for HA Add-On users
+- Added "Engine State" fallback endpoint for some cars (BEVs)
+- Added dynamic icons for "Engine State"
+- Turn off the pre-climate switch if "Engine State" changes to "RUNNING"
+
+<b>NOTE: The mqtt broker port is now a string. Just quote your port like this `port: "1883"`</b><br>
+<b>NOTE: If you want to switch to MQTT autodiscovery for the HA Add-On change your settings to: <br>
+![image](https://i.imgur.com/GBamhFn.png)</b>
+
+## v1.6.5
+### 🐛 Bug Fixes:
+
+- Fixed missing key in unit mappings for `en_US` and `en_GB` mapping
+
+## v1.6.4
+### 🚀 Features:
+
+- Added dynamic icons for lock, battery and window state #43 
+
+## v1.6.3
+### 🚀 Features:
+
+- Moved data source for "Distance to empty" from extended api to connected api
+
+## v1.6.2
+### 🚀 Features:
+
+- Moved print statements to logger
+- Added more debug logging
+- The full HA Addon log can now be found at your addon smb share `\\<Your HA IP>\addons\volvo2mqtt\log\volvo2mqtt.log`
+
+## v1.6.1
+### 🚀 Features:
+
+- Added "Washer Fluid Level" and "Distance to Empty" sensors #37 
+- Expanded climate control for better state sync with HA
+
+### 🐛 Bug Fixes:
+
+- Fixed wrong return values for not working endpoints
+- Fixed app crash on credential renewal timeout #39 
+
+## v1.6.0
+### 🚀 Features:
+
+- Added conversion from metric to imperial system for `en_US` and `en_GB` locale
