@@ -369,7 +369,7 @@ def parse_api_data(data, sensor_id=None):
         return engine_states[data["engineRunning"]["value"]] if util.keys_exists(data, "engineRunning") else None
     elif sensor_id == "fuel_level":
         if util.keys_exists(data, "fuelAmount"):
-            fuel_amount = int(data["fuelAmount"]["value"])
+            fuel_amount = float(data["fuelAmount"]["value"])
             if fuel_amount > 0:
                 return fuel_amount
         return None
@@ -388,7 +388,7 @@ def parse_api_data(data, sensor_id=None):
         return None
     elif sensor_id == "average_speed":
         if util.keys_exists(data, "averageSpeed"):
-            average_speed = int(data["averageSpeed"]["value"])
+            average_speed = float(data["averageSpeed"]["value"])
             if average_speed > 1:
                 divider = 1
                 if util.keys_exists(settings["volvoData"], "averageSpeedDivider"):

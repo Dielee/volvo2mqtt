@@ -1,3 +1,10 @@
+## v1.7.3
+### 🐛 Bug Fixes:
+
+- Fixed API changes from Volvo #53
+
+<b>ATTENTION: Volvo optimized their API. Maybe you have to set your odometer multiplier to 1. 
+Also check all the other multipliers!</b>
 ## v1.7.2
 ### 🐛 Bug Fixes:
 
