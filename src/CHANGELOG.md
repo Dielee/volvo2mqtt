@@ -1,3 +1,8 @@
+## v1.7.4
+### 🐛 Bug Fixes:
+
+- Fixed undocumented charging connection state `CONNECTION_STATUS_FAULT` '#57
+
 ## v1.7.3
 ### 🐛 Bug Fixes:
 
