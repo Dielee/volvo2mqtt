@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.7.3"
+VERSION = "v1.7.4"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles"
@@ -44,7 +44,8 @@ charging_system_states = {"CHARGING_SYSTEM_CHARGING": "Charging", "CHARGING_SYST
                           "CHARGING_SYSTEM_FAULT": "Fault", "CHARGING_SYSTEM_UNSPECIFIED": "Unspecified"}
 
 charging_connection_states = {"CONNECTION_STATUS_DISCONNECTED": "Disconnected", "CONNECTION_STATUS_UNSPECIFIED": "Unspecified",
-                              "CONNECTION_STATUS_CONNECTED_DC": "Connected DC", "CONNECTION_STATUS_CONNECTED_AC": "Connected AC"}
+                              "CONNECTION_STATUS_CONNECTED_DC": "Connected DC", "CONNECTION_STATUS_CONNECTED_AC": "Connected AC",
+                              "CONNECTION_STATUS_FAULT": "Fault"}
 
 window_states = {"CLOSED": "OFF", "OPEN": "ON"}
 door_states = {"CLOSED": "OFF", "OPEN": "ON"}
