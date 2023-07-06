@@ -179,6 +179,20 @@ def disable_climate(vin):
     mqtt.update_car_data()
 
 
+def check_lock_status(vin, old_state):
+    max_runs = 10
+    done_runs = 0
+    lock_state = api_call(LOCK_STATE_URL, "GET", vin, "lock_status", True)
+    while lock_state == old_state:
+        done_runs = done_runs + 1
+        if done_runs >= max_runs:
+            break
+        lock_state = api_call(LOCK_STATE_URL, "GET", vin, "lock_status", True)
+        time.sleep(2)
+
+    mqtt.update_car_data()
+
+
 def check_engine_status(vin):
     endpoint_url = ""
     engine_state_supported = False

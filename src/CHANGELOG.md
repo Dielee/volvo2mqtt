@@ -1,3 +1,8 @@
+## v1.7.5
+### 🚀 Features:
+
+- Added support for `LOCKING` and `UNLOCKING` state (Lock entity)
+
 ## v1.7.4
 ### 🐛 Bug Fixes:
 

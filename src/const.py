@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.7.4"
+VERSION = "v1.7.5"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles"
@@ -52,7 +52,7 @@ door_states = {"CLOSED": "OFF", "OPEN": "ON"}
 engine_states = {"RUNNING": "ON", "STOPPED": "OFF", "true": "ON", "false": "OFF"}
 
 icon_states = {
-    "lock_status": {"UNLOCKED": "lock-open-alert", "LOCKED": "lock"},
+    "lock_status": {"UNLOCKED": "lock-open-alert", "LOCKED": "lock", "UNLOCKING": "lock-reset", "LOCKING": "lock-reset"},
     "door_front_left": {"ON": "car-door", "OFF": "car-door-lock"},
     "door_front_right": {"ON": "car-door", "OFF": "car-door-lock"},
     "door_rear_left": {"ON": "car-door", "OFF": "car-door-lock"},

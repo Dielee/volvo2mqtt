@@ -96,15 +96,21 @@ def on_message(client, userdata, msg):
             update_car_data()
     elif "lock_status" in msg.topic:
         if payload == "LOCK":
-            volvo.api_call(CAR_LOCK_URL, "POST", vin)
+            # Start the api call in another thread for HA performance
+            Thread(target=volvo.api_call, args=(CAR_LOCK_URL, "POST", vin)).start()
 
-            # Force set unlocked state in HA because of slow api response
-            update_car_data(True, {"entity_id": "lock_status", "vin": vin, "state": "LOCKED"})
+            # Force set locking state
+            update_car_data(False, {"entity_id": "lock_status", "vin": vin, "state": "LOCKING"})
+            # Fetch API lock state until locking finished
+            Thread(target=volvo.check_lock_status, args=(vin, "UNLOCKED")).start()
         elif payload == "UNLOCK":
-            volvo.api_call(CAR_UNLOCK_URL, "POST", vin)
+            # Start the api call in another thread for HA performance
+            Thread(target=volvo.api_call, args=(CAR_UNLOCK_URL, "POST", vin)).start()
 
-            # Force set unlocked state in HA because of slow api response
-            update_car_data(True, {"entity_id": "lock_status", "vin": vin, "state": "UNLOCKED"})
+            # Force set unlocking state
+            update_car_data(False, {"entity_id": "lock_status", "vin": vin, "state": "UNLOCKING"})
+            # Fetch API lock state until unlocking finished
+            Thread(target=volvo.check_lock_status, args=(vin, "LOCKED")).start()
     elif "update_data" in msg.topic:
         if payload == "PRESS":
             update_car_data(True)
