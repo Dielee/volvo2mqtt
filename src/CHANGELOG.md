@@ -1,3 +1,10 @@
+## v1.7.6
+### 🚀 Features:
+
+- Added support for interior and exterior images via the new [MQTT Image](https://www.home-assistant.io/integrations/image.mqtt/) entity. #62
+
+<b>NOTE: This feature is only available using homeassistant version 2023.7.1 or greater.</b>
+
 ## v1.7.5
 ### 🚀 Features:
 

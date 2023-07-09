@@ -125,6 +125,7 @@ def get_vehicle_details(vin):
             "model": data['descriptions']['model'],
             "name": f"{data['descriptions']['model']} ({data['modelYear']}) - {vin}",
         }
+        mqtt.send_car_images(vin, data, device)
     elif response.status_code == 500 and not settings.volvoData["vin"]:
         # Workaround for some cars that are not returning vehicle details
         device = {
