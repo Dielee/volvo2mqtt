@@ -1,6 +1,7 @@
 import logging
 import pytz
 import os
+import re
 import sys
 import config
 from logging import handlers
@@ -10,6 +11,21 @@ from config import settings
 from pathlib import Path
 
 TZ = None
+SENSITIVE_PATTERNS = [
+    r"[A-Z0-9]{17}",  # VIN
+    r"\d{1,2}\.\d{5,16}"  # Location
+]
+
+
+class SensitiveDataFilter(logging.Filter):
+    def __init__(self, patterns=None):
+        super().__init__()
+        self.patterns = patterns or []
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        for pattern in self.patterns:
+            record.msg = re.sub(pattern, "<REDACTED>", record.msg)
+        return True
 
 
 def get_icon_between(icon_list, state):
@@ -32,6 +48,8 @@ def setup_logging():
         '%(asctime)s volvo2mqtt [%(process)d] - %(levelname)s: %(message)s',
         '%b %d %H:%M:%S')
     file_log_handler.setFormatter(formatter)
+    sensitive_data_filter = SensitiveDataFilter(SENSITIVE_PATTERNS)
+    file_log_handler.addFilter(sensitive_data_filter)
     logger = logging.getLogger()
 
     console_log_handler = logging.StreamHandler(sys.stdout)
@@ -39,6 +57,7 @@ def setup_logging():
 
     logger.addHandler(console_log_handler)
     logger.addHandler(file_log_handler)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     logger.setLevel(logging.INFO)
     if "debug" in settings:
