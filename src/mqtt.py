@@ -138,7 +138,7 @@ def start_climate_timer(d, vin):
         return None
 
     if timer_seconds > 0:
-        Timer(timer_seconds, start_climate, (vin, )).start()
+        Timer(timer_seconds, activate_climate_timer, (vin, start_datetime.isoformat(), )).start()
         active_schedules[vin]["timers"].append(start_datetime.isoformat())
         logging.debug("Climate timer set to " + str(start_datetime))
         update_car_data()
@@ -181,6 +181,12 @@ def stop_climate(vin):
 
     # Set and update switch status
     assumed_climate_state[vin] = "OFF"
+    update_car_data()
+
+
+def activate_climate_timer(vin, start_time):
+    start_climate(vin)
+    active_schedules[vin]["timers"].remove(start_time)
     update_car_data()
 
 
