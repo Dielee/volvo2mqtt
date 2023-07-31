@@ -1,3 +1,9 @@
+## v1.7.7
+### 🚀 Features:
+
+- Added long term statistics for some sensors #68. Thanks to @bogdanbujdea!
+- Automatic redact sensitive data from debug log
+
 ## v1.7.6
 ### 🚀 Features:
 
