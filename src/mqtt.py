@@ -281,6 +281,9 @@ def update_ha_device(entity, vin, state):
     if entity.get("unit"):
         config["unit_of_measurement"] = entity["unit"]
 
+    if entity.get("state_class"):
+        config["state_class"] = entity["state_class"]
+        
     if entity.get("domain") == "device_tracker":
         config["json_attributes_topic"] = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/attributes"
 
@@ -318,6 +321,9 @@ def create_ha_devices():
 
             if entity.get("unit"):
                 config["unit_of_measurement"] = entity["unit"]
+
+            if entity.get("state_class"):
+                config["state_class"] = entity["state_class"]
 
             if entity.get("domain") == "device_tracker" or entity.get("id") == "active_schedules":
                 config["json_attributes_topic"] = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/attributes"
