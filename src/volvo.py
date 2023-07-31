@@ -111,6 +111,7 @@ def get_vehicles():
         raise Exception("No vehicle found, exiting application!")
     else:
         initialize_climate(vins)
+        initialize_scheduler(vins)
         logging.info("Vin: " + str(vins) + " found!")
 
 
@@ -166,6 +167,12 @@ def check_supported_endpoints():
                 supported_endpoints[vin].append(entity)
             else:
                 logging.info("Failed, " + entity["name"] + " is unfortunately not supported by your vehicle.")
+
+
+def initialize_scheduler(vins):
+    for vin in vins:
+        mqtt.active_schedules[vin] = {"timers": []}
+        mqtt.subscribed_topics = [f"homeassistant/schedule/{vin}/command"]
 
 
 def initialize_climate(vins):

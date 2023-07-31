@@ -83,6 +83,7 @@ supported_entities = [
                         {"name": "Estimated Charging Finish Time", "domain": "sensor", "id": "estimated_charging_finish_time", "icon": "timer-sync-outline", "url": RECHARGE_STATE_URL", state_class": "measurement"},
                         {"name": "Odometer", "domain": "sensor", "id": "odometer", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["odometer"]["unit"], "icon": "counter", "url": ODOMETER_STATE_URL, "state_class":"total_increasing"},
                         {"name": "Last Data Update", "domain": "sensor", "id": "last_data_update", "icon": "timer", "url": ""},
+                        {"name": "Active schedules", "domain": "sensor", "id": "active_schedules", "icon": "timer", "url": ""},
                         {"name": "Window Front Left", "domain": "binary_sensor", "device_class": "window", "id": "window_front_left", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
                         {"name": "Window Front Right", "domain": "binary_sensor", "device_class": "window", "id": "window_front_right", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
                         {"name": "Window Rear Left", "domain": "binary_sensor", "device_class": "window", "id": "window_rear_left", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},

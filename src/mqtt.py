@@ -19,6 +19,7 @@ last_data_update = None
 climate_timer = {}
 engine_status = {}
 devices = {}
+active_schedules = {}
 
 
 def connect():
@@ -99,58 +100,107 @@ def on_message(client, userdata, msg):
 
     payload = msg.payload.decode("UTF-8")
     if "climate_status" in msg.topic:
-        global assumed_climate_state, climate_timer, engine_status
         if payload == "ON":
-            # Start the api call in another thread for HA performance
-            Thread(target=volvo.api_call, args=(CLIMATE_START_URL, "POST", vin)).start()
-
-            # Start door check thread to turn off climate if driver door is opened
-            check_engine_thread = Thread(target=volvo.check_engine_status, args=(vin, ))
-            check_engine_thread.start()
-            engine_status[vin] = check_engine_thread
-
-            # Starting timer to disable climate after 30 mins
-            climate_timer[vin] = Timer(30 * 60, volvo.disable_climate, (vin, ))
-            climate_timer[vin].start()
-
-            # Set and update switch status
-            assumed_climate_state[vin] = "ON"
-            update_car_data()
+            start_climate(vin)
         elif payload == "OFF":
-            # Start the api call in another thread for HA performance
-            Thread(target=volvo.api_call, args=(CLIMATE_STOP_URL, "POST", vin)).start()
-
-            # Stop door check thread if running
-            if engine_status[vin].is_alive():
-                engine_status[vin].do_run = False
-
-            # Stop climate timer if active
-            if climate_timer[vin].is_alive():
-                climate_timer[vin].cancel()
-
-            # Set and update switch status
-            assumed_climate_state[vin] = "OFF"
-            update_car_data()
+            stop_climate(vin)
     elif "lock_status" in msg.topic:
         if payload == "LOCK":
-            # Start the api call in another thread for HA performance
-            Thread(target=volvo.api_call, args=(CAR_LOCK_URL, "POST", vin)).start()
-
-            # Force set locking state
-            update_car_data(False, {"entity_id": "lock_status", "vin": vin, "state": "LOCKING"})
-            # Fetch API lock state until locking finished
-            Thread(target=volvo.check_lock_status, args=(vin, "UNLOCKED")).start()
+            lock_car(vin)
         elif payload == "UNLOCK":
-            # Start the api call in another thread for HA performance
-            Thread(target=volvo.api_call, args=(CAR_UNLOCK_URL, "POST", vin)).start()
-
-            # Force set unlocking state
-            update_car_data(False, {"entity_id": "lock_status", "vin": vin, "state": "UNLOCKING"})
-            # Fetch API lock state until unlocking finished
-            Thread(target=volvo.check_lock_status, args=(vin, "LOCKED")).start()
+            unlock_car(vin)
     elif "update_data" in msg.topic:
         if payload == "PRESS":
             update_car_data(True)
+    elif "schedule" in msg.topic:
+        try:
+            d = json.loads(payload)
+        except ValueError as e:
+            logging.error("Can't set timer. Error: " + str(e))
+            return None
+
+        if d["mode"] == "timer":
+            start_climate_timer(d, vin)
+        else:
+            logging.warning("No schedule mode found, doing nothing")
+
+
+def start_climate_timer(d, vin):
+    global active_schedules
+    try:
+        minute = int(d["start_time"].split(":")[1])
+        hour = int(d["start_time"].split(":")[0])
+        local_datetime = datetime.now(util.TZ)
+        start_datetime = local_datetime.replace(hour=hour, minute=minute, second=0)
+        timer_seconds = (start_datetime - local_datetime).total_seconds()
+    except Exception as e:
+        logging.error("Error creating climate timer: " + str(e))
+        return None
+
+    if timer_seconds > 0:
+        Timer(timer_seconds, start_climate, (vin, )).start()
+        active_schedules[vin]["timers"].append(start_datetime.isoformat())
+        logging.debug("Climate timer set to " + str(start_datetime))
+        update_car_data()
+    else:
+        logging.warning("Timer can not be set. Unusable start time entered")
+
+
+def unlock_car(vin):
+    # Start the api call in another thread for HA performance
+    Thread(target=volvo.api_call, args=(CAR_UNLOCK_URL, "POST", vin)).start()
+
+    # Force set unlocking state
+    update_car_data(False, {"entity_id": "lock_status", "vin": vin, "state": "UNLOCKING"})
+    # Fetch API lock state until unlocking finished
+    Thread(target=volvo.check_lock_status, args=(vin, "LOCKED")).start()
+
+
+def lock_car(vin):
+    # Start the api call in another thread for HA performance
+    Thread(target=volvo.api_call, args=(CAR_LOCK_URL, "POST", vin)).start()
+
+    # Force set locking state
+    update_car_data(False, {"entity_id": "lock_status", "vin": vin, "state": "LOCKING"})
+    # Fetch API lock state until locking finished
+    Thread(target=volvo.check_lock_status, args=(vin, "UNLOCKED")).start()
+
+
+def stop_climate(vin):
+    global assumed_climate_state, climate_timer, engine_status
+    # Start the api call in another thread for HA performance
+    Thread(target=volvo.api_call, args=(CLIMATE_STOP_URL, "POST", vin)).start()
+
+    # Stop door check thread if running
+    if engine_status[vin].is_alive():
+        engine_status[vin].do_run = False
+
+    # Stop climate timer if active
+    if climate_timer[vin].is_alive():
+        climate_timer[vin].cancel()
+
+    # Set and update switch status
+    assumed_climate_state[vin] = "OFF"
+    update_car_data()
+
+
+def start_climate(vin):
+    global assumed_climate_state, climate_timer, engine_status
+    # Start the api call in another thread for HA performance
+    Thread(target=volvo.api_call, args=(CLIMATE_START_URL, "POST", vin)).start()
+
+    # Start door check thread to turn off climate if driver door is opened
+    check_engine_thread = Thread(target=volvo.check_engine_status, args=(vin,))
+    check_engine_thread.start()
+    engine_status[vin] = check_engine_thread
+
+    # Starting timer to disable climate after 30 mins
+    climate_timer[vin] = Timer(30 * 60, volvo.disable_climate, (vin,))
+    climate_timer[vin].start()
+
+    # Set and update switch status
+    assumed_climate_state[vin] = "ON"
+    update_car_data()
 
 
 def update_loop():
@@ -183,20 +233,22 @@ def update_car_data(force_update=False, overwrite={}):
                 state = assumed_climate_state[vin]
             elif entity["id"] == "last_data_update":
                 state = last_data_update
+            elif entity["id"] == "active_schedules":
+                state = active_schedules[vin]
             else:
                 if entity["id"] == ov_entity_id and vin == ov_vin:
                     state = ov_state
                 else:
                     state = volvo.api_call(entity["url"], "GET", vin, entity["id"], force_update)
 
-            if entity["domain"] == "device_tracker":
+            if entity["domain"] == "device_tracker" or entity["id"] == "active_schedules":
                 topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/attributes"
             else:
                 topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/state"
 
             mqtt_client.publish(
                 topic,
-                json.dumps(state) if isinstance(state, dict) else state
+                json.dumps(state) if isinstance(state, dict) or isinstance(state, list) else state
             )
             update_ha_device(entity, vin, state)
 
@@ -273,7 +325,7 @@ def create_ha_devices():
             if entity.get("state_class"):
                 config["state_class"] = entity["state_class"]
 
-            if entity.get("domain") == "device_tracker":
+            if entity.get("domain") == "device_tracker" or entity.get("id") == "active_schedules":
                 config["json_attributes_topic"] = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/attributes"
             elif entity.get("domain") in ["switch", "lock", "button"]:
                 command_topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/command"
