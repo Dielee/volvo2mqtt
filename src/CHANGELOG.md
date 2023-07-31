@@ -3,6 +3,7 @@
 
 - Added long term statistics for some sensors #68. Thanks to @bogdanbujdea!
 - Automatic redact sensitive data from debug log
+- Perpare for scheduler option (not yet ready)
 
 ## v1.7.6
 ### 🚀 Features:
