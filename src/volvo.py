@@ -436,5 +436,19 @@ def parse_api_data(data, sensor_id=None):
             if distance_to_empty > 0:
                 return util.convert_metric_values(data["distanceToEmpty"]["value"])
         return None
+    elif sensor_id == "hours_to_service":
+        return data["engineHoursToService"]["value"] if util.keys_exists(data, "engineHoursToService") else None
+    elif sensor_id == "km_to_service":
+        if util.keys_exists(data, "kmToService"):
+            km_to_service = int(data["kmToService"]["value"])
+            if km_to_service > 0:
+                return util.convert_metric_values(data["kmToService"]["value"])
+        return None
+    elif sensor_id == "months_to_service":
+        return data["monthsToService"]["value"] if util.keys_exists(data, "monthsToService") else None
+    elif sensor_id == "service_warning_status":
+        return data["serviceWarningStatus"]["value"] if util.keys_exists(data, "serviceWarningStatus") else None
+    elif sensor_id == "service_warning_trigger":
+        return data["serviceWarningTrigger"]["value"] if util.keys_exists(data, "serviceWarningTrigger") else None
     else:
         return None
