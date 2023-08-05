@@ -1,3 +1,8 @@
+## v1.7.9
+### 🚀 Features:
+
+- Added vehicle diagnostics sensors #75. Thanks to @aerrow5!
+
 ## v1.7.8
 ### 🐛 Bug Fixes:
 
