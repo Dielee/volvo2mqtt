@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.7.8"
+VERSION = "v1.7.9"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles"
