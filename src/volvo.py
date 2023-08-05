@@ -452,5 +452,15 @@ def parse_api_data(data, sensor_id=None):
         return data["serviceWarningTrigger"]["value"] if util.keys_exists(data, "serviceWarningTrigger") else None
     elif sensor_id == "bulb_failure_status":
         return data["bulbFailure"]["value"] if util.keys_exists(data, "bulbFailure") else None
+    elif sensor_id == "estimated_efficiency":
+        capacity = 1
+        if util.keys_exists(settings["volvoData"], "capacity"):
+            capacity = settings["volvoData"]["capacity"]
+            if isinstance(capacity, str):
+                capacity = 1
+            elif capacity < 1:
+                capacity = 1
+        return util.convert_metric_values( round(float(data["batteryChargeLevel"]["value"]) * capacity / float(data["electricRange"]["value"]), 2)) \
+            if util.keys_exists(data, "electricRange") and util.keys_exists(data, "batteryChargeLevel") and capacity > 1 else None
     else:
         return None

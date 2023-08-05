@@ -15,6 +15,7 @@
 	"vccapikey": "",
     "odometerMultiplier": "",
     "averageSpeedDivider": "",
-    "averageFuelConsumptionMultiplier": ""
+    "averageFuelConsumptionMultiplier": "",
+    "capacity": ""
   }
 }
