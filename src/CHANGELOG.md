@@ -1,3 +1,8 @@
+## v1.7.8
+### 🐛 Bug Fixes:
+
+- Fix "Estimated Charging Finish Time" Sensor  
+
 ## v1.7.7
 ### 🚀 Features:
 
