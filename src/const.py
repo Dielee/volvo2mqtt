@@ -30,6 +30,7 @@ units = {
                 "odometer": {"unit": "mi"},
                 "average_speed": {"unit": "mph"},
                 "distance_to_empty": {"unit": "mi"},
+                "estimated_efficiency": {"unit": "mi"},
                 "distance_to_service": {"unit": "mi"}
             },
             "en_US": {
@@ -38,6 +39,7 @@ units = {
                 "odometer": {"unit": "mi"},
                 "average_speed": {"unit": "mph"},
                 "distance_to_empty": {"unit": "mi"},
+                "estimated_efficiency": {"unit": "mi"},
                 "distance_to_service": {"unit": "mi"}
             }
         }
@@ -119,5 +121,6 @@ supported_entities = [
                         {"name": "Months to Service", "domain": "sensor", "id": "months_to_service", "unit": "month", "icon": "wrench-clock", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "Service warning status", "domain": "sensor", "id": "service_warning_status", "icon": "alert-outline", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "Service warning trigger", "domain": "sensor", "id": "service_warning_trigger", "icon": "alert-outline", "url": VEHICLE_DIAGNOSTICS_URL},
-                        {"name": "Bulb failure", "domain": "sensor", "id": "bulb_failure_status", "icon": "lightbulb-alert-outline", "url": VEHICLE_WARNINGS_URL}
+                        {"name": "Bulb failure", "domain": "sensor", "id": "bulb_failure_status", "icon": "lightbulb-alert-outline", "url": VEHICLE_WARNINGS_URL},
+                        {"name": "Estimated efficiency", "domain": "sensor", "id": "estimated_efficiency", "unit": "km/h" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["estimated_efficiency"]["unit"], "icon": "map-marker-distance", "url": RECHARGE_STATE_URL, "state_class": "measurement"}                        
 ]
