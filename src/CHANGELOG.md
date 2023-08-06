@@ -1,3 +1,8 @@
+## v1.7.10
+### 🐛 Bug Fixes:
+
+- Fix application startup if using `en_US` or `en_GB` as locale
+
 ## v1.7.9
 ### 🚀 Features:
 

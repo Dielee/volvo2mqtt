@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.7.9"
+VERSION = "v1.7.10"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles"
@@ -28,14 +28,16 @@ units = {
                 "electric_range": {"unit": "mi"},
                 "odometer": {"unit": "mi"},
                 "average_speed": {"unit": "mph"},
-                "distance_to_empty": {"unit": "mi"}
+                "distance_to_empty": {"unit": "mi"},
+                "distance_to_service": {"unit": "mi"}
             },
             "en_US": {
                 "divider": 1.60934,
                 "electric_range": {"unit": "mi"},
                 "odometer": {"unit": "mi"},
                 "average_speed": {"unit": "mph"},
-                "distance_to_empty": {"unit": "mi"}
+                "distance_to_empty": {"unit": "mi"},
+                "distance_to_service": {"unit": "mi"}
             }
         }
 
