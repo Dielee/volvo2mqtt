@@ -228,7 +228,8 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
     if datetime.now(util.TZ) >= token_expires_at:
         refresh_auth()
 
-    if url in [RECHARGE_STATE_URL, WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, STATISTICS_URL]:
+    if url in [RECHARGE_STATE_URL, WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL,
+               STATISTICS_URL, ENGINE_DIAGNOSTICS_URL]:
         # Minimize API calls for endpoints with multiple values
         response = cached_request(url, method, vin, force_update)
         if response is None:
