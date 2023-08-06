@@ -21,6 +21,7 @@ FUEL_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/fu
 STATISTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/statistics"
 ENGINE_DIAGNOSTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/engine"
 VEHICLE_DIAGNOSTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/diagnostics"
+VEHICLE_WARNINGS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/warnings"
 
 units = {
             "en_GB": {
@@ -117,5 +118,6 @@ supported_entities = [
                         {"name": "Distance to Service", "domain": "sensor", "id": "km_to_service", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["distance_to_service"]["unit"], "icon": "wrench-clock", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "Months to Service", "domain": "sensor", "id": "months_to_service", "unit": "month", "icon": "wrench-clock", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "Service warning status", "domain": "sensor", "id": "service_warning_status", "icon": "alert-outline", "url": VEHICLE_DIAGNOSTICS_URL},
-                        {"name": "Service warning trigger", "domain": "sensor", "id": "service_warning_trigger", "icon": "alert-outline", "url": VEHICLE_DIAGNOSTICS_URL}
+                        {"name": "Service warning trigger", "domain": "sensor", "id": "service_warning_trigger", "icon": "alert-outline", "url": VEHICLE_DIAGNOSTICS_URL},
+                        {"name": "Bulb failure", "domain": "sensor", "id": "bulb_failure_status", "icon": "lightbulb-alert-outline", "url": VEHICLE_WARNINGS_URL}
 ]
