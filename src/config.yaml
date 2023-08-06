@@ -28,6 +28,7 @@ options:
     odometerMultiplier: 1
     averageSpeedDivider: 1
     averageFuelConsumptionMultiplier: 1
+    capacity: null
 schema:
   updateInterval: int(10,)
   babelLocale: str
@@ -46,6 +47,7 @@ schema:
     odometerMultiplier: int(1,)
     averageSpeedDivider: int(1,)
     averageFuelConsumptionMultiplier: int(1,)
+    capacity: int(1,)
 arch:
   - aarch64
   - amd64
