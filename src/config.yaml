@@ -25,6 +25,7 @@ options:
     password: null
     vin: ""
     vccapikey: null
+    backupvccapikey: ""
     odometerMultiplier: 1
     averageSpeedDivider: 1
     averageFuelConsumptionMultiplier: 1
@@ -43,6 +44,7 @@ schema:
     password: str
     vin: str?
     vccapikey: str
+    backupvccapikey: str
     odometerMultiplier: int(1,)
     averageSpeedDivider: int(1,)
     averageFuelConsumptionMultiplier: int(1,)

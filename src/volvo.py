@@ -24,6 +24,7 @@ refresh_token = None
 vins = []
 supported_endpoints = {}
 cached_requests = {}
+backup_key_in_use = False
 
 
 def authorize():
@@ -254,9 +255,11 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
         return None
 
     logging.debug("Response status code: " + str(response.status_code))
+    data = response.json()
+
     if response.status_code == 200:
-        data = response.json()
         logging.debug(response.text)
+        return parse_api_data(data, sensor_id)
     else:
         logging.debug(response.text)
         if url == CLIMATE_START_URL and response.status_code == 503:
@@ -267,10 +270,37 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
             # Suppress 403 errors for unsupported extended-vehicle api cars
             logging.debug("Suppressed 403 for extended-vehicle API")
             return None
+        elif response.status_code == 403 and "message" in data:
+            if "Out of call volume quota" in data["message"]:
+                logging.warn("Quota extended. Try to change VCCAPIKEY!")
+                change_vcc_api_key(url, method, vin, sensor_id)
+            else:
+                logging.error(
+                    "API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
         else:
             logging.error("API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
         return None
-    return parse_api_data(data, sensor_id)
+
+
+def change_vcc_api_key(url, method, vin, sensor_id):
+    global backup_key_in_use
+    if "backupvccapikey" in settings["volvoData"]:
+        if settings["volvoData"]["backupvccapikey"] and not backup_key_in_use:
+            backup_key_in_use = True
+            logging.info("Default VCCAPIKEY Quota extended. Start using backup VCCAPIKEY!")
+            session.headers.update({'vcc-api-key': settings["volvoData"]["backupvccapikey"]})
+            # Restart api call
+            api_call(url, method, vin, sensor_id, True)
+        elif settings["volvoData"]["vccapikey"] and backup_key_in_use:
+            backup_key_in_use = False
+            logging.info("Backup VCCAPIKEY Quota extended. Start using default VCCAPIKEY!")
+            session.headers.update({'vcc-api-key': settings["volvoData"]["vccapikey"]})
+            # Restart api call
+            api_call(url, method, vin, sensor_id, True)
+        else:
+            logging.warning("No backup VCCAPIKEY set, can't do anything")
+    else:
+        logging.warning("No backup VCCAPIKEY set, can't do anything")
 
 
 def cached_request(url, method, vin, force_update=False):
