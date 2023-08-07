@@ -89,13 +89,16 @@ def get_vehicles():
     global vins
     if not settings.volvoData["vin"]:
         vehicles = session.get(VEHICLES_URL)
+        data = vehicles.json()
         if vehicles.status_code == 200:
-            data = vehicles.json()
             if len(data["data"]) > 0:
                 for vehicle in data["data"]:
                     vins.append(vehicle["vin"])
             else:
                 raise Exception("No vehicle in account " + settings.volvoData["username"] + " found.")
+        elif vehicles.status_code == 403 and "message" in data:
+            if "Out of call volume quota" in data["message"]:
+                change_vcc_api_key(sensor_id="vehicles")
         else:
             error = vehicles.json()
             raise Exception(
@@ -282,7 +285,7 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
         return None
 
 
-def change_vcc_api_key(url, method, vin, sensor_id):
+def change_vcc_api_key(url=None, method=None, vin=None, sensor_id=None):
     global backup_key_in_use
     if "backupvccapikey" in settings["volvoData"]:
         if settings["volvoData"]["backupvccapikey"] and not backup_key_in_use:
@@ -290,13 +293,19 @@ def change_vcc_api_key(url, method, vin, sensor_id):
             logging.info("Default VCCAPIKEY Quota extended. Start using backup VCCAPIKEY!")
             session.headers.update({'vcc-api-key': settings["volvoData"]["backupvccapikey"]})
             # Restart api call
-            api_call(url, method, vin, sensor_id, True)
+            if sensor_id == "vehicles":
+                get_vehicles()
+            else:
+                api_call(url, method, vin, sensor_id, True)
         elif settings["volvoData"]["vccapikey"] and backup_key_in_use:
             backup_key_in_use = False
             logging.info("Backup VCCAPIKEY Quota extended. Start using default VCCAPIKEY!")
             session.headers.update({'vcc-api-key': settings["volvoData"]["vccapikey"]})
             # Restart api call
-            api_call(url, method, vin, sensor_id, True)
+            if sensor_id == "vehicles":
+                get_vehicles()
+            else:
+                api_call(url, method, vin, sensor_id, True)
         else:
             logging.warning("No backup VCCAPIKEY set, can't do anything")
     else:
