@@ -99,6 +99,7 @@ def get_vehicles():
         elif vehicles.status_code == 403 and "message" in data:
             if "Out of call volume quota" in data["message"]:
                 change_vcc_api_key(sensor_id="vehicles")
+                return None
             else:
                 error = vehicles.json()
                 raise Exception(
