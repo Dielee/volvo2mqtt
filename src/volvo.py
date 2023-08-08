@@ -98,7 +98,8 @@ def get_vehicles():
                 raise Exception("No vehicle in account " + settings.volvoData["username"] + " found.")
         elif vehicles.status_code == 403 and "message" in data:
             if "Out of call volume quota" in data["message"]:
-                change_vcc_api_key(sensor_id="vehicles")
+                change_vcc_api_key()
+                get_vehicles()
                 return None
             else:
                 error = vehicles.json()
@@ -232,7 +233,7 @@ def check_engine_status(vin):
         time.sleep(5)
 
 
-def api_call(url, method, vin, sensor_id=None, force_update=False):
+def api_call(url, method, vin, sensor_id=None, force_update=False, key_change=False):
     global token_expires_at
     if datetime.now(util.TZ) >= token_expires_at:
         refresh_auth()
@@ -240,7 +241,7 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
     if url in [RECHARGE_STATE_URL, WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL,
                STATISTICS_URL, ENGINE_DIAGNOSTICS_URL]:
         # Minimize API calls for endpoints with multiple values
-        response = cached_request(url, method, vin, force_update)
+        response = cached_request(url, method, vin, force_update, key_change)
         if response is None:
             # Exception caught while getting data from volvo api, doing nothing
             return None
@@ -281,7 +282,8 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
         elif response.status_code == 403 and "message" in data:
             if "Out of call volume quota" in data["message"]:
                 logging.warn("Quota extended. Try to change VCCAPIKEY!")
-                change_vcc_api_key(url, method, vin, sensor_id)
+                change_vcc_api_key()
+                api_call(url, method, vin, sensor_id, force_update, True)
             else:
                 logging.error(
                     "API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
@@ -290,34 +292,24 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
         return None
 
 
-def change_vcc_api_key(url=None, method=None, vin=None, sensor_id=None):
+def change_vcc_api_key():
     global backup_key_in_use
     if "backupvccapikey" in settings["volvoData"]:
         if settings["volvoData"]["backupvccapikey"] and not backup_key_in_use:
             backup_key_in_use = True
             logging.info("Default VCCAPIKEY Quota extended. Start using backup VCCAPIKEY!")
             session.headers.update({'vcc-api-key': settings["volvoData"]["backupvccapikey"]})
-            # Restart api call
-            if sensor_id == "vehicles":
-                get_vehicles()
-            else:
-                api_call(url, method, vin, sensor_id, True)
         elif settings["volvoData"]["vccapikey"] and backup_key_in_use:
             backup_key_in_use = False
             logging.info("Backup VCCAPIKEY Quota extended. Start using default VCCAPIKEY!")
             session.headers.update({'vcc-api-key': settings["volvoData"]["vccapikey"]})
-            # Restart api call
-            if sensor_id == "vehicles":
-                get_vehicles()
-            else:
-                api_call(url, method, vin, sensor_id, True)
         else:
             logging.warning("No backup VCCAPIKEY set, can't do anything")
     else:
         logging.warning("No backup VCCAPIKEY set, can't do anything")
 
 
-def cached_request(url, method, vin, force_update=False):
+def cached_request(url, method, vin, force_update=False, key_change=False):
     global cached_requests
     if not util.keys_exists(cached_requests, vin + "_" + url):
         # No API Data cached, get fresh data from API
@@ -333,8 +325,8 @@ def cached_request(url, method, vin, force_update=False):
     else:
         if (datetime.now(util.TZ) - cached_requests[vin + "_" + url]["last_update"]).total_seconds() \
                 >= settings["updateInterval"] or (force_update and
-                                                  (datetime.now(util.TZ) - cached_requests[vin + "_" + url]
-                                                  ["last_update"]).total_seconds() >= 2):
+                (datetime.now(util.TZ) - cached_requests[vin + "_" + url]["last_update"]).total_seconds() >= 2) \
+                or key_change:
             # Old Data in Cache, or force mode active, updating
             logging.debug("Starting " + method + " call against " + url)
             try:
