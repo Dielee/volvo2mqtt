@@ -24,7 +24,7 @@ refresh_token = None
 vins = []
 supported_endpoints = {}
 cached_requests = {}
-backup_key_in_use = False
+backup_key_config = {"backup_key_in_use": False}
 
 
 def authorize():
@@ -293,20 +293,31 @@ def api_call(url, method, vin, sensor_id=None, force_update=False, key_change=Fa
 
 
 def change_vcc_api_key():
-    global backup_key_in_use
-    if "backupvccapikey" in settings["volvoData"]:
-        if settings["volvoData"]["backupvccapikey"] and not backup_key_in_use:
-            backup_key_in_use = True
+    global backup_key_config
+    if "last_key_change" in backup_key_config:
+        last_key_change = (datetime.now() - backup_key_config["last_key_change"]).total_seconds()
+    else:
+        last_key_change = settings["updateInterval"] + 15
+
+    if "backupvccapikey" in settings["volvoData"] and last_key_change > (settings["updateInterval"] + 10):
+        if settings["volvoData"]["backupvccapikey"] and not backup_key_config["backup_key_in_use"]:
+            backup_key_config = {"backup_key_in_use": True, "last_key_change": datetime.now()}
             logging.info("Default VCCAPIKEY Quota extended. Start using backup VCCAPIKEY!")
             session.headers.update({'vcc-api-key': settings["volvoData"]["backupvccapikey"]})
-        elif settings["volvoData"]["vccapikey"] and backup_key_in_use:
-            backup_key_in_use = False
+        elif settings["volvoData"]["vccapikey"] and backup_key_config["backup_key_in_use"]:
+            backup_key_config = {"backup_key_in_use": False, "last_key_change": datetime.now()}
             logging.info("Backup VCCAPIKEY Quota extended. Start using default VCCAPIKEY!")
             session.headers.update({'vcc-api-key': settings["volvoData"]["vccapikey"]})
         else:
             logging.warning("No backup VCCAPIKEY set, can't do anything")
-    else:
+    elif "backupvccapikey" not in settings["volvoData"]:
         logging.warning("No backup VCCAPIKEY set, can't do anything")
+    else:
+        logging.warning("Default and Backup VCCAPIKEYs are extended. Sleeping 10 minutes, then trying again.")
+        time.sleep(600)
+
+    demo = backup_key_config
+    ok = ""
 
 
 def cached_request(url, method, vin, force_update=False, key_change=False):
@@ -325,7 +336,8 @@ def cached_request(url, method, vin, force_update=False, key_change=False):
     else:
         if (datetime.now(util.TZ) - cached_requests[vin + "_" + url]["last_update"]).total_seconds() \
                 >= settings["updateInterval"] or (force_update and
-                (datetime.now(util.TZ) - cached_requests[vin + "_" + url]["last_update"]).total_seconds() >= 2) \
+                                                  (datetime.now(util.TZ) - cached_requests[vin + "_" + url][
+                                                      "last_update"]).total_seconds() >= 2) \
                 or key_change:
             # Old Data in Cache, or force mode active, updating
             logging.debug("Starting " + method + " call against " + url)
