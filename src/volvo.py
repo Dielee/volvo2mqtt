@@ -316,9 +316,6 @@ def change_vcc_api_key():
         logging.warning("Default and Backup VCCAPIKEYs are extended. Sleeping 10 minutes, then trying again.")
         time.sleep(600)
 
-    demo = backup_key_config
-    ok = ""
-
 
 def cached_request(url, method, vin, force_update=False, key_change=False):
     global cached_requests
