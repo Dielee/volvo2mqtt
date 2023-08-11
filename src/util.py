@@ -13,7 +13,8 @@ from pathlib import Path
 TZ = None
 SENSITIVE_PATTERNS = [
     r"[A-Z0-9]{17}",  # VIN
-    r"\d{1,2}\.\d{5,16}"  # Location
+    r"\d{1,2}\.\d{5,16}",  # Location
+    r"[a-z0-9]{32}"  # VCCAPIKEY
 ]
 
 

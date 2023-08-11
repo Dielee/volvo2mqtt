@@ -14,7 +14,7 @@ from const import charging_system_states, charging_connection_states, door_state
 
 session = requests.Session()
 session.headers = {
-    "vcc-api-key": settings["volvoData"]["vccapikey"],
+    "vcc-api-key": "",
     "content-type": "application/json",
     "accept": "*/*"
 }
@@ -24,7 +24,7 @@ refresh_token = None
 vins = []
 supported_endpoints = {}
 cached_requests = {}
-backup_key_config = {"backup_key_in_use": False}
+vcc_api_keys = []
 
 
 def authorize():
@@ -43,12 +43,13 @@ def authorize():
     auth = requests.post(OAUTH_URL, data=body, headers=headers)
     if auth.status_code == 200:
         data = auth.json()
-        session.headers.update({'authorization': "Bearer " + data["access_token"]})
+        session.headers.update({"authorization": "Bearer " + data["access_token"]})
 
         global token_expires_at, refresh_token
         token_expires_at = datetime.now(util.TZ) + timedelta(seconds=(data["expires_in"] - 30))
         refresh_token = data["refresh_token"]
 
+        get_vcc_api_keys()
         get_vehicles()
         check_supported_endpoints()
     else:
@@ -78,7 +79,7 @@ def refresh_auth():
 
     if auth.status_code == 200:
         data = auth.json()
-        session.headers.update({'authorization': "Bearer " + data["access_token"]})
+        session.headers.update({"authorization": "Bearer " + data["access_token"]})
 
         global token_expires_at
         token_expires_at = datetime.now(util.TZ) + timedelta(seconds=(data["expires_in"] - 30))
@@ -96,15 +97,6 @@ def get_vehicles():
                     vins.append(vehicle["vin"])
             else:
                 raise Exception("No vehicle in account " + settings.volvoData["username"] + " found.")
-        elif vehicles.status_code == 403 and "message" in data:
-            if "Out of call volume quota" in data["message"]:
-                change_vcc_api_key()
-                get_vehicles()
-                return None
-            else:
-                error = vehicles.json()
-                raise Exception(
-                    "Error getting vehicles: " + str(vehicles.status_code) + ". " + str(error["error"].get("message")))
         else:
             error = vehicles.json()
             raise Exception(
@@ -123,6 +115,62 @@ def get_vehicles():
         initialize_climate(vins)
         initialize_scheduler(vins)
         logging.info("Vin: " + str(vins) + " found!")
+
+
+def get_vcc_api_keys(used_key=None):
+    global vcc_api_keys
+    vcc_api_keys.clear()
+    setting_keys = settings.volvoData["vccapikey"]
+    if isinstance(setting_keys, str):
+        vcc_api_keys.append({"key": setting_keys, "extended": check_vcc_api_key(setting_keys), "in_use": False})
+    elif isinstance(setting_keys, list):
+        for key in setting_keys:
+            vcc_api_keys.append({"key": key, "extended": check_vcc_api_key(key), "in_use": False})
+
+    working_keys = [key["key"] for key in vcc_api_keys if not key.get("extended") and key.get('key') != used_key]
+    if len(working_keys) < 1:
+        logging.warning("No working VCCAPIKEY found, waiting 10 minutes. Then trying again!")
+        time.sleep(600)
+        get_vcc_api_keys(used_key=None)
+        return None
+
+    session.headers.update({"vcc-api-key": working_keys[0]})
+    logging.info("Using VCCAPIKEY: " + working_keys[0])
+    for key_dict in vcc_api_keys:
+        if key_dict["key"] == working_keys[0]:
+            key_dict["in_use"] = True
+
+
+def check_vcc_api_key(test_key):
+    if datetime.now(util.TZ) >= token_expires_at:
+        refresh_auth()
+
+    token = session.headers.get("authorization")
+    headers = {
+        "vcc-api-key": test_key,
+        "content-type": "application/json",
+        "accept": "*/*",
+        "authorization": token
+    }
+
+    response = requests.get(VEHICLES_URL, headers=headers)
+    data = response.json()
+    if response.status_code == 200:
+        logging.debug("VCCAPIKEY " + test_key + " works!")
+        return False
+    elif response.status_code == 403 and "message" in data:
+        if "Out of call volume quota" in data["message"]:
+            logging.warning("VCCAPIKEY " + test_key + " is extended!")
+        else:
+            logging.warning("VCCAPIKEY " + test_key + " isn't working! " + data["error"]["message"])
+    else:
+        logging.warning("VCCAPIKEY " + test_key + " isn't working! " + data["error"]["message"])
+    return True
+
+
+def change_vcc_api_key():
+    used_vcc_api_key = session.headers.get("vcc-api-key")
+    get_vcc_api_keys(used_vcc_api_key)
 
 
 def get_vehicle_details(vin):
@@ -234,7 +282,6 @@ def check_engine_status(vin):
 
 
 def api_call(url, method, vin, sensor_id=None, force_update=False, key_change=False):
-    global token_expires_at
     if datetime.now(util.TZ) >= token_expires_at:
         refresh_auth()
 
@@ -290,31 +337,6 @@ def api_call(url, method, vin, sensor_id=None, force_update=False, key_change=Fa
         else:
             logging.error("API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
         return None
-
-
-def change_vcc_api_key():
-    global backup_key_config
-    if "last_key_change" in backup_key_config:
-        last_key_change = (datetime.now() - backup_key_config["last_key_change"]).total_seconds()
-    else:
-        last_key_change = settings["updateInterval"] + 15
-
-    if "backupvccapikey" in settings["volvoData"] and last_key_change > (settings["updateInterval"] + 10):
-        if settings["volvoData"]["backupvccapikey"] and not backup_key_config["backup_key_in_use"]:
-            backup_key_config = {"backup_key_in_use": True, "last_key_change": datetime.now()}
-            logging.info("Default VCCAPIKEY Quota extended. Start using backup VCCAPIKEY!")
-            session.headers.update({'vcc-api-key': settings["volvoData"]["backupvccapikey"]})
-        elif settings["volvoData"]["vccapikey"] and backup_key_config["backup_key_in_use"]:
-            backup_key_config = {"backup_key_in_use": False, "last_key_change": datetime.now()}
-            logging.info("Backup VCCAPIKEY Quota extended. Start using default VCCAPIKEY!")
-            session.headers.update({'vcc-api-key': settings["volvoData"]["vccapikey"]})
-        else:
-            logging.warning("No backup VCCAPIKEY set, can't do anything")
-    elif "backupvccapikey" not in settings["volvoData"]:
-        logging.warning("No backup VCCAPIKEY set, can't do anything")
-    else:
-        logging.warning("Default and Backup VCCAPIKEYs are extended. Sleeping 10 minutes, then trying again.")
-        time.sleep(600)
 
 
 def cached_request(url, method, vin, force_update=False, key_change=False):
