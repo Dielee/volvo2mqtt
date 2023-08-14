@@ -186,7 +186,7 @@ def check_vcc_api_key(test_key, extended_until=None):
                                                  minutes=int(reusable_in[1]),
                                                  seconds=int(reusable_in[2]) + 10)
                 logging.warning("VCCAPIKEY " + test_key + " is extended and will be reusable at: "
-                                + extended_until.isoformat())
+                                + format_datetime(extended_until, format="medium", locale=settings["babelLocale"]))
         else:
             logging.warning("VCCAPIKEY " + test_key + " isn't working! " + data["error"]["message"])
     else:
