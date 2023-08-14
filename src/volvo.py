@@ -178,7 +178,6 @@ def check_vcc_api_key(test_key, extended_until=None):
         return False, None
     elif response.status_code == 403 and "message" in data:
         if "Out of call volume quota" in data["message"]:
-            logging.warning("VCCAPIKEY " + test_key + " is extended!")
             reuse_search = re.search(r"\d{2}\:\d{2}\:\d{2}", data["message"])
             if reuse_search:
                 reusable_in = reuse_search.group(0).split(":")
@@ -186,6 +185,8 @@ def check_vcc_api_key(test_key, extended_until=None):
                 extended_until = now + timedelta(hours=int(reusable_in[0]),
                                                  minutes=int(reusable_in[1]),
                                                  seconds=int(reusable_in[2]) + 10)
+                logging.warning("VCCAPIKEY " + test_key + " is extended and will be reusable at: "
+                                + extended_until.isoformat())
         else:
             logging.warning("VCCAPIKEY " + test_key + " isn't working! " + data["error"]["message"])
     else:
