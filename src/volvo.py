@@ -3,6 +3,7 @@ import requests
 import mqtt
 import util
 import time
+import re
 from threading import currentThread
 from datetime import datetime, timedelta
 from config import settings
@@ -118,19 +119,18 @@ def get_vehicles():
 
 
 def get_vcc_api_keys(used_key=None):
-    global vcc_api_keys
-    vcc_api_keys.clear()
     setting_keys = settings.volvoData["vccapikey"]
     if isinstance(setting_keys, str):
-        vcc_api_keys.append({"key": setting_keys, "extended": check_vcc_api_key(setting_keys), "in_use": False})
+        set_key_state(setting_keys)
     elif isinstance(setting_keys, list):
         for key in setting_keys:
-            vcc_api_keys.append({"key": key, "extended": check_vcc_api_key(key), "in_use": False})
+            set_key_state(key)
 
+    logging.debug(str(vcc_api_keys))
     working_keys = [key["key"] for key in vcc_api_keys if not key.get("extended") and key.get('key') != used_key]
     if len(working_keys) < 1:
         logging.warning("No working VCCAPIKEY found, waiting 10 minutes. Then trying again!")
-        time.sleep(600)
+        time.sleep(5)
         get_vcc_api_keys(used_key=None)
         return None
 
@@ -141,7 +141,25 @@ def get_vcc_api_keys(used_key=None):
             key_dict["in_use"] = True
 
 
-def check_vcc_api_key(test_key):
+def set_key_state(key):
+    global vcc_api_keys
+    list_index = next((index for (index, d) in enumerate(vcc_api_keys) if d["key"] == key), None)
+
+    if list_index or list_index == 0:
+        extended, extended_until = check_vcc_api_key(key, vcc_api_keys[list_index]["extended_until"])
+        vcc_api_keys[list_index] = ({"key": key, "extended": extended,
+                                     "extended_until": extended_until, "in_use": False})
+    else:
+        extended, extended_until = check_vcc_api_key(key)
+        vcc_api_keys.append({"key": key, "extended": extended,
+                             "extended_until": extended_until, "in_use": False})
+
+
+def check_vcc_api_key(test_key, extended_until=None):
+    if extended_until:
+        if extended_until >= datetime.now():
+            return True, extended_until
+
     if datetime.now(util.TZ) >= token_expires_at:
         refresh_auth()
 
@@ -157,15 +175,22 @@ def check_vcc_api_key(test_key):
     data = response.json()
     if response.status_code == 200:
         logging.debug("VCCAPIKEY " + test_key + " works!")
-        return False
+        return False, None
     elif response.status_code == 403 and "message" in data:
         if "Out of call volume quota" in data["message"]:
             logging.warning("VCCAPIKEY " + test_key + " is extended!")
+            reuse_search = re.search(r"\d{2}\:\d{2}\:\d{2}", data["message"])
+            if reuse_search:
+                reusable_in = reuse_search.group(0).split(":")
+                now = datetime.now()
+                extended_until = now + timedelta(hours=int(reusable_in[0]),
+                                                 minutes=int(reusable_in[1]),
+                                                 seconds=int(reusable_in[2]) + 10)
         else:
             logging.warning("VCCAPIKEY " + test_key + " isn't working! " + data["error"]["message"])
     else:
         logging.warning("VCCAPIKEY " + test_key + " isn't working! " + data["error"]["message"])
-    return True
+    return True, extended_until
 
 
 def change_vcc_api_key():
