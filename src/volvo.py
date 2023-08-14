@@ -130,10 +130,12 @@ def get_vcc_api_keys(used_key=None):
     working_keys = [key["key"] for key in vcc_api_keys if not key.get("extended") and key.get('key') != used_key]
     if len(working_keys) < 1:
         logging.warning("No working VCCAPIKEY found, waiting 10 minutes. Then trying again!")
+        mqtt.send_offline()
         time.sleep(600)
         get_vcc_api_keys(used_key=None)
         return None
 
+    mqtt.send_heartbeat()
     session.headers.update({"vcc-api-key": working_keys[0]})
     logging.info("Using VCCAPIKEY: " + working_keys[0])
     for key_dict in vcc_api_keys:

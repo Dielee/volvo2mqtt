@@ -352,3 +352,8 @@ def create_ha_devices():
 
 def send_heartbeat():
     mqtt_client.publish(availability_topic, "online")
+
+
+def send_offline():
+    mqtt_client.publish(availability_topic, "offline")
+
