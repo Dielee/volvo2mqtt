@@ -130,7 +130,7 @@ def get_vcc_api_keys(used_key=None):
     working_keys = [key["key"] for key in vcc_api_keys if not key.get("extended") and key.get('key') != used_key]
     if len(working_keys) < 1:
         logging.warning("No working VCCAPIKEY found, waiting 10 minutes. Then trying again!")
-        time.sleep(5)
+        time.sleep(600)
         get_vcc_api_keys(used_key=None)
         return None
 
