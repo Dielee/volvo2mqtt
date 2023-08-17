@@ -1,3 +1,8 @@
+## v1.8.1
+### 🐛 Bug Fixes:
+
+- Fix app crash if `debug` is not set #86
+
 ## v1.8.0
 ### 🚀 Features:
 
