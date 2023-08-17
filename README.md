@@ -55,6 +55,12 @@ Please let me know if your car works with this addon so I can expand the list!<b
 - Sensor "Fuel Status"
 - Sensor "Average Fuel Consumption"
 - Sensor "Average Speed"
+- Sensor "Distance to Empty"
+- Sensor "Hours to Service"
+- Sensor "Distance to Service"
+- Sensor "Months to Service"
+- Sensor "Service warning status"
+- Sensor "Service warning trigger"
 - Car Device Tracker
 - Multiple cars
 
