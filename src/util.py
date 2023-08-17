@@ -49,13 +49,15 @@ def setup_logging():
         '%(asctime)s volvo2mqtt [%(process)d] - %(levelname)s: %(message)s',
         '%b %d %H:%M:%S')
     file_log_handler.setFormatter(formatter)
-    sensitive_data_filter = SensitiveDataFilter(SENSITIVE_PATTERNS)
-    file_log_handler.addFilter(sensitive_data_filter)
-    logger = logging.getLogger()
+
+    if settings["debug"]:
+        sensitive_data_filter = SensitiveDataFilter(SENSITIVE_PATTERNS)
+        file_log_handler.addFilter(sensitive_data_filter)
 
     console_log_handler = logging.StreamHandler(sys.stdout)
     console_log_handler.setFormatter(formatter)
 
+    logger = logging.getLogger()
     logger.addHandler(console_log_handler)
     logger.addHandler(file_log_handler)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
