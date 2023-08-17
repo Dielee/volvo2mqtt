@@ -72,7 +72,7 @@ NOTE: Energy status currently available only for cars in the Europe / Middle Eas
 Just install this addon with the following command.
 Please note to fill in your settings inside the environment variables.
 
-`docker run -d --pull=always -e CONF_updateInterval=300 -e CONF_babelLocale='de' -e CONF_mqtt='@json {"broker": "", "username": "", "password": "", "port": 1883}' -e CONF_volvoData='@json {"username": "", "password": "", "vin": "", "vccapikey": "", "backupvccapikey": "", "odometerMultiplier": 1, "averageSpeedDivider": 1, "averageFuelConsumptionMultiplier": 1}' -e TZ='Europe/Berlin' --name volvo2mqtt ghcr.io/dielee/volvo2mqtt:latest`
+`docker run -d --pull=always -e CONF_updateInterval=300 -e CONF_babelLocale='de' -e CONF_mqtt='@json {"broker": "", "username": "", "password": "", "port": 1883}' -e CONF_volvoData='@json {"username": "", "password": "", "vin": "", "vccapikey": ["key1", "key2"], "odometerMultiplier": 1, "averageSpeedDivider": 1, "averageFuelConsumptionMultiplier": 1}' -e TZ='Europe/Berlin' --name volvo2mqtt ghcr.io/dielee/volvo2mqtt:latest`
 
 <b>HA Add-On:</b><br>
 
