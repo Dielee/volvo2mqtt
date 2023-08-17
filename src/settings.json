@@ -12,7 +12,7 @@
     "username": "",
     "password": "",
     "vin": "",
-	"vccapikey": "",
+	"vccapikey": [],
     "odometerMultiplier": "",
     "averageSpeedDivider": "",
     "averageFuelConsumptionMultiplier": ""

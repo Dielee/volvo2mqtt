@@ -10,6 +10,6 @@ if __name__ == '__main__':
     set_mqtt_settings()
     setup_logging()
     logging.info("Starting volvo2mqtt version " + VERSION)
-    authorize()
     connect()
+    authorize()
     update_loop()

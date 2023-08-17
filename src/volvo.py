@@ -3,6 +3,7 @@ import requests
 import mqtt
 import util
 import time
+import re
 from threading import currentThread
 from datetime import datetime, timedelta
 from config import settings
@@ -14,7 +15,7 @@ from const import charging_system_states, charging_connection_states, door_state
 
 session = requests.Session()
 session.headers = {
-    "vcc-api-key": settings["volvoData"]["vccapikey"],
+    "vcc-api-key": "",
     "content-type": "application/json",
     "accept": "*/*"
 }
@@ -24,6 +25,7 @@ refresh_token = None
 vins = []
 supported_endpoints = {}
 cached_requests = {}
+vcc_api_keys = []
 
 
 def authorize():
@@ -42,12 +44,13 @@ def authorize():
     auth = requests.post(OAUTH_URL, data=body, headers=headers)
     if auth.status_code == 200:
         data = auth.json()
-        session.headers.update({'authorization': "Bearer " + data["access_token"]})
+        session.headers.update({"authorization": "Bearer " + data["access_token"]})
 
         global token_expires_at, refresh_token
         token_expires_at = datetime.now(util.TZ) + timedelta(seconds=(data["expires_in"] - 30))
         refresh_token = data["refresh_token"]
 
+        get_vcc_api_keys()
         get_vehicles()
         check_supported_endpoints()
     else:
@@ -77,7 +80,7 @@ def refresh_auth():
 
     if auth.status_code == 200:
         data = auth.json()
-        session.headers.update({'authorization': "Bearer " + data["access_token"]})
+        session.headers.update({"authorization": "Bearer " + data["access_token"]})
 
         global token_expires_at
         token_expires_at = datetime.now(util.TZ) + timedelta(seconds=(data["expires_in"] - 30))
@@ -88,8 +91,8 @@ def get_vehicles():
     global vins
     if not settings.volvoData["vin"]:
         vehicles = session.get(VEHICLES_URL)
+        data = vehicles.json()
         if vehicles.status_code == 200:
-            data = vehicles.json()
             if len(data["data"]) > 0:
                 for vehicle in data["data"]:
                     vins.append(vehicle["vin"])
@@ -113,6 +116,89 @@ def get_vehicles():
         initialize_climate(vins)
         initialize_scheduler(vins)
         logging.info("Vin: " + str(vins) + " found!")
+
+
+def get_vcc_api_keys(used_key=None):
+    setting_keys = settings.volvoData["vccapikey"]
+    if isinstance(setting_keys, str):
+        set_key_state(setting_keys)
+    elif isinstance(setting_keys, list):
+        for key in setting_keys:
+            set_key_state(key)
+
+    logging.debug(str(vcc_api_keys))
+    working_keys = [key["key"] for key in vcc_api_keys if not key.get("extended") and key.get('key') != used_key]
+    if len(working_keys) < 1:
+        logging.warning("No working VCCAPIKEY found, waiting 10 minutes. Then trying again!")
+        mqtt.send_offline()
+        time.sleep(600)
+        get_vcc_api_keys(used_key=None)
+        return None
+
+    mqtt.send_heartbeat()
+    session.headers.update({"vcc-api-key": working_keys[0]})
+    logging.info("Using VCCAPIKEY: " + working_keys[0])
+    for key_dict in vcc_api_keys:
+        if key_dict["key"] == working_keys[0]:
+            key_dict["in_use"] = True
+
+
+def set_key_state(key):
+    global vcc_api_keys
+    list_index = next((index for (index, d) in enumerate(vcc_api_keys) if d["key"] == key), None)
+
+    if list_index or list_index == 0:
+        extended, extended_until = check_vcc_api_key(key, vcc_api_keys[list_index]["extended_until"])
+        vcc_api_keys[list_index] = ({"key": key, "extended": extended,
+                                     "extended_until": extended_until, "in_use": False})
+    else:
+        extended, extended_until = check_vcc_api_key(key)
+        vcc_api_keys.append({"key": key, "extended": extended,
+                             "extended_until": extended_until, "in_use": False})
+
+
+def check_vcc_api_key(test_key, extended_until=None):
+    if extended_until:
+        if extended_until >= datetime.now():
+            return True, extended_until
+
+    if datetime.now(util.TZ) >= token_expires_at:
+        refresh_auth()
+
+    token = session.headers.get("authorization")
+    headers = {
+        "vcc-api-key": test_key,
+        "content-type": "application/json",
+        "accept": "*/*",
+        "authorization": token
+    }
+
+    response = requests.get(VEHICLES_URL, headers=headers)
+    data = response.json()
+    if response.status_code == 200:
+        logging.debug("VCCAPIKEY " + test_key + " works!")
+        return False, None
+    elif response.status_code == 403 and "message" in data:
+        if "Out of call volume quota" in data["message"]:
+            reuse_search = re.search(r"\d{2}\:\d{2}\:\d{2}", data["message"])
+            if reuse_search:
+                reusable_in = reuse_search.group(0).split(":")
+                now = datetime.now()
+                extended_until = now + timedelta(hours=int(reusable_in[0]),
+                                                 minutes=int(reusable_in[1]),
+                                                 seconds=int(reusable_in[2]) + 10)
+                logging.warning("VCCAPIKEY " + test_key + " is extended and will be reusable at: "
+                                + format_datetime(extended_until, format="medium", locale=settings["babelLocale"]))
+        else:
+            logging.warning("VCCAPIKEY " + test_key + " isn't working! " + data["error"]["message"])
+    else:
+        logging.warning("VCCAPIKEY " + test_key + " isn't working! " + data["error"]["message"])
+    return True, extended_until
+
+
+def change_vcc_api_key():
+    used_vcc_api_key = session.headers.get("vcc-api-key")
+    get_vcc_api_keys(used_vcc_api_key)
 
 
 def get_vehicle_details(vin):
@@ -171,8 +257,10 @@ def check_supported_endpoints():
 
 def initialize_scheduler(vins):
     for vin in vins:
+        topic = f"homeassistant/schedule/{vin}/command"
         mqtt.active_schedules[vin] = {"timers": []}
-        mqtt.subscribed_topics = [f"homeassistant/schedule/{vin}/command"]
+        mqtt.subscribed_topics = [topic]
+        mqtt.mqtt_client.subscribe(topic)
 
 
 def initialize_climate(vins):
@@ -223,15 +311,14 @@ def check_engine_status(vin):
         time.sleep(5)
 
 
-def api_call(url, method, vin, sensor_id=None, force_update=False):
-    global token_expires_at
+def api_call(url, method, vin, sensor_id=None, force_update=False, key_change=False):
     if datetime.now(util.TZ) >= token_expires_at:
         refresh_auth()
 
     if url in [RECHARGE_STATE_URL, WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL,
                STATISTICS_URL, ENGINE_DIAGNOSTICS_URL]:
         # Minimize API calls for endpoints with multiple values
-        response = cached_request(url, method, vin, force_update)
+        response = cached_request(url, method, vin, force_update, key_change)
         if response is None:
             # Exception caught while getting data from volvo api, doing nothing
             return None
@@ -254,9 +341,11 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
         return None
 
     logging.debug("Response status code: " + str(response.status_code))
+    data = response.json()
+
     if response.status_code == 200:
-        data = response.json()
         logging.debug(response.text)
+        return parse_api_data(data, sensor_id)
     else:
         logging.debug(response.text)
         if url == CLIMATE_START_URL and response.status_code == 503:
@@ -267,13 +356,20 @@ def api_call(url, method, vin, sensor_id=None, force_update=False):
             # Suppress 403 errors for unsupported extended-vehicle api cars
             logging.debug("Suppressed 403 for extended-vehicle API")
             return None
+        elif response.status_code == 403 and "message" in data:
+            if "Out of call volume quota" in data["message"]:
+                logging.warn("Quota extended. Try to change VCCAPIKEY!")
+                change_vcc_api_key()
+                api_call(url, method, vin, sensor_id, force_update, True)
+            else:
+                logging.error(
+                    "API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
         else:
             logging.error("API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
         return None
-    return parse_api_data(data, sensor_id)
 
 
-def cached_request(url, method, vin, force_update=False):
+def cached_request(url, method, vin, force_update=False, key_change=False):
     global cached_requests
     if not util.keys_exists(cached_requests, vin + "_" + url):
         # No API Data cached, get fresh data from API
@@ -289,8 +385,9 @@ def cached_request(url, method, vin, force_update=False):
     else:
         if (datetime.now(util.TZ) - cached_requests[vin + "_" + url]["last_update"]).total_seconds() \
                 >= settings["updateInterval"] or (force_update and
-                                                  (datetime.now(util.TZ) - cached_requests[vin + "_" + url]
-                                                  ["last_update"]).total_seconds() >= 2):
+                                                  (datetime.now(util.TZ) - cached_requests[vin + "_" + url][
+                                                      "last_update"]).total_seconds() >= 2) \
+                or key_change:
             # Old Data in Cache, or force mode active, updating
             logging.debug("Starting " + method + " call against " + url)
             try:

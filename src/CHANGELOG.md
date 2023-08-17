@@ -1,3 +1,26 @@
+## v1.8.0
+### 🚀 Features:
+
+- <b>Breaking change: The `vccapikey` setting is now a list. It is possible to
+  add multiple VCCAPIKEYs. This will be helpful if you are extending your 10.000 call limit some times.
+  Change your vccapikey config like this:
+  
+  Old:
+  ```
+    "vccapikey": "vccapikey1" 
+  ```
+
+  New:
+  ```
+    vccapikey:
+      - vccapikey1
+      - vccapikey2
+      - vccapikey3
+      - etc.
+  ```
+  More information about this feature [here](https://github.com/Dielee/volvo2mqtt/issues/84).
+    </b>
+
 ## v1.7.10
 ### 🐛 Bug Fixes:
 
