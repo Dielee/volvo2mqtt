@@ -50,9 +50,10 @@ def setup_logging():
         '%b %d %H:%M:%S')
     file_log_handler.setFormatter(formatter)
 
-    if settings["debug"]:
-        sensitive_data_filter = SensitiveDataFilter(SENSITIVE_PATTERNS)
-        file_log_handler.addFilter(sensitive_data_filter)
+    if "debug" in settings:
+        if settings["debug"]:
+            sensitive_data_filter = SensitiveDataFilter(SENSITIVE_PATTERNS)
+            file_log_handler.addFilter(sensitive_data_filter)
 
     console_log_handler = logging.StreamHandler(sys.stdout)
     console_log_handler.setFormatter(formatter)
