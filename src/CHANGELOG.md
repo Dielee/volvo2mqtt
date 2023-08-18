@@ -1,3 +1,10 @@
+## v1.8.2
+### 🚀 Features:
+
+- Add `updateInterval` limit to prevent abuse (60 Seconds)
+- Add `vccapikey` limit to prevent abuse (3 Keys)
+- Optimize vcc api key change behaviour
+
 ## v1.8.1
 ### 🐛 Bug Fixes:
 
