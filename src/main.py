@@ -2,10 +2,11 @@ import logging
 from volvo import authorize
 from mqtt import update_loop, connect
 from const import VERSION
-from util import set_tz, setup_logging, set_mqtt_settings
+from util import set_tz, setup_logging, set_mqtt_settings, validate_settings
 
 
 if __name__ == '__main__':
+    validate_settings()
     set_tz()
     set_mqtt_settings()
     setup_logging()
