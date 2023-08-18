@@ -1,3 +1,8 @@
+## v1.8.3
+### 🚀 Features:
+
+- Add `device_class: battery` for battery state sensors from BEV and PHEV 
+
 ## v1.8.2
 ### 🚀 Features:
 

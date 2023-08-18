@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.8.2"
+VERSION = "v1.8.3"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles"
@@ -77,8 +77,8 @@ icon_states = {
 }
 
 supported_entities = [
-                        {"name": "Battery Charge Level", "domain": "sensor", "id": "battery_charge_level", "unit": "%", "icon": "car-battery", "url": RECHARGE_STATE_URL, "state_class": "measurement"},
-                        {"name": "Battery Charge Level", "domain": "sensor", "id": "battery_charge_level", "unit": "%", "icon": "car-battery", "url": BATTERY_CHARGE_STATE_URL, "state_class": "measurement"},
+                        {"name": "Battery Charge Level", "domain": "sensor", "device_class": "battery", "id": "battery_charge_level", "unit": "%", "icon": "car-battery", "url": RECHARGE_STATE_URL, "state_class": "measurement"},
+                        {"name": "Battery Charge Level", "domain": "sensor", "device_class": "battery", "id": "battery_charge_level", "unit": "%", "icon": "car-battery", "url": BATTERY_CHARGE_STATE_URL, "state_class": "measurement"},
                         {"name": "Electric Range", "domain": "sensor", "id": "electric_range", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["electric_range"]["unit"], "icon": "map-marker-distance", "url": RECHARGE_STATE_URL, "state_class": "measurement"},
                         {"name": "Estimated Charging Time", "domain": "sensor", "id": "estimated_charging_time", "unit": "minutes", "icon": "timer-sync-outline", "url": RECHARGE_STATE_URL, "state_class": "measurement"},
                         {"name": "Charging System Status", "domain": "sensor", "id": "charging_system_status", "icon": "ev-station", "url": RECHARGE_STATE_URL},
