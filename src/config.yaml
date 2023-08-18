@@ -29,7 +29,7 @@ options:
     averageSpeedDivider: 1
     averageFuelConsumptionMultiplier: 1
 schema:
-  updateInterval: int(10,)
+  updateInterval: int(60,)
   babelLocale: str
   TZ: str
   debug: bool
