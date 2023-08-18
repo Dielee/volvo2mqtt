@@ -119,28 +119,32 @@ def get_vehicles():
 
 
 def get_vcc_api_keys(used_key=None):
-    setting_keys = settings.volvoData["vccapikey"]
-    if isinstance(setting_keys, str):
-        set_key_state(setting_keys)
-    elif isinstance(setting_keys, list):
-        for key in setting_keys:
-            set_key_state(key)
+    working_keys = None
 
-    logging.debug(str(vcc_api_keys))
-    working_keys = [key["key"] for key in vcc_api_keys if not key.get("extended") and key.get('key') != used_key]
-    if len(working_keys) < 1:
-        logging.warning("No working VCCAPIKEY found, waiting 10 minutes. Then trying again!")
-        mqtt.send_offline()
-        time.sleep(600)
-        get_vcc_api_keys(used_key=None)
-        return None
+    while not working_keys:
+        setting_keys = settings.volvoData["vccapikey"]
+        if isinstance(setting_keys, str):
+            set_key_state(setting_keys)
+        elif isinstance(setting_keys, list):
+            for key in setting_keys:
+                set_key_state(key)
 
-    mqtt.send_heartbeat()
-    session.headers.update({"vcc-api-key": working_keys[0]})
-    logging.info("Using VCCAPIKEY: " + working_keys[0])
-    for key_dict in vcc_api_keys:
-        if key_dict["key"] == working_keys[0]:
-            key_dict["in_use"] = True
+        logging.debug(str(vcc_api_keys))
+        working_keys = [key["key"] for key in vcc_api_keys if not key.get("extended") and key.get('key') != used_key]
+        if len(working_keys) < 1:
+            used_key = None
+            logging.warning("No working VCCAPIKEY found, waiting 10 minutes. Then trying again!")
+            mqtt.send_offline()
+            time.sleep(600)
+        else:
+            mqtt.send_heartbeat()
+            session.headers.update({"vcc-api-key": working_keys[0]})
+            logging.info("Using VCCAPIKEY: " + working_keys[0])
+            for key_dict in vcc_api_keys:
+                if key_dict["key"] == working_keys[0]:
+                    key_dict["in_use"] = True
+
+        logging.debug(str(vcc_api_keys))
 
 
 def set_key_state(key):
@@ -160,6 +164,8 @@ def set_key_state(key):
 def check_vcc_api_key(test_key, extended_until=None):
     if extended_until:
         if extended_until >= datetime.now():
+            logging.warning("VCCAPIKEY " + test_key + " is extended and will be reusable at: "
+                            + format_datetime(extended_until, format="medium", locale=settings["babelLocale"]))
             return True, extended_until
 
     if datetime.now(util.TZ) >= token_expires_at:

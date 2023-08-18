@@ -139,11 +139,12 @@ def set_mqtt_settings():
 
 
 def validate_settings():
-    setting_keys = settings.volvoData["vccapikey"]
-    if isinstance(setting_keys, list):
-        if len(setting_keys) > 3:
-            raise Exception("Settings invalid! Maximum allowed vccapikeys are three!")
+    if not os.environ.get("DEV_MODE"):
+        setting_keys = settings.volvoData["vccapikey"]
+        if isinstance(setting_keys, list):
+            if len(setting_keys) > 3:
+                raise Exception("Settings invalid! Maximum allowed vccapikeys are three!")
 
-    update_interval = settings["updateInterval"]
-    if update_interval < 60:
-        raise Exception("Settings invalid! Minimum allowed update interval is 60 seconds!")
+        update_interval = settings["updateInterval"]
+        if update_interval < 60:
+            raise Exception("Settings invalid! Minimum allowed update interval is 60 seconds!")
