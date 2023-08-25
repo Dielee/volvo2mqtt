@@ -1,6 +1,6 @@
 name: "Volvo2Mqtt"
 description: "Volvo AAOS MQTT bridge"
-version: "1.8.4"
+version: "1.8.5"
 slug: "volvo2mqtt"
 init: false
 url: "https://github.com/Dielee/volvo2mqtt"
@@ -40,7 +40,7 @@ schema:
     username: str?
     password: str?
   volvoData:
-    username: match(^[\w+\.]+@([\w-]+\.)+[\w-]{2,4}$)
+    username: match(^([\w+\.]+@([\w-]+\.)+[\w-]{2,4})|(\+\d{5,20})$)
     password: str
     vin: str?
     vccapikey:

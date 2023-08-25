@@ -1,3 +1,8 @@
+## v1.8.5
+### 🚀 Features:
+
+- Allow phone number as username #91
+
 ## v1.8.4
 ### 🚀 Features:
 
