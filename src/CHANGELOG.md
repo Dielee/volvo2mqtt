@@ -1,3 +1,8 @@
+## v1.8.4
+### 🚀 Features:
+
+- Optimize Addon configuration #90
+
 ## v1.8.3
 ### 🚀 Features:
 

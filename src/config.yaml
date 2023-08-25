@@ -1,6 +1,6 @@
 name: "Volvo2Mqtt"
 description: "Volvo AAOS MQTT bridge"
-version: "1.8.3"
+version: "1.8.4"
 slug: "volvo2mqtt"
 init: false
 url: "https://github.com/Dielee/volvo2mqtt"
@@ -24,14 +24,15 @@ options:
     username: null
     password: null
     vin: ""
-    vccapikey: null
+    vccapikey:
+        - null
     odometerMultiplier: 1
     averageSpeedDivider: 1
     averageFuelConsumptionMultiplier: 1
 schema:
   updateInterval: int(60,)
   babelLocale: str
-  TZ: str
+  TZ: match(^.+/.+$)
   debug: bool
   mqtt:
     broker: str
@@ -39,11 +40,11 @@ schema:
     username: str?
     password: str?
   volvoData:
-    username: str
+    username: match(^[\w+\.]+@([\w-]+\.)+[\w-]{2,4}$)
     password: str
     vin: str?
     vccapikey:
-        - str
+        - match(^\b\w{32}\b$)
     odometerMultiplier: int(1,)
     averageSpeedDivider: int(1,)
     averageFuelConsumptionMultiplier: int(1,)
