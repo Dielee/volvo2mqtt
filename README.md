@@ -85,6 +85,7 @@ Here is what every option means:
 | `CONF_updateInterval`     | `int`     |                                       | **required** | Update intervall in seconds.                                     |
 | `CONF_babelLocale`        | `string`  |                                       | **required** | Select your country from this [list](https://www.ibm.com/docs/en/radfws/9.7?topic=overview-locales-code-pages-supported). "Locale name" is the column you need!                                        |
 | `CONF_mqtt`               | `json`    | `broker`                              | **required** | Your MQTT Broker IP. Eg. 192.168.0.5.
+| `CONF_mqtt`               | `json`    | `mqtt_client`                              | volvoAAOS2mqtt | Name of the MQTT client used on connection. Setting this to an alternate string can be used to run multiple instances of volvo2mqtt.
 | `CONF_mqtt`               | `json`    | `port`                                | 1883         | Your MQTT Broker Port. If no value is given, port 1883 will be used.  |
 | `CONF_mqtt`               | `json`    | `username`                            | optional     | MQTT Username for your broker.
 | `CONF_mqtt`               | `json`    | `password`                            | optional     | MQTT Password for your broker.

@@ -18,6 +18,7 @@ options:
   mqtt:
     broker: "auto_broker"
     port: "auto_port"
+    mqtt_client: "volvoAAOS2mqtt"
     username: "auto_user"
     password: "auto_password"
   volvoData:
@@ -36,6 +37,7 @@ schema:
   debug: bool
   mqtt:
     broker: str
+    mqtt_client: str
     port: str
     username: str?
     password: str?

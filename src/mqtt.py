@@ -23,7 +23,8 @@ active_schedules = {}
 
 
 def connect():
-    client = mqtt.Client("volvoAAOS2mqtt")
+    logging.info("Connecting to MQTT with client name %s" , settings["mqtt"]["mqtt_client"])
+    client = mqtt.Client(settings["mqtt"]["mqtt_client"])
     client.will_set(availability_topic, "offline", 0, False)
     if settings["mqtt"]["username"] and settings["mqtt"]["password"]:
         client.username_pw_set(settings["mqtt"]["username"], settings["mqtt"]["password"])

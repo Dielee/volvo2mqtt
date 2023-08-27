@@ -3,6 +3,7 @@
   "babelLocale": "de",
   "TZ": "Europe/Berlin",
   "mqtt": {
+    "mqtt_client" : "volvoAAOS2mqtt",
     "broker": "",
     "port": 1883,
     "username": "",
