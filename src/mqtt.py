@@ -4,6 +4,7 @@ import paho.mqtt.client as mqtt
 import json
 import volvo
 import util
+import os
 from threading import Thread, Timer
 from datetime import datetime
 from babel.dates import format_datetime
@@ -23,7 +24,9 @@ active_schedules = {}
 
 
 def connect():
-    client = mqtt.Client("volvoAAOS2mqtt")
+    client = mqtt.Client("volvoAAOS2mqtt") if os.environ.get("IS_HA_ADDON") \
+        else mqtt.Client("volvoAAOS2mqtt_" + settings.volvoData["username"])
+
     client.will_set(availability_topic, "offline", 0, False)
     if settings["mqtt"]["username"] and settings["mqtt"]["password"]:
         client.username_pw_set(settings["mqtt"]["username"], settings["mqtt"]["password"])

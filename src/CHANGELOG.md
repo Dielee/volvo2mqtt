@@ -1,3 +1,8 @@
+## v1.8.6
+### 🚀 Features:
+
+- Add option to use multiple docker containers (with different logins) #93
+
 ## v1.8.5
 ### 🚀 Features:
 
