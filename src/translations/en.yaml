@@ -11,6 +11,9 @@ configuration:
   debug:
     name: API debug mode
     description: Enable Volvo API debug, normaly this can stay off. If enabled, the complete log file can be found under \\<Your HA Host IP>\addons\volvo2mqtt\log\volvo2mqtt.log.
+  disable_logging:
+    name: Disable logging
+    description: Disable logging completely to reduce IO and SD card access.
   mqtt:
     name: MQTT Broker settings
     description: Leave the settings as they are if you are using the MQTT Mosquitto Addon. If not, take a look at the readme from volvo2mqtt.

@@ -1,6 +1,6 @@
 name: "Volvo2Mqtt"
 description: "Volvo AAOS MQTT bridge"
-version: "1.8.6"
+version: "1.8.7"
 slug: "volvo2mqtt"
 init: false
 url: "https://github.com/Dielee/volvo2mqtt"
@@ -15,6 +15,7 @@ options:
   babelLocale: null
   TZ: null
   debug: false
+  disable_logging: false
   mqtt:
     broker: "auto_broker"
     port: "auto_port"
@@ -34,6 +35,7 @@ schema:
   babelLocale: str
   TZ: match(^.+/.+$)
   debug: bool
+  disable_logging: bool
   mqtt:
     broker: str
     port: str

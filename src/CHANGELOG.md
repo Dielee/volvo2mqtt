@@ -1,3 +1,12 @@
+## v1.8.7
+### 🚀 Features:
+
+- Add option to disable log completely #96 
+
+### 🐛 Bug Fixes:
+
+- Fix regex error for some mailaddresses #97
+
 ## v1.8.6
 ### 🚀 Features:
 
