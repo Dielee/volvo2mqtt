@@ -68,6 +68,10 @@ def setup_logging():
         if settings["debug"]:
             logger.setLevel(logging.DEBUG)
 
+    if "disable_logging" in settings:
+        if settings["disable_logging"]:
+            logger.setLevel(logging.ERROR)
+
 
 def check_existing_folder():
     Path("/addons/volvo2mqtt/log/").mkdir(parents=True, exist_ok=True)

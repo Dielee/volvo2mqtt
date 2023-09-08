@@ -2,6 +2,8 @@
   "updateInterval": 300,
   "babelLocale": "de",
   "TZ": "Europe/Berlin",
+  "debug": false,
+  "disable_logging": false,
   "mqtt": {
     "broker": "",
     "port": 1883,
