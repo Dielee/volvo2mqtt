@@ -40,7 +40,7 @@ schema:
     username: str?
     password: str?
   volvoData:
-    username: match(^([\w+\.]+@([\w-]+\.)+[\w-]{2,4})|(\+\d{5,20})$)
+    username: match(^([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)|(\+\d{5,20})$)
     password: str
     vin: str?
     vccapikey:
