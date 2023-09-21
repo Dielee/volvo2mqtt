@@ -8,6 +8,7 @@ from threading import currentThread
 from datetime import datetime, timedelta
 from config import settings
 from babel.dates import format_datetime
+from json import JSONDecodeError
 from const import charging_system_states, charging_connection_states, door_states, window_states, \
     OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, CLIMATE_START_URL, \
     WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, supported_entities, BATTERY_CHARGE_STATE_URL, \
@@ -347,7 +348,11 @@ def api_call(url, method, vin, sensor_id=None, force_update=False, key_change=Fa
         return None
 
     logging.debug("Response status code: " + str(response.status_code))
-    data = response.json()
+    try:
+        data = response.json()
+    except JSONDecodeError as e:
+        logging.error("Fetched json decode error, Volvo API seems to return garbage. Skipping update. Error: " + str(e))
+        return None
 
     if response.status_code == 200:
         logging.debug(response.text)

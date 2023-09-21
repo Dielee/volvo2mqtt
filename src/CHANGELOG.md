@@ -1,3 +1,8 @@
+## v1.8.8
+### 🐛 Bug Fixes:
+
+- Fix json decode error, if volvo API returns a simple string #104
+
 ## v1.8.7
 ### 🚀 Features:
 
