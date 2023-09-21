@@ -25,7 +25,7 @@ active_schedules = {}
 
 def connect():
     client = mqtt.Client("volvoAAOS2mqtt") if os.environ.get("IS_HA_ADDON") \
-        else mqtt.Client("volvoAAOS2mqtt_" + settings.volvoData["username"])
+        else mqtt.Client("volvoAAOS2mqtt_" + settings.volvoData["username"].replace("+", ""))
 
     client.will_set(availability_topic, "offline", 0, False)
     if settings["mqtt"]["username"] and settings["mqtt"]["password"]:
