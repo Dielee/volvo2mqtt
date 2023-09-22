@@ -5,13 +5,13 @@ import json
 import volvo
 import util
 import os
+import re
 from threading import Thread, Timer
 from datetime import datetime
 from babel.dates import format_datetime
 from config import settings
 from const import CLIMATE_START_URL, CLIMATE_STOP_URL, CAR_LOCK_URL, \
-            CAR_UNLOCK_URL, availability_topic, icon_states
-
+            CAR_UNLOCK_URL, availability_topic, icon_states, VIN_REGEX
 
 mqtt_client: mqtt.Client
 subscribed_topics = []
@@ -46,11 +46,27 @@ def connect():
     mqtt_client = client
 
 
+def parse_volvo_topic(domain):
+    volvo_topic = settings["mqtt_options"]["volvo_topic"]
+
+    if not volvo_topic:
+        volvo_topic = "homeassistant/[domain]"
+
+    # Replace [domain] with actual domain and assure there
+    # is no trailing slash
+    volvo_topic = volvo_topic.replace("[domain]", domain).rstrip("/")
+
+    return volvo_topic
+
+
 def send_car_images(vin, data, device):
     if util.keys_exists(data, "images"):
+        topic_prefix = parse_volvo_topic("image")
+
         for entity in [{"name": "Exterior Image", "id": "exterior_image"},
                        {"name": "Interior Image", "id": "interior_image"}]:
-            url_topic = f"homeassistant/image/{vin}_{entity['id']}/image_url"
+            url_topic = f"{topic_prefix}/{vin}_{entity['id']}/image_url"
+            
             config = {
                 "name": entity["name"],
                 "object_id": f"volvo_{vin}_{entity['id']}",
@@ -96,7 +112,7 @@ def on_disconnect(client, userdata,  rc):
 
 def on_message(client, userdata, msg):
     try:
-        vin = msg.topic.split('/')[2].split('_')[0]
+        vin = re.findall(VIN_REGEX, msg.topic)[0]
     except IndexError:
         logging.error("Error - Cannot get vin from MQTT topic!")
         return None
@@ -250,10 +266,11 @@ def update_car_data(force_update=False, overwrite={}):
                 else:
                     state = volvo.api_call(entity["url"], "GET", vin, entity["id"], force_update)
 
+            topic_prefix = parse_volvo_topic(entity['domain'])
             if entity["domain"] == "device_tracker" or entity["id"] == "active_schedules":
-                topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/attributes"
+                topic = f"{topic_prefix}/{vin}_{entity['id']}/attributes"
             else:
-                topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/state"
+                topic = f"{topic_prefix}/{vin}_{entity['id']}/state"
 
             if state:
                 mqtt_client.publish(
@@ -275,16 +292,21 @@ def update_ha_device(entity, vin, state):
         return None
 
     logging.debug("Updating icon to " + icon + " for " + entity["id"])
+
+    topic_prefix = parse_volvo_topic(entity['domain'])
+    entity_topic = f"{topic_prefix}/{vin}_{entity['id']}"
+
     config = {
         "name": entity['name'],
         "object_id": f"volvo_{vin}_{entity['id']}",
         "schema": "state",
         "icon": f"mdi:{icon}" if icon else f"mdi:{entity['icon']}",
-        "state_topic": f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/state",
+        "state_topic": f"{entity_topic}/state",
         "device": devices[vin],
         "unique_id": f"volvoAAOS2mqtt_{vin}_{entity['id']}",
         "availability_topic": availability_topic
     }
+
     if entity.get("device_class"):
         config["device_class"] = entity["device_class"]
 
@@ -295,10 +317,10 @@ def update_ha_device(entity, vin, state):
         config["state_class"] = entity["state_class"]
         
     if entity.get("domain") == "device_tracker":
-        config["json_attributes_topic"] = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/attributes"
+        config["json_attributes_topic"] = f"{entity_topic}/attributes"
 
     if entity.get("domain") in ["switch", "lock", "button"]:
-        command_topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/command"
+        command_topic = f"{entity_topic}/command"
         config["command_topic"] = command_topic
         subscribed_topics.append(command_topic)
         mqtt_client.subscribe(command_topic)
@@ -316,16 +338,20 @@ def create_ha_devices():
         device = volvo.get_vehicle_details(vin)
         devices[vin] = device
         for entity in volvo.supported_endpoints[vin]:
+            topic_prefix = parse_volvo_topic(entity['domain'])
+            entity_topic = f"{topic_prefix}/{vin}_{entity['id']}"
+
             config = {
-                        "name": entity['name'],
-                        "object_id": f"volvo_{vin}_{entity['id']}",
-                        "schema": "state",
-                        "icon": f"mdi:{entity['icon']}",
-                        "state_topic": f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/state",
-                        "device": device,
-                        "unique_id": f"volvoAAOS2mqtt_{vin}_{entity['id']}",
-                        "availability_topic": availability_topic
-                    }
+                "name": entity['name'],
+                "object_id": f"volvo_{vin}_{entity['id']}",
+                "schema": "state",
+                "icon": f"mdi:{entity['icon']}",
+                "state_topic": f"{entity_topic}/state",
+                "device": device,
+                "unique_id": f"volvoAAOS2mqtt_{vin}_{entity['id']}",
+                "availability_topic": availability_topic
+            }
+
             if entity.get("device_class"):
                 config["device_class"] = entity["device_class"]
 
@@ -336,14 +362,14 @@ def create_ha_devices():
                 config["state_class"] = entity["state_class"]
 
             if entity.get("domain") == "device_tracker" or entity.get("id") == "active_schedules":
-                config["json_attributes_topic"] = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/attributes"
+                config["json_attributes_topic"] = f"{entity_topic}/attributes"
             elif entity.get("domain") in ["switch", "lock", "button"]:
-                command_topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/command"
+                command_topic = f"{entity_topic}/command"
                 config["command_topic"] = command_topic
                 subscribed_topics.append(command_topic)
                 mqtt_client.subscribe(command_topic)
             elif entity.get("domain") == "image":
-                config["url_topic"] = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/image_url"
+                config["url_topic"] = f"{entity_topic}/image_url"
 
             mqtt_client.publish(
                 f"homeassistant/{entity['domain']}/volvoAAOS2mqtt/{vin}_{entity['id']}/config",

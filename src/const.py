@@ -22,6 +22,12 @@ STATISTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/st
 ENGINE_DIAGNOSTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/engine"
 VEHICLE_DIAGNOSTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/diagnostics"
 
+
+# The VIN number on a vehicle is a 17 alpha-numeric characters and must NOT contain the
+# letters I, O or Q (to avoid confusion with the similar looking digits).
+# https://en.wikipedia.org/wiki/Vehicle_identification_number
+VIN_REGEX = r"\b[(A-H|J-N|P|R-Z|0-9)]{17}"
+
 units = {
             "en_GB": {
                 "divider": 1.60934,

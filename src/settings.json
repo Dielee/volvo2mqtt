@@ -10,11 +10,14 @@
     "username": "",
     "password": ""
   },
+  "mqtt_options": {
+    "volvo_topic": ""
+  },
   "volvoData": {
     "username": "",
     "password": "",
     "vin": "",
-	"vccapikey": [],
+    "vccapikey": [],
     "odometerMultiplier": "",
     "averageSpeedDivider": "",
     "averageFuelConsumptionMultiplier": ""
