@@ -72,7 +72,7 @@ NOTE: Energy status currently available only for cars in the Europe / Middle Eas
 Just install this addon with the following command.
 Please note to fill in your settings inside the environment variables.
 
-`docker run -d --pull=always -e CONF_updateInterval=300 -e CONF_babelLocale='de' -e CONF_mqtt='@json {"broker": "", "username": "", "password": "", "port": 1883}' -e CONF_volvoData='@json {"username": "", "password": "", "vin": "", "vccapikey": ["key1", "key2"], "odometerMultiplier": 1, "averageSpeedDivider": 1, "averageFuelConsumptionMultiplier": 1}' -e TZ='Europe/Berlin' --name volvo2mqtt ghcr.io/dielee/volvo2mqtt:latest`
+`docker run -d --pull=always -e CONF_updateInterval=300 -e CONF_babelLocale='de' -e CONF_mqtt='@json {"broker": "", "username": "", "password": "", "port": 1883, "base_topic": ""}' -e CONF_volvoData='@json {"username": "", "password": "", "vin": "", "vccapikey": ["key1", "key2"], "odometerMultiplier": 1, "averageSpeedDivider": 1, "averageFuelConsumptionMultiplier": 1}' -e TZ='Europe/Berlin' --name volvo2mqtt ghcr.io/dielee/volvo2mqtt:latest`
 
 <b>HA Add-On:</b><br>
 
@@ -88,6 +88,7 @@ Here is what every option means:
 | `CONF_mqtt`               | `json`    | `port`                                | 1883         | Your MQTT Broker Port. If no value is given, port 1883 will be used.  |
 | `CONF_mqtt`               | `json`    | `username`                            | optional     | MQTT Username for your broker.
 | `CONF_mqtt`               | `json`    | `password`                            | optional     | MQTT Password for your broker.
+| `CONF_mqtt`               | `json`    | `base_topic`                          | optional     | The MQTT topic to store Volvo data in. Defaults to `homeassistant/[domain]`. You can use this to place Volvo related topics somewhere else, eg. `volvoAAOS2mqtt/[domain]`. The `[domain]` part is optional and will be replaced with the component part of HA (eg. binary_sensor).
 | `CONF_volvoData`          | `json`    | `username`                            | **required** | Normally your email address to login into the Volvo App.
 | `CONF_volvoData`          | `json`    | `password`                            | **required** | Your password to login into the Volvo App.
 | `CONF_volvoData`          | `json`    | `vin`                                 | optional     | A single VIN like "VIN1" or a list of VINs like "["VIN1", "VIN2"]". Leave this empty if you don't know your VIN. The addon will use every car that is tied to your account.
@@ -96,7 +97,7 @@ Here is what every option means:
 | `CONF_volvoData`          | `json`    | `averageSpeedDivider`                 | optional     | The divider value for the average speed value, as the volvo api delivers inconsistent data. For some cars this setting is 10, for some 1. Try what's right for your car. If you leave it empty, the divider will be 1.
 | `CONF_volvoData`          | `json`    | `averageFuelConsumptionMultiplier`    | optional     | The multiplier value for the average fuel consumption value, as the volvo api delivers inconsistent data. For some cars this setting is 10, for some 1. Try what's right for your car. If you leave it empty, the multiplier will be 1.
 | `CONF_debug`              | `string`  |                                       | optional     | Debug option (true/false). Normally you don't need this. |
-| `TZ`                      | `string`  |                                       | **required** | Container timezone eg "Europe/Berlin" from [here](https://docs.diladele.com/docker/timezones.html)|
+| `TZ`                      | `string`  |                                       | **required** | Container timezone eg "Europe/Berlin" from [here](https://docs.diladele.com/docker/timezones.html).|
 
 
 

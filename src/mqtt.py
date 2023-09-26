@@ -47,10 +47,10 @@ def connect():
 
 
 def parse_base_topic(domain):
-    base_topic = settings["mqtt"]["base_topic"]
+    base_topic = "homeassistant/[domain]"
 
-    if not base_topic:
-        base_topic = "homeassistant/[domain]"
+    if util.keys_exists(settings["mqtt"], "base_topic") and settings["mqtt"]["base_topic"] != "":
+        base_topic = settings["mqtt"]["base_topic"]
 
     # Replace [domain] with actual domain and assure there
     # is no trailing slash
