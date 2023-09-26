@@ -46,22 +46,22 @@ def connect():
     mqtt_client = client
 
 
-def parse_volvo_topic(domain):
-    volvo_topic = settings["mqtt_options"]["volvo_topic"]
+def parse_base_topic(domain):
+    base_topic = settings["mqtt"]["base_topic"]
 
-    if not volvo_topic:
-        volvo_topic = "homeassistant/[domain]"
+    if not base_topic:
+        base_topic = "homeassistant/[domain]"
 
     # Replace [domain] with actual domain and assure there
     # is no trailing slash
-    volvo_topic = volvo_topic.replace("[domain]", domain).rstrip("/")
+    base_topic = base_topic.replace("[domain]", domain).rstrip("/")
 
-    return volvo_topic
+    return base_topic
 
 
 def send_car_images(vin, data, device):
     if util.keys_exists(data, "images"):
-        topic_prefix = parse_volvo_topic("image")
+        topic_prefix = parse_base_topic("image")
 
         for entity in [{"name": "Exterior Image", "id": "exterior_image"},
                        {"name": "Interior Image", "id": "interior_image"}]:
@@ -266,7 +266,7 @@ def update_car_data(force_update=False, overwrite={}):
                 else:
                     state = volvo.api_call(entity["url"], "GET", vin, entity["id"], force_update)
 
-            topic_prefix = parse_volvo_topic(entity['domain'])
+            topic_prefix = parse_base_topic(entity['domain'])
             if entity["domain"] == "device_tracker" or entity["id"] == "active_schedules":
                 topic = f"{topic_prefix}/{vin}_{entity['id']}/attributes"
             else:
@@ -293,7 +293,7 @@ def update_ha_device(entity, vin, state):
 
     logging.debug("Updating icon to " + icon + " for " + entity["id"])
 
-    topic_prefix = parse_volvo_topic(entity['domain'])
+    topic_prefix = parse_base_topic(entity['domain'])
     entity_topic = f"{topic_prefix}/{vin}_{entity['id']}"
 
     config = {
@@ -338,7 +338,7 @@ def create_ha_devices():
         device = volvo.get_vehicle_details(vin)
         devices[vin] = device
         for entity in volvo.supported_endpoints[vin]:
-            topic_prefix = parse_volvo_topic(entity['domain'])
+            topic_prefix = parse_base_topic(entity['domain'])
             entity_topic = f"{topic_prefix}/{vin}_{entity['id']}"
 
             config = {

@@ -8,10 +8,8 @@
     "broker": "",
     "port": 1883,
     "username": "",
-    "password": ""
-  },
-  "mqtt_options": {
-    "volvo_topic": ""
+    "password": "",
+    "base_topic": ""
   },
   "volvoData": {
     "username": "",

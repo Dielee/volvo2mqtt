@@ -264,7 +264,7 @@ def check_supported_endpoints():
 
 def initialize_scheduler(vins):
     for vin in vins:
-        topic_prefix = mqtt.parse_volvo_topic("schedule")
+        topic_prefix = mqtt.parse_base_topic("schedule")
         topic = f"{topic_prefix}/{vin}/command"
         mqtt.active_schedules[vin] = {"timers": []}
         mqtt.subscribed_topics = [topic]
