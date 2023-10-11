@@ -4,3 +4,4 @@ src/settings.dev.json
 .env
 /src/volvo2mqtt.log
 /src/volvo2mqtt.log.1
+__pycache__
