@@ -8,8 +8,7 @@
     "broker": "",
     "port": 1883,
     "username": "",
-    "password": "",
-    "base_topic": ""
+    "password": ""
   },
   "volvoData": {
     "username": "",

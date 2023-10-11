@@ -46,22 +46,13 @@ def connect():
     mqtt_client = client
 
 
-def parse_base_topic(domain):
-    base_topic = "homeassistant/[domain]"
-
-    if util.keys_exists(settings["mqtt"], "base_topic") and settings["mqtt"]["base_topic"] != "":
-        base_topic = settings["mqtt"]["base_topic"]
-
-    # Replace [domain] with actual domain and assure there
-    # is no trailing slash
-    base_topic = base_topic.replace("[domain]", domain).rstrip("/")
-
-    return base_topic
+def get_topic(domain):
+    return f"volvoAAOS2mqtt/{domain}"
 
 
 def send_car_images(vin, data, device):
     if util.keys_exists(data, "images"):
-        topic_prefix = parse_base_topic("image")
+        topic_prefix = get_topic("image")
 
         for entity in [{"name": "Exterior Image", "id": "exterior_image"},
                        {"name": "Interior Image", "id": "interior_image"}]:
@@ -112,7 +103,14 @@ def on_disconnect(client, userdata,  rc):
 
 def on_message(client, userdata, msg):
     try:
-        vin = re.findall(VIN_REGEX, msg.topic)[0]
+        vin = None
+        matches = re.findall(VIN_REGEX, msg.topic)
+
+        if len(matches) > 0:
+            vin = matches[0]
+        
+        if vin is None:
+            vin = msg.topic.split('/')[2].split('_')[0]            
     except IndexError:
         logging.error("Error - Cannot get vin from MQTT topic!")
         return None
@@ -266,7 +264,7 @@ def update_car_data(force_update=False, overwrite={}):
                 else:
                     state = volvo.api_call(entity["url"], "GET", vin, entity["id"], force_update)
 
-            topic_prefix = parse_base_topic(entity['domain'])
+            topic_prefix = get_topic(entity['domain'])
             if entity["domain"] == "device_tracker" or entity["id"] == "active_schedules":
                 topic = f"{topic_prefix}/{vin}_{entity['id']}/attributes"
             else:
@@ -293,7 +291,7 @@ def update_ha_device(entity, vin, state):
 
     logging.debug("Updating icon to " + icon + " for " + entity["id"])
 
-    topic_prefix = parse_base_topic(entity['domain'])
+    topic_prefix = get_topic(entity['domain'])
     entity_topic = f"{topic_prefix}/{vin}_{entity['id']}"
 
     config = {
@@ -338,7 +336,7 @@ def create_ha_devices():
         device = volvo.get_vehicle_details(vin)
         devices[vin] = device
         for entity in volvo.supported_endpoints[vin]:
-            topic_prefix = parse_base_topic(entity['domain'])
+            topic_prefix = get_topic(entity['domain'])
             entity_topic = f"{topic_prefix}/{vin}_{entity['id']}"
 
             config = {
