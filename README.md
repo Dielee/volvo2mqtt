@@ -32,6 +32,7 @@ If you like my work:<br>
 - XC60 PHEV (2022)
 - XC90 PHEV T8 (2023)
 - XC90 PHEV T8 (2024)
+- XC90 B5 Mildhybrid (2024)
 - V90 PHEV T8 (2019)*
 
 *only partly working
