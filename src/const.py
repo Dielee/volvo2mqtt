@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.8.8"
+VERSION = "v1.8.9"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles"
@@ -51,7 +51,7 @@ charging_connection_states = {"CONNECTION_STATUS_DISCONNECTED": "Disconnected", 
                               "CONNECTION_STATUS_FAULT": "Fault"}
 
 window_states = {"CLOSED": "OFF", "OPEN": "ON"}
-door_states = {"CLOSED": "OFF", "OPEN": "ON"}
+door_states = {"CLOSED": "OFF", "OPEN": "ON", "UNSPECIFIED": "UNKNOWN"}
 engine_states = {"RUNNING": "ON", "STOPPED": "OFF", "true": "ON", "false": "OFF"}
 
 icon_states = {
@@ -108,7 +108,6 @@ supported_entities = [
                         {"name": "Tire Rear Left", "domain": "sensor", "id": "tyre_rear_left", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
                         {"name": "Tire Rear Right", "domain": "sensor", "id": "tyre_rear_right", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
                         {"name": "Engine State", "domain": "binary_sensor", "device_class": "running", "id": "engine_state", "icon": "engine", "url": ENGINE_STATE_URL},
-                        {"name": "Engine State", "domain": "binary_sensor", "device_class": "running", "id": "engine_state", "icon": "engine", "url": ENGINE_DIAGNOSTICS_URL},
                         {"name": "Fuel Level", "domain": "sensor", "id": "fuel_level", "unit": "liters", "icon": "fuel", "url": FUEL_STATE_URL, "state_class": "measurement"},
                         {"name": "Average Fuel Consumption", "domain": "sensor", "id": "average_fuel_consumption", "unit": "liters", "icon": "fuel", "url": STATISTICS_URL},
                         {"name": "Distance to Empty", "domain": "sensor", "id": "distance_to_empty", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["distance_to_empty"]["unit"], "icon": "map-marker-distance", "url": STATISTICS_URL, "state_class": "measurement"},

@@ -448,7 +448,7 @@ def parse_api_data(data, sensor_id=None):
                 return ""
         return None
     elif sensor_id == "lock_status":
-        return data["carLocked"]["value"] if util.keys_exists(data, "carLocked") else None
+        return data["centralLock"]["value"] if util.keys_exists(data, "centralLock") else None
     elif sensor_id == "odometer":
         multiplier = 1
         if util.keys_exists(settings["volvoData"], "odometerMultiplier"):
@@ -460,44 +460,44 @@ def parse_api_data(data, sensor_id=None):
         return util.convert_metric_values(int(data["odometer"]["value"]) * multiplier) \
             if util.keys_exists(data, "odometer") else None
     elif sensor_id == "window_front_left":
-        return window_states[data["frontLeftWindowOpen"]["value"]] if util.keys_exists(data, "frontLeftWindowOpen") \
+        return window_states[data["frontLeftWindow"]["value"]] if util.keys_exists(data, "frontLeftWindow") \
             else None
     elif sensor_id == "window_front_right":
-        return window_states[data["frontRightWindowOpen"]["value"]] if util.keys_exists(data, "frontRightWindowOpen") \
+        return window_states[data["frontRightWindow"]["value"]] if util.keys_exists(data, "frontRightWindow") \
             else None
     elif sensor_id == "window_rear_left":
-        return window_states[data["rearLeftWindowOpen"]["value"]] if util.keys_exists(data, "rearLeftWindowOpen") \
+        return window_states[data["rearLeftWindow"]["value"]] if util.keys_exists(data, "rearLeftWindow") \
             else None
     elif sensor_id == "window_rear_right":
-        return window_states[data["rearRightWindowOpen"]["value"]] if util.keys_exists(data, "rearRightWindowOpen") \
+        return window_states[data["rearRightWindow"]["value"]] if util.keys_exists(data, "rearRightWindow") \
             else None
     elif sensor_id == "door_front_left":
-        return door_states[data["frontLeftDoorOpen"]["value"]] if util.keys_exists(data, "frontLeftDoorOpen") else None
+        return door_states[data["frontLeftDoor"]["value"]] if util.keys_exists(data, "frontLeftDoor") else None
     elif sensor_id == "door_front_right":
-        return door_states[data["frontRightDoorOpen"]["value"]] \
-            if util.keys_exists(data, "frontRightDoorOpen") else None
+        return door_states[data["frontRightDoor"]["value"]] \
+            if util.keys_exists(data, "frontRightDoor") else None
     elif sensor_id == "door_rear_left":
-        return door_states[data["rearLeftDoorOpen"]["value"]] if util.keys_exists(data, "rearLeftDoorOpen") else None
+        return door_states[data["rearLeftDoor"]["value"]] if util.keys_exists(data, "rearLeftDoor") else None
     elif sensor_id == "door_rear_right":
-        return door_states[data["rearRightDoorOpen"]["value"]] if util.keys_exists(data, "rearRightDoorOpen") else None
+        return door_states[data["rearRightDoor"]["value"]] if util.keys_exists(data, "rearRightDoor") else None
     elif sensor_id == "tailgate":
-        return door_states[data["tailGateOpen"]["value"]] if util.keys_exists(data, "tailGateOpen") else None
+        return door_states[data["tailgate"]["value"]] if util.keys_exists(data, "tailgate") else None
     elif sensor_id == "sunroof":
-        return door_states[data["sunRoofOpen"]["value"]] if util.keys_exists(data, "sunRoofOpen") else None
+        return door_states[data["sunroof"]["value"]] if util.keys_exists(data, "sunroof") else None
     elif sensor_id == "engine_hood":
-        return door_states[data["hoodOpen"]["value"]] if util.keys_exists(data, "hoodOpen") else None
+        return door_states[data["hood"]["value"]] if util.keys_exists(data, "hood") else None
     elif sensor_id == "tank_lid":
-        return door_states[data["tankLidOpen"]["value"]] if util.keys_exists(data, "tankLidOpen") else None
+        return door_states[data["tankLid"]["value"]] if util.keys_exists(data, "tankLid") else None
     elif sensor_id == "tyre_front_left":
-        return data["frontLeftTyrePressure"]["value"] if util.keys_exists(data, "frontLeftTyrePressure") else None
+        return data["frontLeft"]["value"] if util.keys_exists(data, "frontLeft") else None
     elif sensor_id == "tyre_front_right":
-        return data["frontRightTyrePressure"]["value"] if util.keys_exists(data, "frontRightTyrePressure") else None
+        return data["frontRight"]["value"] if util.keys_exists(data, "frontRight") else None
     elif sensor_id == "tyre_rear_left":
-        return data["rearLeftTyrePressure"]["value"] if util.keys_exists(data, "rearLeftTyrePressure") else None
+        return data["rearLeft"]["value"] if util.keys_exists(data, "rearLeft") else None
     elif sensor_id == "tyre_rear_right":
-        return data["rearRightTyrePressure"]["value"] if util.keys_exists(data, "rearRightTyrePressure") else None
+        return data["rearRight"]["value"] if util.keys_exists(data, "rearRight") else None
     elif sensor_id == "engine_state":
-        return engine_states[data["engineRunning"]["value"]] if util.keys_exists(data, "engineRunning") else None
+        return engine_states[data["engineStatus"]["value"]] if util.keys_exists(data, "engineStatus") else None
     elif sensor_id == "fuel_level":
         if util.keys_exists(data, "fuelAmount"):
             fuel_amount = float(data["fuelAmount"]["value"])
@@ -548,16 +548,16 @@ def parse_api_data(data, sensor_id=None):
     elif sensor_id == "hours_to_service":
         return data["engineHoursToService"]["value"] if util.keys_exists(data, "engineHoursToService") else None
     elif sensor_id == "km_to_service":
-        if util.keys_exists(data, "kmToService"):
-            km_to_service = int(data["kmToService"]["value"])
+        if util.keys_exists(data, "distanceToService"):
+            km_to_service = int(data["distanceToService"]["value"])
             if km_to_service > 0:
-                return util.convert_metric_values(data["kmToService"]["value"])
+                return util.convert_metric_values(data["distanceToService"]["value"])
         return None
     elif sensor_id == "months_to_service":
-        return data["monthsToService"]["value"] if util.keys_exists(data, "monthsToService") else None
+        return data["timeToService"]["value"] if util.keys_exists(data, "timeToService") else None
     elif sensor_id == "service_warning_status":
-        return data["serviceWarningStatus"]["value"] if util.keys_exists(data, "serviceWarningStatus") else None
+        return data["serviceWarning"]["value"] if util.keys_exists(data, "serviceWarning") else None
     elif sensor_id == "service_warning_trigger":
-        return data["serviceWarningTrigger"]["value"] if util.keys_exists(data, "serviceWarningTrigger") else None
+        return data["serviceTrigger"]["value"] if util.keys_exists(data, "serviceTrigger") else None
     else:
         return None

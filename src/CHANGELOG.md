@@ -1,3 +1,8 @@
+## v1.8.9
+### 🐛 Bug Fixes:
+
+- Fix api changes from volvo #121
+
 ## v1.8.8
 ### 🐛 Bug Fixes:
 
