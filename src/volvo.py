@@ -245,11 +245,6 @@ def check_supported_endpoints():
                 # If battery charge level could be found in recharge-api, skip the second battery charge sensor
                 continue
 
-            if entity["id"] == "engine_state" and entity["url"] == ENGINE_DIAGNOSTICS_URL \
-                    and any("engine_state" in d["id"] for d in supported_endpoints[vin]):
-                # If engine state could be found in engine state endpoint, skip the second engine running sensor
-                continue
-
             if entity.get('url'):
                 state = api_call(entity["url"], "GET", vin, entity["id"])
             else:

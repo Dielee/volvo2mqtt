@@ -1,3 +1,9 @@
+## v1.8.11
+### 🐛 Bug Fixes:
+
+- Remove old code from checks for running engine sensor
+- Move battery charge level sensor from v2 to v1, as v2 returns 404
+
 ## v1.8.10
 ### 🐛 Bug Fixes:
 
