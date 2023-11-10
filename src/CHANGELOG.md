@@ -1,3 +1,8 @@
+## v1.8.10
+### 🐛 Bug Fixes:
+
+- Add `AJAR` state for sunroof #123
+
 ## v1.8.9
 ### 🐛 Bug Fixes:
 
