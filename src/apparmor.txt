@@ -4,8 +4,10 @@ profile volvo2mqtt flags=(attach_disconnected,mediate_deleted) {
   #include <abstractions/base>
 
   # Capabilities
+  capability,
   file,
   signal (send) set=(kill,term,int,hup,cont),
+  network,
 
   # S6-Overlay
   /init ix,
