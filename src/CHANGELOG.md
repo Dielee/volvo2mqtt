@@ -1,3 +1,9 @@
+## v1.8.12
+### 🐛 Bug Fixes:
+
+- Fix `AJAR` state for windows
+- Fix deprecation from `currentThread` to `current_thread`
+
 ## v1.8.11
 ### 🐛 Bug Fixes:
 
@@ -64,7 +70,7 @@
 ### 🚀 Features:
 
 - <b>Breaking change: The `vccapikey` setting is now a list. It is possible to
-  add multiple VCCAPIKEYs. This will be helpful if you are extending your 10.000 call limit some times.
+  add multiple VCCAPIKEYs. This will be helpful if you are extending your 10.000 call limit sometimes.
   Change your vccapikey config like this:
   
   Old:

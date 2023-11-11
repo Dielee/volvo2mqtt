@@ -4,7 +4,7 @@ import mqtt
 import util
 import time
 import re
-from threading import currentThread
+from threading import current_thread
 from datetime import datetime, timedelta
 from config import settings
 from babel.dates import format_datetime
@@ -303,7 +303,7 @@ def check_engine_status(vin):
         # Exit thread as engine state is unsupported by car
         return None
 
-    t = currentThread()
+    t = current_thread()
     while getattr(t, "do_run", True):
         engine_state = api_call(endpoint_url, "GET", vin, "engine_state", True)
         if engine_state == "ON":
