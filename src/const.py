@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.8.12"
+VERSION = "v1.8.13"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles"
@@ -114,7 +114,9 @@ supported_entities = [
                         {"name": "Average Speed", "domain": "sensor", "id": "average_speed", "unit": "km/h" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["average_speed"]["unit"], "icon": "speedometer", "url": STATISTICS_URL, "state_class": "measurement"},
                         {"name": "Hours to Service", "domain": "sensor", "id": "hours_to_service", "unit": "hour", "icon": "wrench-clock", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "Distance to Service", "domain": "sensor", "id": "km_to_service", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["distance_to_service"]["unit"], "icon": "wrench-clock", "url": VEHICLE_DIAGNOSTICS_URL},
-                        {"name": "Months to Service", "domain": "sensor", "id": "months_to_service", "unit": "month", "icon": "wrench-clock", "url": VEHICLE_DIAGNOSTICS_URL},
+                        {"name": "Time to Service", "domain": "sensor", "id": "time_to_service", "icon": "wrench-clock", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "Service warning status", "domain": "sensor", "id": "service_warning_status", "icon": "alert-outline", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "Service warning trigger", "domain": "sensor", "id": "service_warning_trigger", "icon": "alert-outline", "url": VEHICLE_DIAGNOSTICS_URL}
 ]
+
+old_entity_ids = ["months_to_service"]

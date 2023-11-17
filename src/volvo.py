@@ -116,6 +116,7 @@ def get_vehicles():
     else:
         initialize_climate(vins)
         initialize_scheduler(vins)
+        mqtt.delete_old_entities()
         logging.info("Vin: " + str(vins) + " found!")
 
 
@@ -364,7 +365,7 @@ def api_call(url, method, vin, sensor_id=None, force_update=False, key_change=Fa
             return None
         elif response.status_code == 403 and "message" in data:
             if "Out of call volume quota" in data["message"]:
-                logging.warn("Quota extended. Try to change VCCAPIKEY!")
+                logging.warning("Quota extended. Try to change VCCAPIKEY!")
                 change_vcc_api_key()
                 api_call(url, method, vin, sensor_id, force_update, True)
             else:
@@ -548,8 +549,11 @@ def parse_api_data(data, sensor_id=None):
             if km_to_service > 0:
                 return util.convert_metric_values(data["distanceToService"]["value"])
         return None
-    elif sensor_id == "months_to_service":
-        return data["timeToService"]["value"] if util.keys_exists(data, "timeToService") else None
+    elif sensor_id == "time_to_service":
+        if util.keys_exists(data, "timeToService"):
+            return str(data["timeToService"]["value"]) + " " + data["timeToService"]["unit"]
+        else:
+            return None
     elif sensor_id == "service_warning_status":
         return data["serviceWarning"]["value"] if util.keys_exists(data, "serviceWarning") else None
     elif sensor_id == "service_warning_trigger":

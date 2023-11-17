@@ -10,8 +10,7 @@ from datetime import datetime
 from babel.dates import format_datetime
 from config import settings
 from const import CLIMATE_START_URL, CLIMATE_STOP_URL, CAR_LOCK_URL, \
-            CAR_UNLOCK_URL, availability_topic, icon_states
-
+    CAR_UNLOCK_URL, availability_topic, icon_states, old_entity_ids
 
 mqtt_client: mqtt.Client
 subscribed_topics = []
@@ -90,7 +89,7 @@ def on_connect(client, userdata, flags, rc):
             mqtt_client.subscribe(topic)
 
 
-def on_disconnect(client, userdata,  rc):
+def on_disconnect(client, userdata, rc):
     logging.warning("MQTT disconnected, reconnecting automatically")
 
 
@@ -141,7 +140,7 @@ def start_climate_timer(d, vin):
         return None
 
     if timer_seconds > 0:
-        Timer(timer_seconds, activate_climate_timer, (vin, start_datetime.isoformat(), )).start()
+        Timer(timer_seconds, activate_climate_timer, (vin, start_datetime.isoformat(),)).start()
         active_schedules[vin]["timers"].append(start_datetime.isoformat())
         logging.debug("Climate timer set to " + str(start_datetime))
         update_car_data()
@@ -293,7 +292,7 @@ def update_ha_device(entity, vin, state):
 
     if entity.get("state_class"):
         config["state_class"] = entity["state_class"]
-        
+
     if entity.get("domain") == "device_tracker":
         config["json_attributes_topic"] = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/attributes"
 
@@ -317,15 +316,15 @@ def create_ha_devices():
         devices[vin] = device
         for entity in volvo.supported_endpoints[vin]:
             config = {
-                        "name": entity['name'],
-                        "object_id": f"volvo_{vin}_{entity['id']}",
-                        "schema": "state",
-                        "icon": f"mdi:{entity['icon']}",
-                        "state_topic": f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/state",
-                        "device": device,
-                        "unique_id": f"volvoAAOS2mqtt_{vin}_{entity['id']}",
-                        "availability_topic": availability_topic
-                    }
+                "name": entity['name'],
+                "object_id": f"volvo_{vin}_{entity['id']}",
+                "schema": "state",
+                "icon": f"mdi:{entity['icon']}",
+                "state_topic": f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/state",
+                "device": device,
+                "unique_id": f"volvoAAOS2mqtt_{vin}_{entity['id']}",
+                "availability_topic": availability_topic
+            }
             if entity.get("device_class"):
                 config["device_class"] = entity["device_class"]
 
@@ -361,3 +360,9 @@ def send_heartbeat():
 def send_offline():
     mqtt_client.publish(availability_topic, "offline")
 
+
+def delete_old_entities():
+    for vin in volvo.vins:
+        for entity in old_entity_ids:
+            topic = f"homeassistant/sensor/volvoAAOS2mqtt/{vin}_{entity}/config"
+            mqtt_client.publish(topic, payload="", retain=True)
