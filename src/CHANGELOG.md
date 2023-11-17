@@ -1,8 +1,8 @@
 ## v1.8.13
 ### 🐛 Bug Fixes:
 
-- Add "Time to Service" sensor #125
-  <b>Breaking change: The "Months to Service" sensor will be automatically deleted.
+- Add "Time to Service" sensor #125<p>
+  <b>Breaking change: The "Months to Service" sensor will be automatically deleted.<br>
   "Time to Service" contains this information now.
 
 ## v1.8.12
