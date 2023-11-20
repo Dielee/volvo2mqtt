@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.8.14"
+VERSION = "v1.8.15"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles"
@@ -16,7 +16,7 @@ ODOMETER_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0
 LOCATION_STATE_URL = "https://api.volvocars.com/location/v1/vehicles/{0}/location"
 TYRE_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/tyres"
 ENGINE_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/engine-status"
-BATTERY_CHARGE_STATE_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles/{0}/battery-charge-level"
+BATTERY_CHARGE_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/fuel"
 FUEL_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/fuel"
 STATISTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/statistics"
 ENGINE_DIAGNOSTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/engine"
