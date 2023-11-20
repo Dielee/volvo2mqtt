@@ -4,7 +4,7 @@ import mqtt
 import util
 import time
 import re
-from threading import current_thread
+from threading import current_thread, Thread
 from datetime import datetime, timedelta
 from config import settings
 from babel.dates import format_datetime
@@ -12,7 +12,7 @@ from json import JSONDecodeError
 from const import charging_system_states, charging_connection_states, door_states, window_states, \
     OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, CLIMATE_START_URL, \
     WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, supported_entities, BATTERY_CHARGE_STATE_URL, \
-    STATISTICS_URL, ENGINE_DIAGNOSTICS_URL, engine_states
+    STATISTICS_URL, ENGINE_DIAGNOSTICS_URL, API_BACKEND_STATUS, engine_states
 
 session = requests.Session()
 session.headers = {
@@ -27,6 +27,7 @@ vins = []
 supported_endpoints = {}
 cached_requests = {}
 vcc_api_keys = []
+backend_status = ""
 
 
 def authorize():
@@ -54,6 +55,7 @@ def authorize():
         get_vcc_api_keys()
         get_vehicles()
         check_supported_endpoints()
+        Thread(target=get_backend_status).start()
     else:
         message = auth.json()
         raise Exception(message["error_description"])
@@ -314,6 +316,20 @@ def check_engine_status(vin):
         time.sleep(5)
 
 
+def get_backend_status():
+    global backend_status
+    while True:
+        response = session.get(API_BACKEND_STATUS, timeout=15)
+        try:
+            data = response.json()
+            backend_status = data["message"] if util.keys_exists(data, "message") else "No warnings"
+        except JSONDecodeError as e:
+            backend_status = "No warnings"
+
+        # Update every hour
+        time.sleep(3600)
+
+
 def api_call(url, method, vin, sensor_id=None, force_update=False, key_change=False):
     if datetime.now(util.TZ) >= token_expires_at:
         refresh_auth()
@@ -411,7 +427,9 @@ def cached_request(url, method, vin, force_update=False, key_change=False):
 
 
 def parse_api_data(data, sensor_id=None):
-    data = data["data"]
+    if sensor_id != "api_backend_status":
+        data = data["data"]
+
     if sensor_id == "battery_charge_level":
         return data["batteryChargeLevel"]["value"] if util.keys_exists(data, "batteryChargeLevel") else None
     elif sensor_id == "electric_range":

@@ -21,6 +21,7 @@ FUEL_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/fu
 STATISTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/statistics"
 ENGINE_DIAGNOSTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/engine"
 VEHICLE_DIAGNOSTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/diagnostics"
+API_BACKEND_STATUS = "https://oip-dev-bff.euwest1.production.volvo.care/api/v1/backend-status"
 
 units = {
             "en_GB": {
@@ -115,7 +116,8 @@ supported_entities = [
                         {"name": "Hours to Service", "domain": "sensor", "id": "hours_to_service", "unit": "hour", "icon": "wrench-clock", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "Distance to Service", "domain": "sensor", "id": "km_to_service", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["distance_to_service"]["unit"], "icon": "wrench-clock", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "Time to Service", "domain": "sensor", "id": "time_to_service", "icon": "wrench-clock", "url": VEHICLE_DIAGNOSTICS_URL},
-                        {"name": "Service warning status", "domain": "sensor", "id": "service_warning_status", "icon": "alert-outline", "url": VEHICLE_DIAGNOSTICS_URL}
+                        {"name": "Service warning status", "domain": "sensor", "id": "service_warning_status", "icon": "alert-outline", "url": VEHICLE_DIAGNOSTICS_URL},
+                        {"name": "API Backend status", "domain": "sensor", "id": "api_backend_status", "icon": "alert"}
 ]
 
 old_entity_ids = ["months_to_service", "service_warning_trigger"]

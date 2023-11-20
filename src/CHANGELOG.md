@@ -1,3 +1,9 @@
+## v1.8.15
+### 🚀 Features:
+
+- Move `batteryChargeLevel` to the new v2 fuel endpoint
+- Add api backend status sensor
+
 ## v1.8.14
 ### 🐛 Bug Fixes:
 
