@@ -556,7 +556,5 @@ def parse_api_data(data, sensor_id=None):
             return None
     elif sensor_id == "service_warning_status":
         return data["serviceWarning"]["value"] if util.keys_exists(data, "serviceWarning") else None
-    elif sensor_id == "service_warning_trigger":
-        return data["serviceTrigger"]["value"] if util.keys_exists(data, "serviceTrigger") else None
     else:
         return None
