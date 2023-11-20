@@ -1,3 +1,9 @@
+## v1.8.14
+### 🐛 Bug Fixes:
+
+- Fix distance to empty sensor #127
+- Remove unused service warning trigger sensor
+
 ## v1.8.13
 ### 🐛 Bug Fixes:
 
