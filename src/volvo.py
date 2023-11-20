@@ -536,10 +536,10 @@ def parse_api_data(data, sensor_id=None):
                                "gps_accuracy": 1}
         return coordinates
     elif sensor_id == "distance_to_empty":
-        if util.keys_exists(data, "distanceToEmpty"):
-            distance_to_empty = int(data["distanceToEmpty"]["value"])
+        if util.keys_exists(data, "distanceToEmptyTank"):
+            distance_to_empty = int(data["distanceToEmptyTank"]["value"])
             if distance_to_empty > 0:
-                return util.convert_metric_values(data["distanceToEmpty"]["value"])
+                return util.convert_metric_values(data["distanceToEmptyTank"]["value"])
         return None
     elif sensor_id == "hours_to_service":
         return data["engineHoursToService"]["value"] if util.keys_exists(data, "engineHoursToService") else None
