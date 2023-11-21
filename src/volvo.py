@@ -11,7 +11,7 @@ from babel.dates import format_datetime
 from json import JSONDecodeError
 from const import charging_system_states, charging_connection_states, door_states, window_states, \
     OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, CLIMATE_START_URL, \
-    WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, supported_entities, BATTERY_CHARGE_STATE_URL, \
+    WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, supported_entities, FUEL_BATTERY_STATE_URL, \
     STATISTICS_URL, ENGINE_DIAGNOSTICS_URL, API_BACKEND_STATUS, engine_states
 
 session = requests.Session()
@@ -243,7 +243,7 @@ def check_supported_endpoints():
     for vin in vins:
         supported_endpoints[vin] = []
         for entity in supported_entities:
-            if entity["id"] == "battery_charge_level" and entity["url"] == BATTERY_CHARGE_STATE_URL \
+            if entity["id"] == "battery_charge_level" and entity["url"] == FUEL_BATTERY_STATE_URL \
                     and any("battery_charge_level" in d["id"] for d in supported_endpoints[vin]):
                 # If battery charge level could be found in recharge-api, skip the second battery charge sensor
                 continue
@@ -335,7 +335,7 @@ def api_call(url, method, vin, sensor_id=None, force_update=False, key_change=Fa
         refresh_auth()
 
     if url in [RECHARGE_STATE_URL, WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL,
-               STATISTICS_URL, ENGINE_DIAGNOSTICS_URL]:
+               STATISTICS_URL, ENGINE_DIAGNOSTICS_URL, FUEL_BATTERY_STATE_URL]:
         # Minimize API calls for endpoints with multiple values
         response = cached_request(url, method, vin, force_update, key_change)
         if response is None:
