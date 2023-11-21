@@ -1,3 +1,8 @@
+## v1.8.18
+### 🐛 Bug Fixes:
+
+- Fix Backend State Sensor returning `null`
+
 ## v1.8.17
 ### 🚀 Features:
 

@@ -328,9 +328,16 @@ def get_backend_status():
     response = session.get(API_BACKEND_STATUS, timeout=15)
     try:
         data = response.json()
-        backend_status = data["message"] if util.keys_exists(data, "message") else "No warnings"
+        if util.keys_exists(data, "message"):
+            if data["message"]:
+                backend_status = data["message"]
+            else:
+                backend_status = "NO_WARNING"
+        else:
+            backend_status = "NO_WARNING"
+
     except JSONDecodeError as e:
-        backend_status = "No warnings"
+        backend_status = "NO_WARNING"
     return backend_status
 
 
