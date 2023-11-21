@@ -110,13 +110,16 @@ supported_entities = [
                         {"name": "Engine State", "domain": "binary_sensor", "device_class": "running", "id": "engine_state", "icon": "engine", "url": ENGINE_STATE_URL},
                         {"name": "Fuel Level", "domain": "sensor", "id": "fuel_level", "unit": "liters", "icon": "fuel", "url": FUEL_BATTERY_STATE_URL, "state_class": "measurement"},
                         {"name": "Average Fuel Consumption", "domain": "sensor", "id": "average_fuel_consumption", "unit": "liters", "icon": "fuel", "url": STATISTICS_URL},
-                        {"name": "Distance to Empty", "domain": "sensor", "id": "distance_to_empty", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["distance_to_empty"]["unit"], "icon": "map-marker-distance", "url": STATISTICS_URL, "state_class": "measurement"},
+                        {"name": "Average Energy Consumption", "domain": "sensor", "id": "average_energy_consumption", "unit": "kwh", "icon": "car-electric", "url": STATISTICS_URL},
+                        {"name": "Distance to Empty Tank", "domain": "sensor", "id": "distance_to_empty_tank", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["distance_to_empty"]["unit"], "icon": "map-marker-distance", "url": STATISTICS_URL, "state_class": "measurement"},
+                        {"name": "Distance to Empty Battery", "domain": "sensor", "id": "distance_to_empty_battery", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["distance_to_empty"]["unit"], "icon": "map-marker-distance", "url": STATISTICS_URL, "state_class": "measurement"},
                         {"name": "Average Speed", "domain": "sensor", "id": "average_speed", "unit": "km/h" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["average_speed"]["unit"], "icon": "speedometer", "url": STATISTICS_URL, "state_class": "measurement"},
                         {"name": "Hours to Service", "domain": "sensor", "id": "hours_to_service", "unit": "hour", "icon": "wrench-clock", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "Distance to Service", "domain": "sensor", "id": "km_to_service", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["distance_to_service"]["unit"], "icon": "wrench-clock", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "Time to Service", "domain": "sensor", "id": "time_to_service", "icon": "wrench-clock", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "Service warning status", "domain": "sensor", "id": "service_warning_status", "icon": "alert-outline", "url": VEHICLE_DIAGNOSTICS_URL},
+                        {"name": "Washer Fluid Level warning", "domain": "sensor", "id": "washer_fluid_warning", "icon": "alert-outline", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "API Backend status", "domain": "sensor", "id": "api_backend_status", "icon": "alert"}
 ]
 
-old_entity_ids = ["months_to_service", "service_warning_trigger"]
+old_entity_ids = ["months_to_service", "service_warning_trigger", "distance_to_empty"]

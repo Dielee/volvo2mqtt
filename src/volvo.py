@@ -557,11 +557,17 @@ def parse_api_data(data, sensor_id=None):
                                "latitude": raw_data["coordinates"][1],
                                "gps_accuracy": 1}
         return coordinates
-    elif sensor_id == "distance_to_empty":
+    elif sensor_id == "distance_to_empty_tank":
         if util.keys_exists(data, "distanceToEmptyTank"):
             distance_to_empty = int(data["distanceToEmptyTank"]["value"])
             if distance_to_empty > 0:
                 return util.convert_metric_values(data["distanceToEmptyTank"]["value"])
+        return None
+    elif sensor_id == "distance_to_empty_battery":
+        if util.keys_exists(data, "distanceToEmptyBattery"):
+            distance_to_empty = int(data["distanceToEmptyBattery"]["value"])
+            if distance_to_empty > 0:
+                return util.convert_metric_values(data["distanceToEmptyBattery"]["value"])
         return None
     elif sensor_id == "hours_to_service":
         return data["engineHoursToService"]["value"] if util.keys_exists(data, "engineHoursToService") else None
@@ -578,5 +584,9 @@ def parse_api_data(data, sensor_id=None):
             return None
     elif sensor_id == "service_warning_status":
         return data["serviceWarning"]["value"] if util.keys_exists(data, "serviceWarning") else None
+    elif sensor_id == "average_energy_consumption":
+        return data["averageEnergyConsumption"]["value"] if util.keys_exists(data, "averageEnergyConsumption") else None
+    elif sensor_id == "washer_fluid_warning":
+        return data["washerFluidLevelWarning"]["value"] if util.keys_exists(data, "washerFluidLevelWarning") else None
     else:
         return None
