@@ -70,14 +70,14 @@ def send_car_images(vin, data, device):
             if entity["id"] == "exterior_image":
                 mqtt_client.publish(
                     url_topic,
-                    data["images"]["exteriorDefaultUrl"],
+                    data["images"]["exteriorImageUrl"],
                     retain=True
                 )
 
             if entity["id"] == "interior_image":
                 mqtt_client.publish(
                     url_topic,
-                    data["images"]["interiorDefaultUrl"],
+                    data["images"]["internalImageUrl"],
                     retain=True
                 )
 

@@ -4,7 +4,7 @@ VERSION = "v1.8.16"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles"
-VEHICLE_DETAILS_URL = "https://api.volvocars.com/connected-vehicle/v1/vehicles/{0}"
+VEHICLE_DETAILS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}"
 WINDOWS_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/windows"
 CLIMATE_START_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/commands/climatization-start"
 CLIMATE_STOP_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/commands/climatization-stop"
