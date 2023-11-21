@@ -244,7 +244,10 @@ def update_car_data(force_update=False, overwrite={}):
             elif entity["id"] == "active_schedules":
                 state = active_schedules[vin]
             elif entity["id"] == "api_backend_status":
-                state = volvo.backend_status
+                if force_update:
+                    state = volvo.get_backend_status()
+                else:
+                    state = volvo.backend_status
             else:
                 if entity["id"] == ov_entity_id and vin == ov_vin:
                     state = ov_state

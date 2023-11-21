@@ -55,7 +55,7 @@ def authorize():
         get_vcc_api_keys()
         get_vehicles()
         check_supported_endpoints()
-        Thread(target=get_backend_status).start()
+        Thread(target=backend_status_loop).start()
     else:
         message = auth.json()
         raise Exception(message["error_description"])
@@ -316,18 +316,22 @@ def check_engine_status(vin):
         time.sleep(5)
 
 
-def get_backend_status():
-    global backend_status
+def backend_status_loop():
     while True:
-        response = session.get(API_BACKEND_STATUS, timeout=15)
-        try:
-            data = response.json()
-            backend_status = data["message"] if util.keys_exists(data, "message") else "No warnings"
-        except JSONDecodeError as e:
-            backend_status = "No warnings"
-
+        get_backend_status()
         # Update every hour
         time.sleep(3600)
+
+
+def get_backend_status():
+    global backend_status
+    response = session.get(API_BACKEND_STATUS, timeout=15)
+    try:
+        data = response.json()
+        backend_status = data["message"] if util.keys_exists(data, "message") else "No warnings"
+    except JSONDecodeError as e:
+        backend_status = "No warnings"
+    return backend_status
 
 
 def api_call(url, method, vin, sensor_id=None, force_update=False, key_change=False):
