@@ -1,3 +1,12 @@
+## v1.8.17
+### 🚀 Features:
+
+- Move vehicle and vehicle details to v2 endpoint
+
+### 🐛 Bug Fixes:
+
+- Fix Battery Charge Level icon update
+
 ## v1.8.16
 ### 🚀 Features:
 
