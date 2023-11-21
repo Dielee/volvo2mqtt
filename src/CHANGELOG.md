@@ -1,3 +1,10 @@
+## v1.8.16
+### 🚀 Features:
+
+- Add `Average energy consumption`, `Distance to empty battery` and `Washer fluid level` sensors
+- Support force update for `Backend state` Sensor
+- Use cached requests for fuel endpoint
+
 ## v1.8.15
 ### 🚀 Features:
 
