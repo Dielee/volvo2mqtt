@@ -104,7 +104,7 @@ supported_entities = [
                         {"name": "Sunroof", "domain": "binary_sensor", "device_class": "door", "id": "sunroof", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
                         {"name": "Air Conditioning", "domain": "switch", "id": "climate_status", "icon": "air-conditioner", "commands": ["CLIMATIZATION_START", "CLIMATIZATION_STOP"]},
                         {"name": "Engine State", "domain": "switch", "id": "engine_state", "icon": "engine", "url": ENGINE_STATE_URL ,"commands": ["ENGINE_START", "ENGINE_STOP"]},
-                        {"name": "Engine Runtime", "domain": "number", "id": "engine_runtime", "unit": "minutes", "icon": "timer-sand", "commands": ["ENGINE_START", "ENGINE_STOP"], "min": 1, "max": 15, "mode": "box"},
+                        {"name": "Leave in", "domain": "number", "id": "engine_runtime", "unit": "minutes", "icon": "timer-sand", "commands": ["ENGINE_START", "ENGINE_STOP"], "min": 1, "max": 15, "mode": "box"},
                         {"name": "Engine State", "domain": "binary_sensor", "device_class": "running", "id": "engine_state", "icon": "engine", "url": ENGINE_STATE_URL},
                         {"name": "Lock state", "domain": "lock", "id": "lock_status", "icon": "lock", "url": LOCK_STATE_URL, "commands": ["LOCK", "UNLOCK"]},
                         {"name": "Force Update Data", "domain": "button", "id": "update_data", "icon": "update", "url": ""},
