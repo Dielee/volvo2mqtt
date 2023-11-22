@@ -1,3 +1,4 @@
+import json
 import logging
 import requests
 import mqtt
@@ -103,6 +104,7 @@ def get_supported_commands():
                 supported_commands.append(command["command"])
         else:
             logging.error("Error getting supported commands: " + str(commands.status_code) + ". " + str(data["error"].get("message")))
+    logging.debug("Supported commands: " + str(supported_commands))
 
 
 def get_vehicles():
@@ -268,7 +270,7 @@ def check_supported_endpoints():
                 # represents the actual engine state
                 continue
 
-            if entity["domain"] in ["switch", "lock"]:
+            if entity["domain"] in ["switch", "lock", "number"]:
                 state = check_supported_command(entity["commands"])
             else:
                 if entity.get('url'):
@@ -377,7 +379,7 @@ def get_backend_status():
     return backend_status
 
 
-def api_call(url, method, vin, sensor_id=None, force_update=False, key_change=False):
+def api_call(url, method, vin, sensor_id=None, force_update=False, key_change=False, body=None):
     if datetime.now(util.TZ) >= token_expires_at:
         refresh_auth()
 
@@ -398,7 +400,7 @@ def api_call(url, method, vin, sensor_id=None, force_update=False, key_change=Fa
     elif method == "POST":
         logging.debug("Starting " + method + " call against " + url)
         try:
-            response = session.post(url.format(vin), timeout=20)
+            response = session.post(url.format(vin), data=json.dumps(body), timeout=20)
         except requests.exceptions.RequestException as e:
             logging.error("Error getting data: " + str(e))
             return None

@@ -10,7 +10,7 @@ from datetime import datetime
 from babel.dates import format_datetime
 from config import settings
 from const import CLIMATE_START_URL, CLIMATE_STOP_URL, CAR_LOCK_URL, \
-    CAR_UNLOCK_URL, availability_topic, icon_states, old_entity_ids
+    CAR_UNLOCK_URL, ENGINE_START_URL, ENGINE_STOP_URL, availability_topic, icon_states, old_entity_ids
 
 mqtt_client: mqtt.Client
 subscribed_topics = []
@@ -20,6 +20,7 @@ climate_timer = {}
 engine_status = {}
 devices = {}
 active_schedules = {}
+engine_runtime = 1
 
 
 def connect():
@@ -114,6 +115,15 @@ def on_message(client, userdata, msg):
     elif "update_data" in msg.topic:
         if payload == "PRESS":
             update_car_data(True)
+    elif "engine_runtime" in msg.topic:
+        global engine_runtime
+        engine_runtime = int(payload)
+        logging.debug("Updated engine runtime to " + str(engine_runtime) + " minutes!")
+    elif "engine_state" in msg.topic:
+        if payload == "ON":
+            start_engine(vin)
+        elif payload == "OFF":
+            stop_engine(vin)
     elif "schedule" in msg.topic:
         try:
             d = json.loads(payload)
@@ -209,6 +219,23 @@ def start_climate(vin):
     # Set and update switch status
     assumed_climate_state[vin] = "ON"
     update_car_data()
+
+
+def start_engine(vin):
+    body = {"runtimeMinutes": engine_runtime}
+    # Start the api call in another thread for HA performance
+    Thread(target=volvo.api_call, args=(ENGINE_START_URL, "POST", vin, None, None, None, body)).start()
+
+    # Set and update switch status
+    update_car_data(False, {"entity_id": "engine_state", "vin": vin, "state": "ON"})
+
+
+def stop_engine(vin):
+    # Start the api call in another thread for HA performance
+    Thread(target=volvo.api_call, args=(ENGINE_STOP_URL, "POST", vin)).start()
+
+    # Set and update switch status
+    update_car_data(False, {"entity_id": "engine_state", "vin": vin, "state": "OFF"})
 
 
 def update_loop():
