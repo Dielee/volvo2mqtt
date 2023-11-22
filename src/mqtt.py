@@ -259,7 +259,7 @@ def update_car_data(force_update=False, overwrite={}):
             else:
                 topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/state"
 
-            if state:
+            if state or state == 0:
                 mqtt_client.publish(
                     topic,
                     json.dumps(state) if isinstance(state, dict) or isinstance(state, list) else state

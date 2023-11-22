@@ -1,3 +1,8 @@
+## v1.8.19
+### 🐛 Bug Fixes:
+
+- Fix Estimated Charging Time not changing to zero #133 
+
 ## v1.8.18
 ### 🐛 Bug Fixes:
 
