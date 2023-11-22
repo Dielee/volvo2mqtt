@@ -1,3 +1,9 @@
+## v1.9.0
+### 🚀 Features:
+
+- Add check for supported commands
+- Add Engine start/stop and Engine runtime minutes for supported cars
+
 ## v1.8.19
 ### 🐛 Bug Fixes:
 
