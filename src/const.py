@@ -20,7 +20,8 @@ FUEL_BATTERY_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicle
 STATISTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/statistics"
 ENGINE_DIAGNOSTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/engine"
 VEHICLE_DIAGNOSTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/diagnostics"
-API_BACKEND_STATUS = "https://oip-dev-bff.euwest1.production.volvo.care/api/v1/backend-status"
+API_BACKEND_STATUS_URL = "https://oip-dev-bff.euwest1.production.volvo.care/api/v1/backend-status"
+SUPPORTED_COMMANDS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/commands"
 
 units = {
             "en_GB": {
@@ -99,8 +100,8 @@ supported_entities = [
                         {"name": "Engine Hood", "domain": "binary_sensor", "device_class": "door", "id": "engine_hood", "icon": "car-door-lock", "url": LOCK_STATE_URL},
                         {"name": "Tank Lid", "domain": "binary_sensor", "device_class": "door", "id": "tank_lid", "icon": "car-door-lock", "url": LOCK_STATE_URL},
                         {"name": "Sunroof", "domain": "binary_sensor", "device_class": "door", "id": "sunroof", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
-                        {"name": "Air Conditioning", "domain": "switch", "id": "climate_status", "icon": "air-conditioner"},
-                        {"name": "Lock state", "domain": "lock", "id": "lock_status", "icon": "lock", "url": LOCK_STATE_URL},
+                        {"name": "Air Conditioning", "domain": "switch", "id": "climate_status", "icon": "air-conditioner", "commands": ["CLIMATIZATION_START", "CLIMATIZATION_STOP"]},
+                        {"name": "Lock state", "domain": "lock", "id": "lock_status", "icon": "lock", "url": LOCK_STATE_URL, "commands": ["LOCK", "UNLOCK"]},
                         {"name": "Force Update Data", "domain": "button", "id": "update_data", "icon": "update", "url": ""},
                         {"name": "Location", "domain": "device_tracker", "id": "location", "icon": "map-marker-radius", "url": LOCATION_STATE_URL},
                         {"name": "Tire Front Left", "domain": "sensor", "id": "tyre_front_left", "icon": "car-tire-alert", "url": TYRE_STATE_URL},

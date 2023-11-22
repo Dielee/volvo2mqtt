@@ -12,7 +12,7 @@ from json import JSONDecodeError
 from const import charging_system_states, charging_connection_states, door_states, window_states, \
     OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, CLIMATE_START_URL, \
     WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, supported_entities, FUEL_BATTERY_STATE_URL, \
-    STATISTICS_URL, ENGINE_DIAGNOSTICS_URL, API_BACKEND_STATUS, engine_states
+    STATISTICS_URL, ENGINE_DIAGNOSTICS_URL, API_BACKEND_STATUS_URL, SUPPORTED_COMMANDS_URL, engine_states
 
 session = requests.Session()
 session.headers = {
@@ -27,6 +27,7 @@ vins = []
 supported_endpoints = {}
 cached_requests = {}
 vcc_api_keys = []
+supported_commands = []
 backend_status = ""
 
 
@@ -54,6 +55,7 @@ def authorize():
 
         get_vcc_api_keys()
         get_vehicles()
+        get_supported_commands()
         check_supported_endpoints()
         Thread(target=backend_status_loop).start()
     else:
@@ -90,6 +92,18 @@ def refresh_auth():
         refresh_token = data["refresh_token"]
 
 
+def get_supported_commands():
+    global supported_commands
+    for vin in vins:
+        commands = session.get(SUPPORTED_COMMANDS_URL.format(vin))
+        data = commands.json()
+        if commands.status_code == 200:
+            for command in data["data"]:
+                supported_commands.append(command["command"])
+        else:
+            logging.error("Error getting supported commands: " + str(commands.status_code) + ". " + str(data["error"].get("message")))
+
+
 def get_vehicles():
     global vins
     if not settings.volvoData["vin"]:
@@ -102,9 +116,8 @@ def get_vehicles():
             else:
                 raise Exception("No vehicle in account " + settings.volvoData["username"] + " found.")
         else:
-            error = vehicles.json()
             raise Exception(
-                "Error getting vehicles: " + str(vehicles.status_code) + ". " + str(error["error"].get("message")))
+                "Error getting vehicles: " + str(vehicles.status_code) + ". " + str(data["error"].get("message")))
     else:
         if isinstance(settings.volvoData["vin"], list):
             # If setting is a list, copy
@@ -248,16 +261,31 @@ def check_supported_endpoints():
                 # If battery charge level could be found in recharge-api, skip the second battery charge sensor
                 continue
 
-            if entity.get('url'):
-                state = api_call(entity["url"], "GET", vin, entity["id"])
+            if entity["domain"] in ["switch", "lock"]:
+                state = check_supported_command(entity["commands"])
             else:
-                state = ""
+                if entity.get('url'):
+                    state = api_call(entity["url"], "GET", vin, entity["id"])
+                else:
+                    state = ""
 
             if state is not None:
                 logging.info("Success! " + entity["name"] + " is supported by your vehicle.")
                 supported_endpoints[vin].append(entity)
             else:
                 logging.info("Failed, " + entity["name"] + " is unfortunately not supported by your vehicle.")
+
+
+def check_supported_command(entity_commands):
+    commands_supported = True
+    for entity_command in entity_commands:
+        if entity_command not in supported_commands:
+            commands_supported = False
+
+    if commands_supported:
+        return ""
+    else:
+        return None
 
 
 def initialize_scheduler(vins):
@@ -325,7 +353,7 @@ def backend_status_loop():
 
 def get_backend_status():
     global backend_status
-    response = session.get(API_BACKEND_STATUS, timeout=15)
+    response = session.get(API_BACKEND_STATUS_URL, timeout=15)
     try:
         data = response.json()
         if util.keys_exists(data, "message"):
