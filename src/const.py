@@ -22,6 +22,8 @@ ENGINE_DIAGNOSTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicle
 VEHICLE_DIAGNOSTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/diagnostics"
 API_BACKEND_STATUS_URL = "https://oip-dev-bff.euwest1.production.volvo.care/api/v1/backend-status"
 SUPPORTED_COMMANDS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/commands"
+ENGINE_START_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/commands/engine-start"
+ENGINE_STOP_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/commands/engine-stop"
 
 units = {
             "en_GB": {
@@ -101,6 +103,9 @@ supported_entities = [
                         {"name": "Tank Lid", "domain": "binary_sensor", "device_class": "door", "id": "tank_lid", "icon": "car-door-lock", "url": LOCK_STATE_URL},
                         {"name": "Sunroof", "domain": "binary_sensor", "device_class": "door", "id": "sunroof", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
                         {"name": "Air Conditioning", "domain": "switch", "id": "climate_status", "icon": "air-conditioner", "commands": ["CLIMATIZATION_START", "CLIMATIZATION_STOP"]},
+                        {"name": "Engine State", "domain": "switch", "id": "engine_state", "icon": "engine", "url": ENGINE_STATE_URL ,"commands": ["ENGINE_START", "ENGINE_STOP"]},
+                        {"name": "Engine Runtime", "domain": "number", "id": "engine_runtime", "unit": "minutes", "icon": "timer-sand", "commands": ["ENGINE_START", "ENGINE_STOP"], "min": 1, "max": 15, "mode": "box"},
+                        {"name": "Engine State", "domain": "binary_sensor", "device_class": "running", "id": "engine_state", "icon": "engine", "url": ENGINE_STATE_URL},
                         {"name": "Lock state", "domain": "lock", "id": "lock_status", "icon": "lock", "url": LOCK_STATE_URL, "commands": ["LOCK", "UNLOCK"]},
                         {"name": "Force Update Data", "domain": "button", "id": "update_data", "icon": "update", "url": ""},
                         {"name": "Location", "domain": "device_tracker", "id": "location", "icon": "map-marker-radius", "url": LOCATION_STATE_URL},
@@ -108,7 +113,6 @@ supported_entities = [
                         {"name": "Tire Front Right", "domain": "sensor", "id": "tyre_front_right", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
                         {"name": "Tire Rear Left", "domain": "sensor", "id": "tyre_rear_left", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
                         {"name": "Tire Rear Right", "domain": "sensor", "id": "tyre_rear_right", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
-                        {"name": "Engine State", "domain": "binary_sensor", "device_class": "running", "id": "engine_state", "icon": "engine", "url": ENGINE_STATE_URL},
                         {"name": "Fuel Level", "domain": "sensor", "id": "fuel_level", "unit": "liters", "icon": "fuel", "url": FUEL_BATTERY_STATE_URL, "state_class": "measurement"},
                         {"name": "Average Fuel Consumption", "domain": "sensor", "id": "average_fuel_consumption", "unit": "liters", "icon": "fuel", "url": STATISTICS_URL},
                         {"name": "Average Energy Consumption", "domain": "sensor", "id": "average_energy_consumption", "unit": "kwh", "icon": "car-electric", "url": STATISTICS_URL},

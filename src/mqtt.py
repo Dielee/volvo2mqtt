@@ -226,7 +226,7 @@ def update_car_data(force_update=False, overwrite={}):
     last_data_update = format_datetime(datetime.now(util.TZ), format="medium", locale=settings["babelLocale"])
     for vin in volvo.vins:
         for entity in volvo.supported_endpoints[vin]:
-            if entity["domain"] == "button":
+            if entity["domain"] in ["button", "number"]:
                 continue
 
             ov_entity_id = ""
@@ -344,11 +344,17 @@ def create_ha_devices():
 
             if entity.get("domain") == "device_tracker" or entity.get("id") == "active_schedules":
                 config["json_attributes_topic"] = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/attributes"
-            elif entity.get("domain") in ["switch", "lock", "button"]:
+            elif entity.get("domain") in ["switch", "lock", "button", "number"]:
                 command_topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/command"
                 config["command_topic"] = command_topic
                 subscribed_topics.append(command_topic)
                 mqtt_client.subscribe(command_topic)
+
+                if entity["domain"] == "number":
+                    config["min"] = entity["min"]
+                    config["max"] = entity["max"]
+                    config["mode"] = entity["mode"]
+
             elif entity.get("domain") == "image":
                 config["url_topic"] = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/image_url"
 

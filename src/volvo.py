@@ -12,7 +12,8 @@ from json import JSONDecodeError
 from const import charging_system_states, charging_connection_states, door_states, window_states, \
     OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, CLIMATE_START_URL, \
     WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, supported_entities, FUEL_BATTERY_STATE_URL, \
-    STATISTICS_URL, ENGINE_DIAGNOSTICS_URL, API_BACKEND_STATUS_URL, SUPPORTED_COMMANDS_URL, engine_states
+    STATISTICS_URL, ENGINE_DIAGNOSTICS_URL, API_BACKEND_STATUS_URL, SUPPORTED_COMMANDS_URL, \
+    ENGINE_STATE_URL, engine_states
 
 session = requests.Session()
 session.headers = {
@@ -261,6 +262,12 @@ def check_supported_endpoints():
                 # If battery charge level could be found in recharge-api, skip the second battery charge sensor
                 continue
 
+            if entity["id"] == "engine_state" and entity["url"] == ENGINE_STATE_URL \
+                    and any("engine_state" in d["id"] for d in supported_endpoints[vin]):
+                # If engine state is supported with commands, skip engine state sensor, as switch
+                # represents the actual engine state
+                continue
+
             if entity["domain"] in ["switch", "lock"]:
                 state = check_supported_command(entity["commands"])
             else:
@@ -270,10 +277,10 @@ def check_supported_endpoints():
                     state = ""
 
             if state is not None:
-                logging.info("Success! " + entity["name"] + " is supported by your vehicle.")
+                logging.info("Success! " + entity["name"] + " (" + entity["domain"] + ") is supported by your vehicle.")
                 supported_endpoints[vin].append(entity)
             else:
-                logging.info("Failed, " + entity["name"] + " is unfortunately not supported by your vehicle.")
+                logging.info("Failed, " + entity["name"] + " (" + entity["domain"] + ") is unfortunately not supported by your vehicle.")
 
 
 def check_supported_command(entity_commands):
@@ -281,6 +288,7 @@ def check_supported_command(entity_commands):
     for entity_command in entity_commands:
         if entity_command not in supported_commands:
             commands_supported = False
+            break
 
     if commands_supported:
         return ""
