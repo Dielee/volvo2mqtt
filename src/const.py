@@ -50,7 +50,7 @@ charging_connection_states = {"CONNECTION_STATUS_DISCONNECTED": "Disconnected", 
                               "CONNECTION_STATUS_CONNECTED_DC": "Connected DC", "CONNECTION_STATUS_CONNECTED_AC": "Connected AC",
                               "CONNECTION_STATUS_FAULT": "Fault"}
 
-window_states = {"CLOSED": "OFF", "OPEN": "ON", "AJAR": "ON"}
+window_states = {"CLOSED": "OFF", "OPEN": "ON", "UNSPECIFIED": "UNKNOWN", "AJAR": "ON"}
 door_states = {"CLOSED": "OFF", "OPEN": "ON", "UNSPECIFIED": "UNKNOWN", "AJAR": "ON"}
 engine_states = {"RUNNING": "ON", "STOPPED": "OFF", "true": "ON", "false": "OFF"}
 
