@@ -1,3 +1,10 @@
+## v1.8.20
+### 🐛 Bug Fixes:
+
+- Fix Addon crash if icon state is `UNKOWN`
+- Add `UNSPECIFIED` state for windows
+
+
 ## v1.8.19
 ### 🐛 Bug Fixes:
 

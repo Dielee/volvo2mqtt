@@ -269,16 +269,19 @@ def update_car_data(force_update=False, overwrite={}):
 
 def update_ha_device(entity, vin, state):
     icon_config = icon_states.get(entity["id"])
-    if icon_config and state:
-        logging.debug("Entity " + entity["id"] + " state " + str(state))
-        if isinstance(state, float):
-            icon = util.get_icon_between(icon_config, state)
-        elif state.replace(".", "").isnumeric():
-            state = float(state)
-            icon = util.get_icon_between(icon_config, state)
+    try:
+        if icon_config and state:
+            logging.debug("Entity " + entity["id"] + " state " + str(state))
+            if isinstance(state, float):
+                icon = util.get_icon_between(icon_config, state)
+            elif state.replace(".", "").isnumeric():
+                state = float(state)
+                icon = util.get_icon_between(icon_config, state)
+            else:
+                icon = icon_config[state]
         else:
-            icon = icon_config[state]
-    else:
+            return None
+    except:
         return None
 
     logging.debug("Updating icon to " + icon + " for " + entity["id"])
