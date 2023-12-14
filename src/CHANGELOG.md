@@ -1,3 +1,8 @@
+## v1.8.21
+### 🐛 Bug Fixes:
+
+- Try to fix addon build #146
+
 ## v1.8.20
 ### 🐛 Bug Fixes:
 
