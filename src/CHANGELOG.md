@@ -1,3 +1,8 @@
+## v1.8.22
+### 🚀 Features:
+
+- Change units to HA default #148
+
 ## v1.8.21
 ### 🐛 Bug Fixes:
 

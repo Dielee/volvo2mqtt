@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.8.21"
+VERSION = "v1.8.22"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles"
@@ -22,22 +22,32 @@ ENGINE_DIAGNOSTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicle
 VEHICLE_DIAGNOSTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/diagnostics"
 API_BACKEND_STATUS = "https://oip-dev-bff.euwest1.production.volvo.care/api/v1/backend-status"
 
+LENGTH_KILOMETERS = "km"
+SPEED_KILOMETERS_PER_HOUR = "km/h"
+TIME_MINUTES = "min"
+LENGTH_MILES = "mi"
+SPEED_MILES_PER_HOUR = "mph"
+VOLUME_LITERS = "L"
+ENERGY_KILO_WATT_HOUR = "kWh"
+TIME_HOURS = "h"
+TIME_MONTHS = "m"
+
 units = {
             "en_GB": {
                 "divider": 1.60934,
-                "electric_range": {"unit": "mi"},
-                "odometer": {"unit": "mi"},
-                "average_speed": {"unit": "mph"},
-                "distance_to_empty": {"unit": "mi"},
-                "distance_to_service": {"unit": "mi"}
+                "electric_range": {"unit": LENGTH_MILES},
+                "odometer": {"unit": LENGTH_MILES},
+                "average_speed": {"unit": SPEED_MILES_PER_HOUR},
+                "distance_to_empty": {"unit": LENGTH_MILES},
+                "distance_to_service": {"unit": LENGTH_MILES}
             },
             "en_US": {
                 "divider": 1.60934,
-                "electric_range": {"unit": "mi"},
-                "odometer": {"unit": "mi"},
-                "average_speed": {"unit": "mph"},
-                "distance_to_empty": {"unit": "mi"},
-                "distance_to_service": {"unit": "mi"}
+                "electric_range": {"unit": LENGTH_MILES},
+                "odometer": {"unit": LENGTH_MILES},
+                "average_speed": {"unit": SPEED_MILES_PER_HOUR},
+                "distance_to_empty": {"unit": LENGTH_MILES},
+                "distance_to_service": {"unit": LENGTH_MILES}
             }
         }
 
@@ -79,12 +89,12 @@ icon_states = {
 supported_entities = [
                         {"name": "Battery Charge Level", "domain": "sensor", "device_class": "battery", "id": "battery_charge_level", "unit": "%", "icon": "car-battery", "url": RECHARGE_STATE_URL, "state_class": "measurement"},
                         {"name": "Battery Charge Level", "domain": "sensor", "device_class": "battery", "id": "battery_charge_level", "unit": "%", "icon": "car-battery", "url": FUEL_BATTERY_STATE_URL, "state_class": "measurement"},
-                        {"name": "Electric Range", "domain": "sensor", "id": "electric_range", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["electric_range"]["unit"], "icon": "map-marker-distance", "url": RECHARGE_STATE_URL, "state_class": "measurement"},
-                        {"name": "Estimated Charging Time", "domain": "sensor", "id": "estimated_charging_time", "unit": "minutes", "icon": "timer-sync-outline", "url": RECHARGE_STATE_URL, "state_class": "measurement"},
+                        {"name": "Electric Range", "domain": "sensor", "id": "electric_range", "unit": LENGTH_KILOMETERS if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["electric_range"]["unit"], "icon": "map-marker-distance", "url": RECHARGE_STATE_URL, "state_class": "measurement"},
+                        {"name": "Estimated Charging Time", "domain": "sensor", "id": "estimated_charging_time", "unit": TIME_MINUTES, "icon": "timer-sync-outline", "url": RECHARGE_STATE_URL, "state_class": "measurement"},
                         {"name": "Charging System Status", "domain": "sensor", "id": "charging_system_status", "icon": "ev-station", "url": RECHARGE_STATE_URL},
                         {"name": "Charging Connection Status", "domain": "sensor", "id": "charging_connection_status", "icon": "ev-plug-ccs2", "url": RECHARGE_STATE_URL},
                         {"name": "Estimated Charging Finish Time", "domain": "sensor", "id": "estimated_charging_finish_time", "icon": "timer-sync-outline", "url": RECHARGE_STATE_URL},
-                        {"name": "Odometer", "domain": "sensor", "id": "odometer", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["odometer"]["unit"], "icon": "counter", "url": ODOMETER_STATE_URL, "state_class":"total_increasing"},
+                        {"name": "Odometer", "domain": "sensor", "id": "odometer", "unit": LENGTH_KILOMETERS if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["odometer"]["unit"], "icon": "counter", "url": ODOMETER_STATE_URL, "state_class":"total_increasing"},
                         {"name": "Last Data Update", "domain": "sensor", "id": "last_data_update", "icon": "timer", "url": ""},
                         {"name": "Active schedules", "domain": "sensor", "id": "active_schedules", "icon": "timer", "url": ""},
                         {"name": "Window Front Left", "domain": "binary_sensor", "device_class": "window", "id": "window_front_left", "icon": "car-door-lock", "url": WINDOWS_STATE_URL},
@@ -108,14 +118,14 @@ supported_entities = [
                         {"name": "Tire Rear Left", "domain": "sensor", "id": "tyre_rear_left", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
                         {"name": "Tire Rear Right", "domain": "sensor", "id": "tyre_rear_right", "icon": "car-tire-alert", "url": TYRE_STATE_URL},
                         {"name": "Engine State", "domain": "binary_sensor", "device_class": "running", "id": "engine_state", "icon": "engine", "url": ENGINE_STATE_URL},
-                        {"name": "Fuel Level", "domain": "sensor", "id": "fuel_level", "unit": "liters", "icon": "fuel", "url": FUEL_BATTERY_STATE_URL, "state_class": "measurement"},
-                        {"name": "Average Fuel Consumption", "domain": "sensor", "id": "average_fuel_consumption", "unit": "liters", "icon": "fuel", "url": STATISTICS_URL},
-                        {"name": "Average Energy Consumption", "domain": "sensor", "id": "average_energy_consumption", "unit": "kwh", "icon": "car-electric", "url": STATISTICS_URL},
-                        {"name": "Distance to Empty Tank", "domain": "sensor", "id": "distance_to_empty_tank", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["distance_to_empty"]["unit"], "icon": "map-marker-distance", "url": STATISTICS_URL, "state_class": "measurement"},
-                        {"name": "Distance to Empty Battery", "domain": "sensor", "id": "distance_to_empty_battery", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["distance_to_empty"]["unit"], "icon": "map-marker-distance", "url": STATISTICS_URL, "state_class": "measurement"},
-                        {"name": "Average Speed", "domain": "sensor", "id": "average_speed", "unit": "km/h" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["average_speed"]["unit"], "icon": "speedometer", "url": STATISTICS_URL, "state_class": "measurement"},
-                        {"name": "Hours to Service", "domain": "sensor", "id": "hours_to_service", "unit": "hour", "icon": "wrench-clock", "url": VEHICLE_DIAGNOSTICS_URL},
-                        {"name": "Distance to Service", "domain": "sensor", "id": "km_to_service", "unit": "km" if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["distance_to_service"]["unit"], "icon": "wrench-clock", "url": VEHICLE_DIAGNOSTICS_URL},
+                        {"name": "Fuel Level", "domain": "sensor", "id": "fuel_level", "unit": VOLUME_LITERS, "icon": "fuel", "url": FUEL_BATTERY_STATE_URL, "state_class": "measurement"},
+                        {"name": "Average Fuel Consumption", "domain": "sensor", "id": "average_fuel_consumption", "unit": VOLUME_LITERS, "icon": "fuel", "url": STATISTICS_URL},
+                        {"name": "Average Energy Consumption", "domain": "sensor", "id": "average_energy_consumption", "unit": ENERGY_KILO_WATT_HOUR, "icon": "car-electric", "url": STATISTICS_URL},
+                        {"name": "Distance to Empty Tank", "domain": "sensor", "id": "distance_to_empty_tank", "unit": LENGTH_KILOMETERS if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["distance_to_empty"]["unit"], "icon": "map-marker-distance", "url": STATISTICS_URL, "state_class": "measurement"},
+                        {"name": "Distance to Empty Battery", "domain": "sensor", "id": "distance_to_empty_battery", "unit": LENGTH_KILOMETERS if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["distance_to_empty"]["unit"], "icon": "map-marker-distance", "url": STATISTICS_URL, "state_class": "measurement"},
+                        {"name": "Average Speed", "domain": "sensor", "id": "average_speed", "unit": SPEED_KILOMETERS_PER_HOUR if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["average_speed"]["unit"], "icon": "speedometer", "url": STATISTICS_URL, "state_class": "measurement"},
+                        {"name": "Hours to Service", "domain": "sensor", "id": "hours_to_service", "unit": TIME_HOURS, "icon": "wrench-clock", "url": VEHICLE_DIAGNOSTICS_URL},
+                        {"name": "Distance to Service", "domain": "sensor", "id": "km_to_service", "unit": LENGTH_KILOMETERS if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["distance_to_service"]["unit"], "icon": "wrench-clock", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "Time to Service", "domain": "sensor", "id": "time_to_service", "icon": "wrench-clock", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "Service warning status", "domain": "sensor", "id": "service_warning_status", "icon": "alert-outline", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "Washer Fluid Level warning", "domain": "sensor", "id": "washer_fluid_warning", "icon": "alert-outline", "url": VEHICLE_DIAGNOSTICS_URL},
