@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.8.22"
+VERSION = "v1.8.23"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles"
@@ -54,7 +54,8 @@ units = {
 availability_topic = "volvoAAOS2mqtt/availability"
 
 charging_system_states = {"CHARGING_SYSTEM_CHARGING": "Charging", "CHARGING_SYSTEM_IDLE": "Idle",
-                          "CHARGING_SYSTEM_FAULT": "Fault", "CHARGING_SYSTEM_UNSPECIFIED": "Unspecified"}
+                          "CHARGING_SYSTEM_FAULT": "Fault", "CHARGING_SYSTEM_UNSPECIFIED": "Unspecified",
+                          "CHARGING_SYSTEM_DONE": "Done", "CHARGING_SYSTEM_SCHEDULED": "Scheduled"}
 
 charging_connection_states = {"CONNECTION_STATUS_DISCONNECTED": "Disconnected", "CONNECTION_STATUS_UNSPECIFIED": "Unspecified",
                               "CONNECTION_STATUS_CONNECTED_DC": "Connected DC", "CONNECTION_STATUS_CONNECTED_AC": "Connected AC",

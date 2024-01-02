@@ -1,3 +1,8 @@
+## v1.8.23
+### 🚀 Features:
+
+- Add new charging system states #152
+
 ## v1.8.22
 ### 🚀 Features:
 
