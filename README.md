@@ -111,6 +111,6 @@ Here is what every option means:
 [i386-shield]: https://img.shields.io/badge/i386-yes-green.svg
 [releases]: https://github.com/Dielee/volvo2mqtt/releases
 [releases-shield]: https://img.shields.io/github/release/Dielee/volvo2mqtt.svg
-[maintenance-shield]: https://img.shields.io/maintenance/yes/2023.svg
+[maintenance-shield]: https://img.shields.io/maintenance/yes/2024.svg
 [commits-shield]: https://img.shields.io/github/commit-activity/y/Dielee/volvo2mqtt.svg
 [commits]: https://github.com/Dielee/volvo2mqtt/commits/main
