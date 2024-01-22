@@ -1,3 +1,8 @@
+## v1.8.24
+### 🚀 Features:
+
+- Add option for dynamic interval settings #160
+
 ## v1.8.23
 ### 🚀 Features:
 

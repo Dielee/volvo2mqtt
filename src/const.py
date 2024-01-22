@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.8.23"
+VERSION = "v1.8.24"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles"
@@ -20,6 +20,7 @@ FUEL_BATTERY_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicle
 STATISTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/statistics"
 ENGINE_DIAGNOSTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/engine"
 VEHICLE_DIAGNOSTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/diagnostics"
+WARNINGS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/warnings"
 API_BACKEND_STATUS = "https://oip-dev-bff.euwest1.production.volvo.care/api/v1/backend-status"
 
 LENGTH_KILOMETERS = "km"
@@ -130,7 +131,8 @@ supported_entities = [
                         {"name": "Time to Service", "domain": "sensor", "id": "time_to_service", "icon": "wrench-clock", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "Service warning status", "domain": "sensor", "id": "service_warning_status", "icon": "alert-outline", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "Washer Fluid Level warning", "domain": "sensor", "id": "washer_fluid_warning", "icon": "alert-outline", "url": VEHICLE_DIAGNOSTICS_URL},
-                        {"name": "API Backend status", "domain": "sensor", "id": "api_backend_status", "icon": "alert"}
+                        {"name": "API Backend status", "domain": "sensor", "id": "api_backend_status", "icon": "alert"},
+                        {"name": "Update Interval", "domain": "number", "id": "update_interval", "unit": "seconds", "icon": "timer", "min": 60, "max": 600, "mode": "box"},
 ]
 
 old_entity_ids = ["months_to_service", "service_warning_trigger", "distance_to_empty"]

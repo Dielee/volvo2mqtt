@@ -114,6 +114,8 @@ def on_message(client, userdata, msg):
     elif "update_data" in msg.topic:
         if payload == "PRESS":
             update_car_data(True)
+    elif "update_interval" in msg.topic:
+        settings.update({"updateInterval": int(payload)})
     elif "schedule" in msg.topic:
         try:
             d = json.loads(payload)
@@ -226,7 +228,7 @@ def update_car_data(force_update=False, overwrite={}):
     last_data_update = format_datetime(datetime.now(util.TZ), format="medium", locale=settings["babelLocale"])
     for vin in volvo.vins:
         for entity in volvo.supported_endpoints[vin]:
-            if entity["domain"] == "button":
+            if entity["domain"] in ["button"]:
                 continue
 
             ov_entity_id = ""
@@ -243,6 +245,8 @@ def update_car_data(force_update=False, overwrite={}):
                 state = last_data_update
             elif entity["id"] == "active_schedules":
                 state = active_schedules[vin]
+            elif entity["id"] == "update_interval":
+                state = settings["updateInterval"]
             elif entity["id"] == "api_backend_status":
                 if force_update:
                     state = volvo.get_backend_status()
@@ -347,11 +351,16 @@ def create_ha_devices():
 
             if entity.get("domain") == "device_tracker" or entity.get("id") == "active_schedules":
                 config["json_attributes_topic"] = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/attributes"
-            elif entity.get("domain") in ["switch", "lock", "button"]:
+            elif entity.get("domain") in ["switch", "lock", "button", "number"]:
                 command_topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/command"
                 config["command_topic"] = command_topic
                 subscribed_topics.append(command_topic)
                 mqtt_client.subscribe(command_topic)
+
+                if entity["domain"] == "number":
+                    config["min"] = entity["min"]
+                    config["max"] = entity["max"]
+                    config["mode"] = entity["mode"]
             elif entity.get("domain") == "image":
                 config["url_topic"] = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/image_url"
 
