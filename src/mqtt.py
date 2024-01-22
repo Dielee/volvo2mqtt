@@ -260,6 +260,13 @@ def update_car_data(force_update=False, overwrite={}):
 
             if entity["domain"] == "device_tracker" or entity["id"] == "active_schedules":
                 topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/attributes"
+            elif entity["id"] == "warnings":
+                mqtt_client.publish(
+                    f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/attributes",
+                    json.dumps(state)
+                )
+                state = sum(value == "FAILURE" for value in state.values())
+                topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/state"
             else:
                 topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/state"
 
@@ -340,6 +347,7 @@ def create_ha_devices():
                 "unique_id": f"volvoAAOS2mqtt_{vin}_{entity['id']}",
                 "availability_topic": availability_topic
             }
+
             if entity.get("device_class"):
                 config["device_class"] = entity["device_class"]
 
@@ -349,9 +357,11 @@ def create_ha_devices():
             if entity.get("state_class"):
                 config["state_class"] = entity["state_class"]
 
-            if entity.get("domain") == "device_tracker" or entity.get("id") == "active_schedules":
+            if (entity.get("domain") == "device_tracker" or entity.get("id") == "active_schedules"
+                    or entity.get("id") == "warnings"):
                 config["json_attributes_topic"] = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/attributes"
-            elif entity.get("domain") in ["switch", "lock", "button", "number"]:
+
+            if entity.get("domain") in ["switch", "lock", "button", "number"]:
                 command_topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/command"
                 config["command_topic"] = command_topic
                 subscribed_topics.append(command_topic)

@@ -12,7 +12,7 @@ from json import JSONDecodeError
 from const import charging_system_states, charging_connection_states, door_states, window_states, \
     OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, CLIMATE_START_URL, \
     WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, supported_entities, FUEL_BATTERY_STATE_URL, \
-    STATISTICS_URL, ENGINE_DIAGNOSTICS_URL, API_BACKEND_STATUS, engine_states
+    STATISTICS_URL, ENGINE_DIAGNOSTICS_URL, API_BACKEND_STATUS, WARNINGS_URL, engine_states
 
 session = requests.Session()
 session.headers = {
@@ -346,7 +346,7 @@ def api_call(url, method, vin, sensor_id=None, force_update=False, key_change=Fa
         refresh_auth()
 
     if url in [RECHARGE_STATE_URL, WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL,
-               STATISTICS_URL, ENGINE_DIAGNOSTICS_URL, FUEL_BATTERY_STATE_URL]:
+               STATISTICS_URL, ENGINE_DIAGNOSTICS_URL, FUEL_BATTERY_STATE_URL, WARNINGS_URL]:
         # Minimize API calls for endpoints with multiple values
         response = cached_request(url, method, vin, force_update, key_change)
         if response is None:
@@ -595,5 +595,17 @@ def parse_api_data(data, sensor_id=None):
         return data["averageEnergyConsumption"]["value"] if util.keys_exists(data, "averageEnergyConsumption") else None
     elif sensor_id == "washer_fluid_warning":
         return data["washerFluidLevelWarning"]["value"] if util.keys_exists(data, "washerFluidLevelWarning") else None
+    elif sensor_id == "warnings":
+        warnings = 0
+        cleaned_data = {}
+        for key, dicts in data.items():
+            contains_data = sum(value == "NO_WARNING" or value == "FAILURE" for value in dicts.values())
+            if contains_data:
+                warnings = warnings + 1
+                cleaned_data[key] = dicts["value"]
+
+        return cleaned_data if warnings > 0 else None
     else:
         return None
+
+

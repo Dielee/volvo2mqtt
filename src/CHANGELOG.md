@@ -2,6 +2,7 @@
 ### 🚀 Features:
 
 - Add option for dynamic interval settings #160
+- Add warnings endpoint #151
 
 ## v1.8.23
 ### 🚀 Features:

@@ -133,6 +133,7 @@ supported_entities = [
                         {"name": "Washer Fluid Level warning", "domain": "sensor", "id": "washer_fluid_warning", "icon": "alert-outline", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "API Backend status", "domain": "sensor", "id": "api_backend_status", "icon": "alert"},
                         {"name": "Update Interval", "domain": "number", "id": "update_interval", "unit": "seconds", "icon": "timer", "min": 60, "max": 600, "mode": "box"},
+                        {"name": "Warnings", "domain": "sensor", "id": "warnings", "icon": "alert", "url": WARNINGS_URL}
 ]
 
 old_entity_ids = ["months_to_service", "service_warning_trigger", "distance_to_empty"]
