@@ -1,3 +1,8 @@
+## v1.8.26
+### 🚀 Features:
+
+- Add option to disable updates #160
+
 ## v1.8.25
 ### 🚀 Features:
 

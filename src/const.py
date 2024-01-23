@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.8.25"
+VERSION = "v1.8.26"
 
 OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles"
@@ -132,7 +132,7 @@ supported_entities = [
                         {"name": "Service warning status", "domain": "sensor", "id": "service_warning_status", "icon": "alert-outline", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "Washer Fluid Level warning", "domain": "sensor", "id": "washer_fluid_warning", "icon": "alert-outline", "url": VEHICLE_DIAGNOSTICS_URL},
                         {"name": "API Backend status", "domain": "sensor", "id": "api_backend_status", "icon": "alert"},
-                        {"name": "Update Interval", "domain": "number", "id": "update_interval", "unit": "seconds", "icon": "timer", "min": 60, "max": 600, "mode": "box"},
+                        {"name": "Update Interval", "domain": "number", "id": "update_interval", "unit": "seconds", "icon": "timer", "min": -1, "max": 600, "mode": "box"},
                         {"name": "Warnings", "domain": "sensor", "id": "warnings", "icon": "alert", "url": WARNINGS_URL}
 ]
 

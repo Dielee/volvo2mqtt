@@ -115,7 +115,12 @@ def on_message(client, userdata, msg):
         if payload == "PRESS":
             update_car_data(True)
     elif "update_interval" in msg.topic:
-        settings.update({"updateInterval": int(payload)})
+        update_interval = int(payload)
+        if update_interval >= 60 or update_interval == -1:
+            settings.update({"updateInterval": int(update_interval)})
+        else:
+            logging.warning("Interval " + str(update_interval) + " seconds is to low. Doing nothing!")
+        update_car_data()
     elif "schedule" in msg.topic:
         try:
             d = json.loads(payload)
@@ -216,11 +221,15 @@ def start_climate(vin):
 def update_loop():
     create_ha_devices()
     while True:
-        logging.info("Sending mqtt update...")
-        send_heartbeat()
-        update_car_data()
-        logging.info("Mqtt update done. Next run in " + str(settings["updateInterval"]) + " seconds.")
-        time.sleep(settings["updateInterval"])
+        if settings["updateInterval"] > 0:
+            logging.info("Sending mqtt update...")
+            send_heartbeat()
+            update_car_data()
+            logging.info("Mqtt update done. Next run in " + str(settings["updateInterval"]) + " seconds.")
+            time.sleep(settings["updateInterval"])
+        else:
+            logging.info("Data update is disabled, doing nothing for 30 seconds")
+            time.sleep(30)
 
 
 def update_car_data(force_update=False, overwrite={}):
