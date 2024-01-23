@@ -1,3 +1,8 @@
+## v1.8.25
+### 🚀 Features:
+
+- Fix INTERNAL_SERVER_ERROR #165
+
 ## v1.8.24
 ### 🚀 Features:
 
