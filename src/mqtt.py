@@ -265,7 +265,11 @@ def update_car_data(force_update=False, overwrite={}):
                     f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/attributes",
                     json.dumps(state)
                 )
-                state = sum(value == "FAILURE" for value in state.values())
+                if state:
+                    state = sum(value == "FAILURE" for value in state.values())
+                else:
+                    state = 0
+
                 topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/state"
             else:
                 topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/state"
