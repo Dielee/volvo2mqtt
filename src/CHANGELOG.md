@@ -1,7 +1,12 @@
+## v1.8.27
+### 🚀 Features:
+
+- Add state cacheing for "diagnostics" endpoint
+
 ## v1.8.26
 ### 🚀 Features:
 
-- Add option to disable updates #160
+- Add option to disable updates #160 (Set the update interval to -1)
 
 ## v1.8.25
 ### 🚀 Features:
