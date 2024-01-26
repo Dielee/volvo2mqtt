@@ -1,7 +1,7 @@
 ## v1.8.27
 ### 🚀 Features:
 
-- Add state cacheing for "diagnostics" endpoint
+- Add state caching for "diagnostics" endpoint
 
 ## v1.8.26
 ### 🚀 Features:
