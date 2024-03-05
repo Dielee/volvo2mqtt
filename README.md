@@ -28,6 +28,7 @@ If you like my work:<br>
 - V60 T8 PHEV (2023)
 - C40 BEV (2023)
 - C40 BEV (2022)
+- C40 BEV (2024)
 - XC90 T8 PHEV (2023)
 - XC60 PHEV (2024)
 - XC60 PHEV (2023)
