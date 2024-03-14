@@ -1,18 +1,21 @@
+import json
 import logging
 import requests
 import mqtt
 import util
 import time
 import re
+import os.path
 from threading import current_thread, Thread
 from datetime import datetime, timedelta
 from config import settings
 from babel.dates import format_datetime
 from json import JSONDecodeError
 from const import charging_system_states, charging_connection_states, door_states, window_states, \
-    OAUTH_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, CLIMATE_START_URL, \
+    OAUTH_AUTH_URL, OAUTH_TOKEN_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, CLIMATE_START_URL, \
     WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, supported_entities, FUEL_BATTERY_STATE_URL, \
-    STATISTICS_URL, ENGINE_DIAGNOSTICS_URL, VEHICLE_DIAGNOSTICS_URL, API_BACKEND_STATUS, WARNINGS_URL, engine_states
+    STATISTICS_URL, ENGINE_DIAGNOSTICS_URL, VEHICLE_DIAGNOSTICS_URL, API_BACKEND_STATUS, WARNINGS_URL, engine_states, \
+    otp_max_loops
 
 session = requests.Session()
 session.headers = {
@@ -30,35 +33,133 @@ vcc_api_keys = []
 backend_status = ""
 
 
-def authorize():
-    headers = {
-        "authorization": "Basic aDRZZjBiOlU4WWtTYlZsNnh3c2c1WVFxWmZyZ1ZtSWFEcGhPc3kxUENhVXNpY1F0bzNUUjVrd2FKc2U0QVpkZ2ZJZmNMeXc=",
-        "content-type": "application/x-www-form-urlencoded",
-        "accept": "application/json"
-    }
-
-    body = {
-        "username": settings.volvoData["username"],
-        "password": settings.volvoData["password"],
-        "grant_type": "password",
-        "scope": "openid email profile care_by_volvo:financial_information:invoice:read care_by_volvo:financial_information:payment_method care_by_volvo:subscription:read customer:attributes customer:attributes:write order:attributes vehicle:attributes tsp_customer_api:all conve:brake_status conve:climatization_start_stop conve:command_accessibility conve:commands conve:diagnostics_engine_status conve:diagnostics_workshop conve:doors_status conve:engine_status conve:environment conve:fuel_status conve:honk_flash conve:lock conve:lock_status conve:navigation conve:odometer_status conve:trip_statistics conve:tyre_status conve:unlock conve:vehicle_relation conve:warnings conve:windows_status energy:battery_charge_level energy:charging_connection_status energy:charging_system_status energy:electric_range energy:estimated_charging_time energy:recharge_status vehicle:attributes"
-    }
-    auth = requests.post(OAUTH_URL, data=body, headers=headers)
-    if auth.status_code == 200:
-        data = auth.json()
-        session.headers.update({"authorization": "Bearer " + data["access_token"]})
-
-        global token_expires_at, refresh_token
-        token_expires_at = datetime.now(util.TZ) + timedelta(seconds=(data["expires_in"] - 30))
+def authorize(renew_tokenfile=False):
+    global refresh_token
+    if os.path.isfile(".token") and not renew_tokenfile:
+        logging.info("Using login from token file")
+        f = open('.token')
+        data = json.load(f)
         refresh_token = data["refresh_token"]
+        refresh_auth()
+    else:
+        logging.info("Starting login with OTP")
+        auth_session = requests.session()
+        auth_session.headers = {
+            "authorization": "Basic aDRZZjBiOlU4WWtTYlZsNnh3c2c1WVFxWmZyZ1ZtSWFEcGhPc3kxUENhVXNpY1F0bzNUUjVrd2FKc2U0QVpkZ2ZJZmNMeXc=",
+            "User-Agent": "vca-android/5.37.0",
+            "Accept-Encoding": "gzip",
+            "Content-Type": "application/json; charset=utf-8"
+        }
 
-        get_vcc_api_keys()
-        get_vehicles()
-        check_supported_endpoints()
-        Thread(target=backend_status_loop).start()
+        url_params = ("?client_id=h4Yf0b"
+                      "&response_type=code"
+                      "&acr_values=urn:volvoid:aal:bronze:2sv"
+                      "&response_mode=pi.flow"
+                      "&scope=openid email profile care_by_volvo:financial_information:invoice:read care_by_volvo:financial_information:payment_method care_by_volvo:subscription:read customer:attributes customer:attributes:write order:attributes vehicle:attributes tsp_customer_api:all conve:brake_status conve:climatization_start_stop conve:command_accessibility conve:commands conve:diagnostics_engine_status conve:diagnostics_workshop conve:doors_status conve:engine_status conve:environment conve:fuel_status conve:honk_flash conve:lock conve:lock_status conve:navigation conve:odometer_status conve:trip_statistics conve:tyre_status conve:unlock conve:vehicle_relation conve:warnings conve:windows_status energy:battery_charge_level energy:charging_connection_status energy:charging_system_status energy:electric_range energy:estimated_charging_time energy:recharge_status vehicle:attributes conve:engine_status")
+
+        auth = auth_session.get(OAUTH_AUTH_URL + url_params)
+        if auth.status_code == 200:
+            response = auth.json()
+            auth_state = response["status"]
+
+            if auth_state == "USERNAME_PASSWORD_REQUIRED":
+                auth_session.headers.update({"x-xsrf-header": "PingFederate"})
+                response = check_username_password(auth_session, response)
+                auth_state = response["status"]
+
+                if auth_state == "OTP_REQUIRED":
+                    response = send_otp(auth_session, response)
+                    response = continue_auth(auth_session, response)
+                    token_data = get_token(auth_session, response)
+                else:
+                    raise Exception("Unkown auth state " + auth_state)
+            elif auth_state == "OTP_REQUIRED":
+                response = send_otp(auth_session, response)
+                response = continue_auth(auth_session, response)
+                token_data = get_token(auth_session, response)
+            elif auth_state == "OTP_VERIFIED":
+                response = continue_auth(auth_session, response)
+                token_data = get_token(auth_session, response)
+            elif auth_state == "COMPLETED":
+                token_data = get_token(auth_session, response)
+            else:
+                raise Exception("Unkown auth state " + auth_state)
+
+            session.headers.update({"authorization": "Bearer " + token_data["access_token"]})
+
+            global token_expires_at
+            token_expires_at = datetime.now(util.TZ) + timedelta(seconds=(token_data["expires_in"] - 30))
+            refresh_token = token_data["refresh_token"]
+
+            util.save_to_json(token_data)
+            get_vcc_api_keys()
+            get_vehicles()
+            check_supported_endpoints()
+            Thread(target=backend_status_loop).start()
+        else:
+            message = auth.json()
+            raise Exception(message["error_description"])
+
+def continue_auth(auth_session, data):
+    next_url = data["_links"]["continueAuthentication"]["href"] + "?action=continueAuthentication"
+    auth = auth_session.get(next_url)
+
+    if auth.status_code == 200:
+        return auth.json()
     else:
         message = auth.json()
+        raise Exception(message["details"][0]["userMessage"])
+
+
+def get_token(auth_session, data):
+    auth_session.headers.update({"content-type": "application/x-www-form-urlencoded"})
+    body = {"code": data["authorizeResponse"]["code"], "grant_type": "authorization_code"}
+    token_auth = auth_session.post(OAUTH_TOKEN_URL, data=body)
+
+    if token_auth.status_code == 200:
+        return token_auth.json()
+    else:
+        message = token_auth.json()
         raise Exception(message["error_description"])
+
+
+def check_username_password(auth_session, data):
+    next_url = data["_links"]["checkUsernamePassword"]["href"] + "?action=checkUsernamePassword"
+    body = {"username": settings.volvoData["username"],
+             "password": settings.volvoData["password"]}
+    auth = auth_session.post(next_url, data=json.dumps(body))
+
+    if auth.status_code == 200:
+        return auth.json()
+    else:
+        message = auth.json()
+        raise Exception(message["details"][0]["userMessage"])
+
+
+def send_otp(auth_session, data):
+    mqtt.create_otp_input()
+    next_url = data["_links"]["checkOtp"]["href"] + "?action=checkOtp"
+    body = {"otp": ""}
+
+    for i in range(otp_max_loops):
+        if mqtt.otp_code:
+            body["otp"] = mqtt.otp_code
+            break
+
+        logging.info("Waiting for otp code... Please check your mailbox and post your otp code to the following "
+                     "mqtt topic \"volvoAAOS2mqtt/otp_code\". Retry " + str(i) + "/" + str(otp_max_loops))
+        time.sleep(5)
+
+    if not mqtt.otp_code:
+        raise Exception ("No OTP found, exting...")
+
+    mqtt.delete_otp_input()
+    auth = auth_session.post(next_url, data=json.dumps(body))
+    if auth.status_code == 200:
+        return auth.json()
+    else:
+        message = auth.json()
+        raise Exception(message["details"][0]["userMessage"])
 
 
 def refresh_auth():
@@ -76,18 +177,21 @@ def refresh_auth():
     }
 
     try:
-        auth = requests.post(OAUTH_URL, data=body, headers=headers)
+        auth = requests.post(OAUTH_TOKEN_URL, data=body, headers=headers)
     except requests.exceptions.RequestException as e:
         logging.error("Error refreshing credentials data: " + str(e))
         return None
 
     if auth.status_code == 200:
         data = auth.json()
+        util.save_to_json(data)
         session.headers.update({"authorization": "Bearer " + data["access_token"]})
 
         global token_expires_at
         token_expires_at = datetime.now(util.TZ) + timedelta(seconds=(data["expires_in"] - 30))
         refresh_token = data["refresh_token"]
+    else:
+        authorize(renew_tokenfile=True)
 
 
 def get_vehicles():
