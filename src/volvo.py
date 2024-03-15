@@ -55,7 +55,7 @@ def authorize(renew_tokenfile=False):
                       "&response_type=code"
                       "&acr_values=urn:volvoid:aal:bronze:2sv"
                       "&response_mode=pi.flow"
-                      "&scope=openid email profile care_by_volvo:financial_information:invoice:read care_by_volvo:financial_information:payment_method care_by_volvo:subscription:read customer:attributes customer:attributes:write order:attributes vehicle:attributes tsp_customer_api:all conve:brake_status conve:climatization_start_stop conve:command_accessibility conve:commands conve:diagnostics_engine_status conve:diagnostics_workshop conve:doors_status conve:engine_status conve:environment conve:fuel_status conve:honk_flash conve:lock conve:lock_status conve:navigation conve:odometer_status conve:trip_statistics conve:tyre_status conve:unlock conve:vehicle_relation conve:warnings conve:windows_status energy:battery_charge_level energy:charging_connection_status energy:charging_system_status energy:electric_range energy:estimated_charging_time energy:recharge_status vehicle:attributes conve:engine_status")
+                      "&scope=openid email profile care_by_volvo:financial_information:invoice:read care_by_volvo:financial_information:payment_method care_by_volvo:subscription:read customer:attributes customer:attributes:write order:attributes vehicle:attributes tsp_customer_api:all conve:brake_status conve:climatization_start_stop conve:command_accessibility conve:commands conve:diagnostics_engine_status conve:diagnostics_workshop conve:doors_status conve:engine_status conve:environment conve:fuel_status conve:honk_flash conve:lock conve:lock_status conve:navigation conve:odometer_status conve:trip_statistics conve:tyre_status conve:unlock conve:vehicle_relation conve:warnings conve:windows_status energy:battery_charge_level energy:charging_connection_status energy:charging_system_status energy:electric_range energy:estimated_charging_time energy:recharge_status vehicle:attributes")
 
         auth = auth_session.get(OAUTH_AUTH_URL + url_params)
         if auth.status_code == 200:
@@ -98,7 +98,7 @@ def authorize(renew_tokenfile=False):
             Thread(target=backend_status_loop).start()
         else:
             message = auth.json()
-            raise Exception(message["error_description"])
+            raise Exception(message["details"][0]["userMessage"])
 
 def continue_auth(auth_session, data):
     next_url = data["_links"]["continueAuthentication"]["href"] + "?action=continueAuthentication"
