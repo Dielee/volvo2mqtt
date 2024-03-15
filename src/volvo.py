@@ -92,13 +92,14 @@ def authorize(renew_tokenfile=False):
             refresh_token = token_data["refresh_token"]
 
             util.save_to_json(token_data)
-            get_vcc_api_keys()
-            get_vehicles()
-            check_supported_endpoints()
-            Thread(target=backend_status_loop).start()
         else:
             message = auth.json()
             raise Exception(message["details"][0]["userMessage"])
+
+    get_vcc_api_keys()
+    get_vehicles()
+    check_supported_endpoints()
+    Thread(target=backend_status_loop).start()
 
 def continue_auth(auth_session, data):
     next_url = data["_links"]["continueAuthentication"]["href"] + "?action=continueAuthentication"
