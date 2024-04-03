@@ -443,6 +443,8 @@ def parse_api_data(data, sensor_id=None):
 
     if sensor_id == "battery_charge_level":
         return data["batteryChargeLevel"]["value"] if util.keys_exists(data, "batteryChargeLevel") else None
+    elif sensor_id == "target_battery_charge_level"
+        return data["targetBatteryChargeLevel"]["value"] if util.keys_exists(data, "targetBatteryChargeLevel") else None
     elif sensor_id == "electric_range":
         return util.convert_metric_values(data["electricRange"]["value"]) \
             if util.keys_exists(data, "electricRange") else None
@@ -452,6 +454,8 @@ def parse_api_data(data, sensor_id=None):
     elif sensor_id == "charging_connection_status":
         return charging_connection_states[data["chargingConnectionStatus"]["value"]] \
             if util.keys_exists(data, "chargingConnectionStatus") else None
+    elif sensor_id == "charging_current_limit":
+        return data["chargingCurrentLimit"]["value"] if util.keys_exists(data, "chargingCurrentLimit") else None
     elif sensor_id == "estimated_charging_time":
         if util.keys_exists(data, "chargingSystemStatus"):
             charging_system_state = charging_system_states[data["chargingSystemStatus"]["value"]]

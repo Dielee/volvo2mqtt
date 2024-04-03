@@ -30,6 +30,7 @@ LENGTH_MILES = "mi"
 SPEED_MILES_PER_HOUR = "mph"
 VOLUME_LITERS = "L"
 ENERGY_KILO_WATT_HOUR = "kWh"
+ENERGY_AMPERE = "A"
 TIME_HOURS = "h"
 TIME_MONTHS = "m"
 
@@ -85,16 +86,30 @@ icon_states = {
                     {"from": 29, "to": 20, "icon": "battery-20"},
                     {"from": 19, "to": 10, "icon": "battery-10"},
                     {"from": 9, "to": 0, "icon": "battery-alert-variant-outline"},
+    "target_battery_charge_level": [
+                    {"from": 100, "to": 100, "icon": "battery"},
+                    {"from": 99, "to": 90, "icon": "battery-90"},
+                    {"from": 89, "to": 80, "icon": "battery-80"},
+                    {"from": 79, "to": 70, "icon": "battery-70"},
+                    {"from": 69, "to": 60, "icon": "battery-60"},
+                    {"from": 59, "to": 50, "icon": "battery-50"},
+                    {"from": 49, "to": 40, "icon": "battery-40"},
+                    {"from": 39, "to": 30, "icon": "battery-30"},
+                    {"from": 29, "to": 20, "icon": "battery-20"},
+                    {"from": 19, "to": 10, "icon": "battery-10"},
+                    {"from": 9, "to": 0, "icon": "battery-alert-variant-outline"},
     ]
 }
 
 supported_entities = [
                         {"name": "Battery Charge Level", "domain": "sensor", "device_class": "battery", "id": "battery_charge_level", "unit": "%", "icon": "car-battery", "url": RECHARGE_STATE_URL, "state_class": "measurement"},
                         {"name": "Battery Charge Level", "domain": "sensor", "device_class": "battery", "id": "battery_charge_level", "unit": "%", "icon": "car-battery", "url": FUEL_BATTERY_STATE_URL, "state_class": "measurement"},
+                        {"name": "Target Battery Charge Level", "domain": "sensor", "device_class": "battery", "id": "target_battery_charge_level", "unit": "%", "icon": "car-battery", "url": RECHARGE_STATE_URL, "state_class": "measurement"},
                         {"name": "Electric Range", "domain": "sensor", "id": "electric_range", "unit": LENGTH_KILOMETERS if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["electric_range"]["unit"], "icon": "map-marker-distance", "url": RECHARGE_STATE_URL, "state_class": "measurement"},
                         {"name": "Estimated Charging Time", "domain": "sensor", "id": "estimated_charging_time", "unit": TIME_MINUTES, "icon": "timer-sync-outline", "url": RECHARGE_STATE_URL, "state_class": "measurement"},
                         {"name": "Charging System Status", "domain": "sensor", "id": "charging_system_status", "icon": "ev-station", "url": RECHARGE_STATE_URL},
                         {"name": "Charging Connection Status", "domain": "sensor", "id": "charging_connection_status", "icon": "ev-plug-ccs2", "url": RECHARGE_STATE_URL},
+                        {"name": "Charging Current Limit", "domain": "sensor", "id": "charging_current_limit", "unit": ENERGY_AMPERE, "icon": "current-ac", "url": RECHARGE_STATE_URL},
                         {"name": "Estimated Charging Finish Time", "domain": "sensor", "id": "estimated_charging_finish_time", "icon": "timer-sync-outline", "url": RECHARGE_STATE_URL},
                         {"name": "Odometer", "domain": "sensor", "id": "odometer", "unit": LENGTH_KILOMETERS if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["odometer"]["unit"], "icon": "counter", "url": ODOMETER_STATE_URL, "state_class":"total_increasing"},
                         {"name": "Last Data Update", "domain": "sensor", "id": "last_data_update", "icon": "timer", "url": ""},
