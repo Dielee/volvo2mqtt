@@ -443,7 +443,7 @@ def parse_api_data(data, sensor_id=None):
 
     if sensor_id == "battery_charge_level":
         return data["batteryChargeLevel"]["value"] if util.keys_exists(data, "batteryChargeLevel") else None
-    elif sensor_id == "target_battery_charge_level"
+    elif sensor_id == "target_battery_charge_level":
         return data["targetBatteryChargeLevel"]["value"] if util.keys_exists(data, "targetBatteryChargeLevel") else None
     elif sensor_id == "electric_range":
         return util.convert_metric_values(data["electricRange"]["value"]) \
