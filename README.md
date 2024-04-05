@@ -50,9 +50,11 @@ Please let me know if your car works with this addon so I can expand the list!<b
 - Lock/unlock car
 - Start/stop climate
 - Sensor "Battery Charge Level"
+- Sensor "Target Battery Charge Level"
 - Sensor "Electric Range"
 - Sensor "Charging System Status"
 - Sensor "Charging Connection Status" (partly broken since 2.10 car update)
+- Sensor "Charging Current Limit"
 - Sensor "Estimated Charging Finish Time"
 - Sensor "Door Lock Status (All doors, tank lid, and engine hood)"
 - Sensor "Window Lock Status (All windows and sunroof - Thanks to @navet)"
