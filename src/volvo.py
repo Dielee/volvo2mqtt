@@ -149,7 +149,7 @@ def send_otp(auth_session, data):
 
         logging.info("Waiting for otp code... Please check your mailbox and post your otp code to the following "
                      "mqtt topic \"volvoAAOS2mqtt/otp_code\". Retry " + str(i) + "/" + str(otp_max_loops))
-        time.sleep(5)
+        time.sleep(8)
 
     if not mqtt.otp_code:
         raise Exception ("No OTP found, exting...")
