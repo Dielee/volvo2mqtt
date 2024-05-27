@@ -1,8 +1,9 @@
 from config import settings
 
-VERSION = "v1.8.27"
+VERSION = "v1.9.0"
 
-OAUTH_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
+OAUTH_TOKEN_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
+OAUTH_AUTH_URL = "https://volvoid.eu.volvocars.com/as/authorization.oauth2"
 VEHICLES_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles"
 VEHICLE_DETAILS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}"
 WINDOWS_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/windows"
@@ -137,3 +138,5 @@ supported_entities = [
 ]
 
 old_entity_ids = ["months_to_service", "service_warning_trigger", "distance_to_empty"]
+otp_max_loops = 15
+otp_mqtt_topic = "volvoAAOS2mqtt/otp_code"

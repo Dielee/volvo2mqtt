@@ -4,6 +4,8 @@ import os
 import re
 import sys
 import config
+import json
+from google_play_scraper import app
 from logging import handlers
 from datetime import datetime
 from const import units
@@ -28,6 +30,21 @@ class SensitiveDataFilter(logging.Filter):
             record.msg = re.sub(pattern, "<REDACTED>", record.msg)
         return True
 
+def get_volvo_app_version():
+    result = app(
+        'se.volvo.vcc',
+        lang='en',
+        country='us'
+    )
+
+    if "version" in result:
+        return result["version"]
+    else:
+        return "5.37.0"
+
+def save_to_json(data):
+    with open('.token', 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
 
 def get_icon_between(icon_list, state):
     icon = None

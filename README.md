@@ -73,6 +73,22 @@ Please let me know if your car works with this addon so I can expand the list!<b
 
 NOTE: Energy status currently available only for cars in the Europe / Middle East / Africa regions. [source](https://developer.volvocars.com/apis/energy/v1/overview/#availability)
 
+## OTP Authentication
+
+As of version <b>v1.9.0</b>, this addon uses the same OTP authentication as the Volvo app. 
+The following steps are required for authentication in exactly this order:
+
+1. Setup volvo2Mqtt, either via Docker, or via HA addon (take a look at the "Setup" section below)
+2. Fill in your settings and start volvo2Mqtt
+3. Your log will show the following lines <br> 
+```Waiting for otp code... Please check your mailbox and post your otp code to the following mqtt topic "volvoAAOS2mqtt/otp_code". Retry 0/15```<br>
+```Waiting for otp code... Please check your mailbox and post your otp code to the following mqtt topic "volvoAAOS2mqtt/otp_code". Retry 1/15```<br>
+```etc ...```
+4. Now, open your mailbox and copy your OTP Code
+5. Open HomeAssistant and search for the entity ID ```text.volvo_otp```
+6. Paste your OTP into the text entity and press Enter
+7. If everything has worked, your addon is now authenticated. In the future, OTP authentication only needs to be done when updating, not when restarting the container.
+
 ## Setup
 <b>Docker:</b>
 
@@ -104,7 +120,6 @@ Here is what every option means:
 | `CONF_volvoData`          | `json`    | `averageFuelConsumptionMultiplier`    | optional     | The multiplier value for the average fuel consumption value, as the volvo api delivers inconsistent data. For some cars this setting is 10, for some 1. Try what's right for your car. If you leave it empty, the multiplier will be 1.
 | `CONF_debug`              | `string`  |                                       | optional     | Debug option (true/false). Normally you don't need this. |
 | `TZ`                      | `string`  |                                       | **required** | Container timezone eg "Europe/Berlin" from [here](https://docs.diladele.com/docker/timezones.html)|
-
 
 
 [aarch64-shield]: https://img.shields.io/badge/aarch64-yes-green.svg

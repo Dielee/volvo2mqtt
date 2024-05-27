@@ -10,7 +10,7 @@ from datetime import datetime
 from babel.dates import format_datetime
 from config import settings
 from const import CLIMATE_START_URL, CLIMATE_STOP_URL, CAR_LOCK_URL, \
-    CAR_UNLOCK_URL, availability_topic, icon_states, old_entity_ids
+    CAR_UNLOCK_URL, availability_topic, icon_states, old_entity_ids, otp_mqtt_topic
 
 mqtt_client: mqtt.Client
 subscribed_topics = []
@@ -20,7 +20,7 @@ climate_timer = {}
 engine_status = {}
 devices = {}
 active_schedules = {}
-
+otp_code = None
 
 def connect():
     client = mqtt.Client("volvoAAOS2mqtt") if os.environ.get("IS_HA_ADDON") \
@@ -37,12 +37,35 @@ def connect():
                 port = settings["mqtt"]["port"]
     client.connect(settings["mqtt"]["broker"], port)
     client.loop_start()
+    client.subscribe("volvoAAOS2mqtt/otp_code")
     client.on_message = on_message
     client.on_disconnect = on_disconnect
     client.on_connect = on_connect
 
     global mqtt_client
     mqtt_client = client
+
+
+def create_otp_input():
+    config = {
+        "name": "Volvo OTP",
+        "object_id": f"volvo_otp",
+        "schema": "state",
+        "command_topic": otp_mqtt_topic,
+        "unique_id": f"volvoAAOS2mqtt_otp",
+        "pattern": "\d{6}",
+        "icon": "mdi:two-factor-authentication"
+    }
+
+    mqtt_client.publish(
+        f"homeassistant/text/volvoAAOS2mqtt/volvo_otp/config",
+        json.dumps(config),
+        retain=True
+    )
+
+def delete_otp_input():
+    topic = "homeassistant/text/volvoAAOS2mqtt/volvo_otp/config"
+    mqtt_client.publish(topic, payload="", retain=True)
 
 
 def send_car_images(vin, data, device):
@@ -94,13 +117,18 @@ def on_disconnect(client, userdata, rc):
 
 
 def on_message(client, userdata, msg):
-    try:
-        vin = msg.topic.split('/')[2].split('_')[0]
-    except IndexError:
-        logging.error("Error - Cannot get vin from MQTT topic!")
-        return None
-
     payload = msg.payload.decode("UTF-8")
+    if msg.topic == otp_mqtt_topic:
+        global otp_code
+        otp_code = payload
+        return None
+    else:
+        try:
+            vin = msg.topic.split('/')[2].split('_')[0]
+        except IndexError:
+            logging.error("Error - Cannot get vin from MQTT topic!")
+            return None
+
     if "climate_status" in msg.topic:
         if payload == "ON":
             start_climate(vin)
