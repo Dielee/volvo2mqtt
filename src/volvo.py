@@ -35,9 +35,11 @@ backend_status = ""
 
 def authorize(renew_tokenfile=False):
     global refresh_token
-    if os.path.isfile(".token") and not renew_tokenfile:
+
+    token_path = util.get_token_path()
+    if os.path.isfile(token_path) and not renew_tokenfile:
         logging.info("Using login from token file")
-        f = open('.token')
+        f = open(token_path)
         data = json.load(f)
         refresh_token = data["refresh_token"]
         refresh_auth()
@@ -91,7 +93,7 @@ def authorize(renew_tokenfile=False):
             token_expires_at = datetime.now(util.TZ) + timedelta(seconds=(token_data["expires_in"] - 30))
             refresh_token = token_data["refresh_token"]
 
-            util.save_to_json(token_data)
+            util.save_to_json(token_data, token_path)
         else:
             message = auth.json()
             raise Exception(message["details"][0]["userMessage"])
@@ -149,7 +151,7 @@ def send_otp(auth_session, data):
 
         logging.info("Waiting for otp code... Please check your mailbox and post your otp code to the following "
                      "mqtt topic \"volvoAAOS2mqtt/otp_code\". Retry " + str(i) + "/" + str(otp_max_loops))
-        time.sleep(8)
+        time.sleep(5)
 
     if not mqtt.otp_code:
         raise Exception ("No OTP found, exting...")
@@ -184,8 +186,9 @@ def refresh_auth():
         return None
 
     if auth.status_code == 200:
+        token_path = util.get_token_path()
         data = auth.json()
-        util.save_to_json(data)
+        util.save_to_json(data, token_path)
         session.headers.update({"authorization": "Bearer " + data["access_token"]})
 
         global token_expires_at
