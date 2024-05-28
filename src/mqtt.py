@@ -47,25 +47,37 @@ def connect():
 
 
 def create_otp_input():
+    state_topic = otp_mqtt_topic + "/state"
     config = {
         "name": "Volvo OTP",
         "object_id": f"volvo_otp",
         "schema": "state",
         "command_topic": otp_mqtt_topic,
-        "unique_id": f"volvoAAOS2mqtt_otp",
-        "pattern": "\d{6}",
-        "icon": "mdi:two-factor-authentication"
+        "state_topic": state_topic,
+        "unique_id": "volvoAAOS2mqtt_otp",
+        "pattern": r"\d{6}",
+        "icon": "mdi:two-factor-authentication",
+        "mode": "text"
     }
 
     mqtt_client.publish(
-        f"homeassistant/text/volvoAAOS2mqtt/volvo_otp/config",
+        "homeassistant/text/volvoAAOS2mqtt/volvo_otp/config",
         json.dumps(config),
         retain=True
     )
 
-def delete_otp_input():
-    topic = "homeassistant/text/volvoAAOS2mqtt/volvo_otp/config"
-    mqtt_client.publish(topic, payload="", retain=True)
+    mqtt_client.publish(
+        state_topic,
+        "000000",
+        retain=True
+    )
+
+def set_otp_state():
+    mqtt_client.publish(
+        otp_mqtt_topic + "/state",
+        otp_code,
+        retain=True
+    )
 
 
 def send_car_images(vin, data, device):
