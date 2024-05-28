@@ -87,8 +87,9 @@ The following steps are required for authentication in exactly this order:
 ```etc ...```
 4. Now, open your mailbox and copy your OTP Code
 5. Open HomeAssistant and search for the entity ID ```text.volvo_otp```
-6. Paste your OTP into the text entity and **<ins>press Enter</ins>**
-7. If everything has worked, your addon is now authenticated. In the future, OTP authentication only needs to be done when updating, not when restarting the container.
+6. Paste your OTP into the text entity and **<ins>press Enter</ins>**<br>
+   6a. (optional) If your OTP cannot be safed, try to paste your OTP code via MQTT to the following topic: `volvoAAOS2mqtt/otp_code`
+8. If everything has worked, your addon is now authenticated. In the future, OTP authentication only needs to be done when updating, not when restarting the container.
 
 ## Setup
 <b>Docker:</b>
