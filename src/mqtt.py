@@ -133,6 +133,7 @@ def on_message(client, userdata, msg):
     if msg.topic == otp_mqtt_topic:
         global otp_code
         otp_code = payload
+        set_otp_state()
         return None
     else:
         try:
