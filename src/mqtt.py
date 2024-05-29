@@ -136,7 +136,7 @@ def on_message(client, userdata, msg):
             otp_code = payload
             set_otp_state()
         else:
-            logging.warning("Found retained OTP, this can't work! Pleas clean retained messages!")
+            logging.warning("Found retained OTP, this can't work! Please clean retained messages!")
         return None
     else:
         try:
