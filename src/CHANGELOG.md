@@ -1,3 +1,39 @@
+## v1.9.2
+### 🐛 Bug Fixes:
+
+- Try to fix OTP Input
+- Fix `SyntaxWarning: invalid escape sequence '\d'` #196 
+
+## v1.9.1
+### 🚀 Features:
+
+- The token file now survives an HA addon update/restart
+
+### 🐛 Bug Fixes:
+
+- Extend OTP retry time to 120 seconds
+
+## v1.9.0
+### ⚠️ Breaking change 
+### 🚀 Features:
+
+- Add "Battery Capacity" sensor. Thanks to @gurtjun!
+- OTP Auth
+        This addon uses the same OTP authentication as the Volvo app, now. 
+        The following steps are required for authentication in exactly this order:
+        
+        1. Setup volvo2Mqtt, either via Docker, or via HA addon (take a look at the "Setup" section)
+        2. Fill in your settings and start volvo2Mqtt
+        3. Your log will show the following lines
+        Waiting for otp code... Please check your mailbox and post your otp code to the following mqtt topic "volvoAAOS2mqtt/otp_code". Retry 0/15
+        Waiting for otp code... Please check your mailbox and post your otp code to the following mqtt topic "volvoAAOS2mqtt/otp_code". Retry 1/15
+        etc ...
+        4. Now, open your mailbox and copy your OTP Code
+        5. Open HomeAssistant and search for the entity ID text.volvo_otp
+        6. Paste your OTP into the text entity and press Enter
+        7. If everything has worked, your addon is now authenticated. In the future, OTP authentication only needs to be done when updating, not when restarting the container.
+
+
 ## v1.8.27
 ### 🚀 Features:
 
