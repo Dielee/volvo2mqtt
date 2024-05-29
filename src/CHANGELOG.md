@@ -1,3 +1,8 @@
+## v1.9.3
+### 🐛 Bug Fixes:
+
+- Ignore retained OTP messages #193
+
 ## v1.9.2
 ### 🐛 Bug Fixes:
 

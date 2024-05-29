@@ -131,9 +131,12 @@ def on_disconnect(client, userdata, rc):
 def on_message(client, userdata, msg):
     payload = msg.payload.decode("UTF-8")
     if msg.topic == otp_mqtt_topic:
-        global otp_code
-        otp_code = payload
-        set_otp_state()
+        if msg.retain == 0:
+            global otp_code
+            otp_code = payload
+            set_otp_state()
+        else:
+            logging.warning("Found retained OTP, this can't work! Pleas clean retained messages!")
         return None
     else:
         try:
