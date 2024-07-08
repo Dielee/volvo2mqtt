@@ -1,3 +1,8 @@
+## v1.9.4
+### 🐛 Bug Fixes:
+
+- Fix backend state API url
+
 ## v1.9.3
 ### 🐛 Bug Fixes:
 
