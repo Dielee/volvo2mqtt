@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.9.3"
+VERSION = "v1.9.4"
 
 OAUTH_TOKEN_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 OAUTH_AUTH_URL = "https://volvoid.eu.volvocars.com/as/authorization.oauth2"
@@ -22,7 +22,7 @@ STATISTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/st
 ENGINE_DIAGNOSTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/engine"
 VEHICLE_DIAGNOSTICS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/diagnostics"
 WARNINGS_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/warnings"
-API_BACKEND_STATUS = "https://oip-dev-bff.euwest1.production.volvo.care/api/v1/backend-status"
+API_BACKEND_STATUS = "https://public-developer-portal-bff.weu-prod.ecpaz.volvocars.biz/api/v1/backend-status"
 
 LENGTH_KILOMETERS = "km"
 SPEED_KILOMETERS_PER_HOUR = "km/h"
