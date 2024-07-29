@@ -316,7 +316,8 @@ def update_car_data(force_update=False, overwrite={}):
             elif entity["id"] == "warnings":
                 mqtt_client.publish(
                     f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/attributes",
-                    json.dumps(state)
+                    json.dumps(state),
+                    retain=True
                 )
                 if state:
                     state = sum(value == "FAILURE" for value in state.values())
@@ -330,7 +331,8 @@ def update_car_data(force_update=False, overwrite={}):
             if state or state == 0:
                 mqtt_client.publish(
                     topic,
-                    json.dumps(state) if isinstance(state, dict) or isinstance(state, list) else state
+                    json.dumps(state) if isinstance(state, dict) or isinstance(state, list) else state,
+                    retain=True
                 )
                 update_ha_device(entity, vin, state)
 
@@ -441,11 +443,11 @@ def create_ha_devices():
 
 
 def send_heartbeat():
-    mqtt_client.publish(availability_topic, "online")
+    mqtt_client.publish(availability_topic, "online", retain=True)
 
 
 def send_offline():
-    mqtt_client.publish(availability_topic, "offline")
+    mqtt_client.publish(availability_topic, "offline", retain=True)
 
 
 def delete_old_entities():

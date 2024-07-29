@@ -1,3 +1,8 @@
+## v1.9.5
+### 🚀 Features:
+
+- Added "retain" states to survive HA reboot
+
 ## v1.9.4
 ### 🐛 Bug Fixes:
 
