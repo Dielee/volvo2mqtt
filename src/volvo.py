@@ -45,7 +45,7 @@ def authorize(renew_tokenfile=False):
             refresh_token = data["refresh_token"]
             refresh_auth()
         except ValueError:
-            logging.warning("Dected corrupted token file, restarting auth process")
+            logging.warning("Detected corrupted token file, restarting auth process")
             authorize(True)
     else:
         logging.info("Starting login with OTP")
