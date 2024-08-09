@@ -1,3 +1,9 @@
+## v1.9.6
+### 🐛 Bug Fixes:
+
+- Fixed interior and exterior Images #219
+- Take care of broken token files #220
+
 ## v1.9.5
 ### 🚀 Features:
 
