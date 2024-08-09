@@ -40,9 +40,13 @@ def authorize(renew_tokenfile=False):
     if os.path.isfile(token_path) and not renew_tokenfile:
         logging.info("Using login from token file")
         f = open(token_path)
-        data = json.load(f)
-        refresh_token = data["refresh_token"]
-        refresh_auth()
+        try:
+            data = json.load(f)
+            refresh_token = data["refresh_token"]
+            refresh_auth()
+        except ValueError:
+            logging.warning("Dected corrupted token file, restarting auth process")
+            authorize(True)
     else:
         logging.info("Starting login with OTP")
         auth_session = requests.session()
