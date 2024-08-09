@@ -5,6 +5,7 @@ import json
 import volvo
 import util
 import os
+import requests
 from threading import Thread, Timer
 from datetime import datetime
 from babel.dates import format_datetime
@@ -84,13 +85,14 @@ def send_car_images(vin, data, device):
     if util.keys_exists(data, "images"):
         for entity in [{"name": "Exterior Image", "id": "exterior_image"},
                        {"name": "Interior Image", "id": "interior_image"}]:
-            url_topic = f"homeassistant/image/{vin}_{entity['id']}/image_url"
+            image_topic = f"homeassistant/image/{vin}_{entity['id']}/image_topic"
             config = {
                 "name": entity["name"],
                 "object_id": f"volvo_{vin}_{entity['id']}",
                 "schema": "state",
                 "icon": "mdi:image-area",
-                "url_topic": url_topic,
+                "content_type": "image/png",
+                "image_topic": image_topic,
                 "device": device,
                 "unique_id": f"volvoAAOS2mqtt_{vin}_{entity['id']}",
                 "availability_topic": availability_topic
@@ -102,19 +104,41 @@ def send_car_images(vin, data, device):
                 retain=True
             )
 
+            headers = {"User-Agent": "(Windows NT 10.0; Win64; x64)",
+                       "sec-ch-ua-platform": "\"Windows\"", "sec-fetch-dest": "document", "Accept-Encoding": "gzip, deflate, br, zstd",
+                       "sec-fetch-mode": "navigate", "sec-fetch-site": "none", "sec-fetch-user": "?1", "upgrade-insecure-requests": "1"}
+
+            # Post exterior image
             if entity["id"] == "exterior_image":
-                mqtt_client.publish(
-                    url_topic,
-                    data["images"]["exteriorImageUrl"],
-                    retain=True
-                )
+                if not os.path.exists("exterior_image.png"):
+                    response = requests.get(data["images"]["exteriorImageUrl"], headers=headers)
+                    if response.status_code == 200:
+                        with open("exterior_image.png", 'wb') as image:
+                            image.write(response.content)
+
+                if os.path.exists("exterior_image.png"):
+                    ext_image = open("exterior_image.png", mode="rb").read()
+                    mqtt_client.publish(
+                        image_topic,
+                        ext_image,
+                        retain=True
+                    )
 
             if entity["id"] == "interior_image":
-                mqtt_client.publish(
-                    url_topic,
-                    data["images"]["internalImageUrl"],
-                    retain=True
-                )
+                # Post interior Image
+                if not os.path.exists("interior_image.png"):
+                    response = requests.get(data["images"]["internalImageUrl"], headers=headers)
+                    if response.status_code == 200:
+                        with open("interior_image.png", 'wb') as image:
+                            image.write(response.content)
+
+                if os.path.exists("interior_image.png"):
+                    int_image = open("interior_image.png", mode="rb").read()
+                    mqtt_client.publish(
+                        image_topic,
+                        int_image,
+                        retain=True
+                    )
 
 
 def on_connect(client, userdata, flags, rc):
