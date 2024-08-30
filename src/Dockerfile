@@ -1,6 +1,9 @@
 ARG BUILD_FROM
 FROM $BUILD_FROM
 
+# Add community packets
+RUN echo -e "https://nl.alpinelinux.org/alpine/latest-stable/main\nhttps://nl.alpinelinux.org/alpine/latest-stable/community" > /etc/apk/repositories
+
 # Install requirements for add-on
 RUN apk add --no-cache python3 bash py3-pip
 
