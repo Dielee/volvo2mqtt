@@ -41,6 +41,7 @@ If you like my work:<br>
 - V90 PHEV T8 (2019)*
 - V90 PHEV T6 (2024)
 - V90 B5 Mildhybrid (2023)
+- EX40 BEV (2025)
 
 *only partly working
 
