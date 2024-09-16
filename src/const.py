@@ -75,17 +75,17 @@ icon_states = {
     "door_rear_right": {"ON": "car-door", "OFF": "car-door-lock"},
     "engine_state": {"ON": "engine-outline", "OFF": "engine-off-outline"},
     "battery_charge_level": [
-                    {"from": 100, "to": 100, "icon": "battery"},
-                    {"from": 99, "to": 90, "icon": "battery-90"},
-                    {"from": 89, "to": 80, "icon": "battery-80"},
-                    {"from": 79, "to": 70, "icon": "battery-70"},
-                    {"from": 69, "to": 60, "icon": "battery-60"},
-                    {"from": 59, "to": 50, "icon": "battery-50"},
-                    {"from": 49, "to": 40, "icon": "battery-40"},
-                    {"from": 39, "to": 30, "icon": "battery-30"},
-                    {"from": 29, "to": 20, "icon": "battery-20"},
-                    {"from": 19, "to": 10, "icon": "battery-10"},
-                    {"from": 9, "to": 0, "icon": "battery-alert-variant-outline"},
+                    {"from": float('inf'), "to": 100, "icon": "battery"},
+                    {"from": 100, "to": 90, "icon": "battery-90"},
+                    {"from": 90, "to": 80, "icon": "battery-80"},
+                    {"from": 80, "to": 70, "icon": "battery-70"},
+                    {"from": 70, "to": 60, "icon": "battery-60"},
+                    {"from": 60, "to": 50, "icon": "battery-50"},
+                    {"from": 50, "to": 40, "icon": "battery-40"},
+                    {"from": 40, "to": 30, "icon": "battery-30"},
+                    {"from": 30, "to": 20, "icon": "battery-20"},
+                    {"from": 20, "to": 10, "icon": "battery-10"},
+                    {"from": 10, "to": 0, "icon": "battery-alert-variant-outline"},
     ]
 }
 

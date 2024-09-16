@@ -57,7 +57,7 @@ def save_to_json(data, token_path):
 def get_icon_between(icon_list, state):
     icon = None
     for s in icon_list:
-        if s["to"] <= state <= s["from"]:
+        if s["to"] <= state < s["from"]:
             icon = s["icon"]
     return icon
 
