@@ -1,3 +1,8 @@
+## v1.9.7
+### 🐛 Bug Fixes:
+
+- Fix EX30 battery state #230
+
 ## v1.9.6
 ### 🐛 Bug Fixes:
 
