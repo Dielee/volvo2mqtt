@@ -1,3 +1,11 @@
+## v1.10.0
+### 🚀 Features:
+- Remove unused multiplier options
+
+### 🐛 Bug Fixes:
+
+- Support new statistic keys #237
+
 ## v1.9.7
 ### 🐛 Bug Fixes:
 

@@ -551,7 +551,6 @@ def cached_request(url, method, vin, force_update=False, key_change=False):
 def parse_api_data(data, sensor_id=None):
     if sensor_id != "api_backend_status":
         data = data["data"]
-
     if sensor_id == "battery_charge_level":
         return data["batteryChargeLevel"]["value"] if util.keys_exists(data, "batteryChargeLevel") else None
     elif sensor_id == "battery_capacity":
@@ -588,14 +587,7 @@ def parse_api_data(data, sensor_id=None):
     elif sensor_id == "lock_status":
         return data["centralLock"]["value"] if util.keys_exists(data, "centralLock") else None
     elif sensor_id == "odometer":
-        multiplier = 1
-        if util.keys_exists(settings["volvoData"], "odometerMultiplier"):
-            multiplier = settings["volvoData"]["odometerMultiplier"]
-            if isinstance(multiplier, str):
-                multiplier = 1
-            elif multiplier < 1:
-                multiplier = 1
-        return util.convert_metric_values(int(data["odometer"]["value"]) * multiplier) \
+        return util.convert_metric_values(int(data["odometer"]["value"])) \
             if util.keys_exists(data, "odometer") else None
     elif sensor_id == "window_front_left":
         return window_states[data["frontLeftWindow"]["value"]] if util.keys_exists(data, "frontLeftWindow") \
@@ -643,30 +635,25 @@ def parse_api_data(data, sensor_id=None):
                 return fuel_amount
         return None
     elif sensor_id == "average_fuel_consumption":
+        average_fuel_con = 0
         if util.keys_exists(data, "averageFuelConsumption"):
             average_fuel_con = float(data["averageFuelConsumption"]["value"])
-            if average_fuel_con > 0:
-                multiplier = 1
-                if util.keys_exists(settings["volvoData"], "averageFuelConsumptionMultiplier"):
-                    multiplier = settings["volvoData"]["averageFuelConsumptionMultiplier"]
-                    if isinstance(multiplier, str):
-                        multiplier = 1
-                    elif multiplier < 1:
-                        multiplier = 1
-                return average_fuel_con * multiplier
+        elif util.keys_exists(data, "averageFuelConsumptionAutomatic"):
+            average_fuel_con = float(data["averageFuelConsumptionAutomatic"]["value"])
+
+        if average_fuel_con > 0:
+            return average_fuel_con
         return None
     elif sensor_id == "average_speed":
+        average_speed = 0
         if util.keys_exists(data, "averageSpeed"):
             average_speed = float(data["averageSpeed"]["value"])
-            if average_speed > 1:
-                divider = 1
-                if util.keys_exists(settings["volvoData"], "averageSpeedDivider"):
-                    divider = settings["volvoData"]["averageSpeedDivider"]
-                    if isinstance(divider, str):
-                        divider = 1
-                    elif divider < 1:
-                        divider = 1
-                return util.convert_metric_values(average_speed / divider)
+        elif util.keys_exists(data, "averageSpeedAutomatic"):
+            average_speed = float(data["averageSpeedAutomatic"]["value"])
+
+        if average_speed != 0:
+            return util.convert_metric_values(average_speed)
+
         return None
     elif sensor_id == "location":
         coordinates = {}
@@ -705,7 +692,15 @@ def parse_api_data(data, sensor_id=None):
     elif sensor_id == "service_warning_status":
         return data["serviceWarning"]["value"] if util.keys_exists(data, "serviceWarning") else None
     elif sensor_id == "average_energy_consumption":
-        return data["averageEnergyConsumption"]["value"] if util.keys_exists(data, "averageEnergyConsumption") else None
+        average_energy_con = 0
+        if util.keys_exists(data, "averageEnergyConsumption"):
+            average_energy_con = data["averageEnergyConsumption"]["value"]
+        elif util.keys_exists(data, "averageEnergyConsumptionAutomatic"):
+            average_energy_con = data["averageEnergyConsumptionAutomatic"]["value"]
+
+        if average_energy_con != 0:
+            return average_energy_con
+        return None
     elif sensor_id == "washer_fluid_warning":
         return data["washerFluidLevelWarning"]["value"] if util.keys_exists(data, "washerFluidLevelWarning") else None
     elif sensor_id == "warnings":
