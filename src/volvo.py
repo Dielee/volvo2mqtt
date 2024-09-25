@@ -311,9 +311,17 @@ def check_vcc_api_key(test_key, extended_until=None):
                 logging.warning("VCCAPIKEY " + test_key + " is extended and will be reusable at: "
                                 + format_datetime(extended_until, format="medium", locale=settings["babelLocale"]))
         else:
-            logging.warning("VCCAPIKEY " + test_key + " isn't working! " + data["error"]["message"])
+            if "error" in data:
+                logging.warning("VCCAPIKEY " + test_key + " isn't working! " + data["error"]["message"])
+            else:
+                logging.warning("VCCAPIKEY " + test_key + " isn't working! Statuscode " + str(response.status_code) +
+                                " Message: " + response.text)
     else:
-        logging.warning("VCCAPIKEY " + test_key + " isn't working! " + data["error"]["message"])
+        if "error" in data:
+            logging.warning("VCCAPIKEY " + test_key + " isn't working! " + data["error"]["message"])
+        else:
+            logging.warning("VCCAPIKEY " + test_key + " isn't working! Statuscode " + str(response.status_code) +
+                            " Message: " + response.text)
     return True, extended_until
 
 

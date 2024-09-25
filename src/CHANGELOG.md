@@ -1,5 +1,11 @@
+## v1.10.1
+### 🚀 Features:
+
+- Optimize logging for vcc-api-key check #238
+
 ## v1.10.0
 ### 🚀 Features:
+
 - Remove unused multiplier options
 
 ### 🐛 Bug Fixes:
