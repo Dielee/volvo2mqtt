@@ -27,9 +27,6 @@ options:
     vin: ""
     vccapikey:
         - null
-    odometerMultiplier: 1
-    averageSpeedDivider: 1
-    averageFuelConsumptionMultiplier: 1
 schema:
   updateInterval: int(60,)
   babelLocale: str
