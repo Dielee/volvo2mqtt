@@ -1,3 +1,8 @@
+## v1.10.2
+### 🐛 Bug Fixes:
+
+- Remove unused multiplier options #239
+
 ## v1.10.1
 ### 🚀 Features:
 
