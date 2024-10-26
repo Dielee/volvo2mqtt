@@ -1,3 +1,9 @@
+## v1.10.3
+### 🐛 Bug Fixes:
+
+- Add more info logging for credential refresh process
+- Fix bug if app needs to be re-authenticated with OTP while runtime
+ 
 ## v1.10.2
 ### 🐛 Bug Fixes:
 

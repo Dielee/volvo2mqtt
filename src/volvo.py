@@ -162,6 +162,7 @@ def send_otp(auth_session, data):
 
     auth = auth_session.post(next_url, data=json.dumps(body))
     if auth.status_code == 200:
+        mqtt.otp_code = None
         return auth.json()
     else:
         message = auth.json()
@@ -198,6 +199,7 @@ def refresh_auth():
         token_expires_at = datetime.now(util.TZ) + timedelta(seconds=(data["expires_in"] - 30))
         refresh_token = data["refresh_token"]
     else:
+        logging.warning("Refreshing credentials failed!: " + str(auth.status_code) + " Message: " + auth.text)
         authorize(renew_tokenfile=True)
 
 
