@@ -1,3 +1,8 @@
+## v1.10.4
+### 🐛 Bug Fixes:
+
+- re-fix bug if app needs to be re-authenticated with OTP while runtime
+
 ## v1.10.3
 ### 🐛 Bug Fixes:
 

@@ -161,8 +161,8 @@ def send_otp(auth_session, data):
         raise Exception ("No OTP found, exting...")
 
     auth = auth_session.post(next_url, data=json.dumps(body))
+    mqtt.otp_code = None
     if auth.status_code == 200:
-        mqtt.otp_code = None
         return auth.json()
     else:
         message = auth.json()
