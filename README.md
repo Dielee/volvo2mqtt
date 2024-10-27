@@ -21,6 +21,7 @@ If you like my work:<br>
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/U7U8MFXCF)
 
 ## Confirmed working with
+- EX30 BEV (2024)
 - XC40 BEV (2024)
 - XC40 BEV (2023)
 - XC40 BEV (2022)
