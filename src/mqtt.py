@@ -108,37 +108,23 @@ def send_car_images(vin, data, device):
                        "sec-ch-ua-platform": "\"Windows\"", "sec-fetch-dest": "document", "Accept-Encoding": "gzip, deflate, br, zstd",
                        "sec-fetch-mode": "navigate", "sec-fetch-site": "none", "sec-fetch-user": "?1", "upgrade-insecure-requests": "1"}
 
-            # Post exterior image
-            if entity["id"] == "exterior_image":
-                if not os.path.exists("exterior_image.png"):
-                    response = requests.get(data["images"]["exteriorImageUrl"], headers=headers)
-                    if response.status_code == 200:
-                        with open("exterior_image.png", 'wb') as image:
-                            image.write(response.content)
+            # Post Images
+            if not os.path.exists(f'{entity["id"]}_{vin}.png'):
+                data_path = "exteriorImageUrl" if entity["id"] == "exterior_image" else "internalImageUrl"
+                response = requests.get(data["images"][data_path], headers=headers)
+                if response.status_code == 200:
+                    with open(f'{entity["id"]}_{vin}.png', 'wb') as image:
+                        image.write(response.content)
+                else:
+                    logging.warning("Error getting car images: " + str(response.status_code) + " Message: " + response.text)
 
-                if os.path.exists("exterior_image.png"):
-                    ext_image = open("exterior_image.png", mode="rb").read()
-                    mqtt_client.publish(
-                        image_topic,
-                        ext_image,
-                        retain=True
-                    )
-
-            if entity["id"] == "interior_image":
-                # Post interior Image
-                if not os.path.exists("interior_image.png"):
-                    response = requests.get(data["images"]["internalImageUrl"], headers=headers)
-                    if response.status_code == 200:
-                        with open("interior_image.png", 'wb') as image:
-                            image.write(response.content)
-
-                if os.path.exists("interior_image.png"):
-                    int_image = open("interior_image.png", mode="rb").read()
-                    mqtt_client.publish(
-                        image_topic,
-                        int_image,
-                        retain=True
-                    )
+            if os.path.exists(f'{entity["id"]}_{vin}.png'):
+                ext_image = open(f'{entity["id"]}_{vin}.png', mode="rb").read()
+                mqtt_client.publish(
+                    image_topic,
+                    ext_image,
+                    retain=True
+                )
 
 
 def on_connect(client, userdata, flags, rc):

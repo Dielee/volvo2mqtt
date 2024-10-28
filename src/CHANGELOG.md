@@ -1,3 +1,8 @@
+## v1.10.5
+### 🐛 Bug Fixes:
+
+- Fix interior and exterior images if more than one car is in use
+
 ## v1.10.4
 ### 🐛 Bug Fixes:
 
