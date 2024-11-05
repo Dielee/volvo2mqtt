@@ -6,6 +6,7 @@ import volvo
 import util
 import os
 import requests
+import threading
 from threading import Thread, Timer
 from datetime import datetime
 from babel.dates import format_datetime
@@ -27,6 +28,14 @@ def connect():
     client = mqtt.Client("volvoAAOS2mqtt") if os.environ.get("IS_HA_ADDON") \
         else mqtt.Client("volvoAAOS2mqtt_" + settings.volvoData["username"].replace("+", ""))
 
+    if "logging" in settings["mqtt"] and settings["mqtt"]["logging"]:
+        mqtt_logger = logging.getLogger("mqtt")
+        client.enable_logger(mqtt_logger)
+    
+    client.on_message = safe_on_message
+    client.on_disconnect = on_disconnect
+    client.on_connect = on_connect
+
     client.will_set(availability_topic, "offline", 0, False)
     if settings["mqtt"]["username"] and settings["mqtt"]["password"]:
         client.username_pw_set(settings["mqtt"]["username"], settings["mqtt"]["password"])
@@ -37,11 +46,9 @@ def connect():
             if conf_port > 0:
                 port = settings["mqtt"]["port"]
     client.connect(settings["mqtt"]["broker"], port)
+    
     client.loop_start()
     client.subscribe("volvoAAOS2mqtt/otp_code")
-    client.on_message = on_message
-    client.on_disconnect = on_disconnect
-    client.on_connect = on_connect
 
     global mqtt_client
     mqtt_client = client
@@ -51,7 +58,7 @@ def create_otp_input():
     state_topic = otp_mqtt_topic + "/state"
     config = {
         "name": "Volvo OTP",
-        "object_id": f"volvo_otp",
+        "object_id": "volvo_otp",
         "schema": "state",
         "command_topic": otp_mqtt_topic,
         "state_topic": state_topic,
@@ -128,6 +135,10 @@ def send_car_images(vin, data, device):
 
 
 def on_connect(client, userdata, flags, rc):
+    # set a better name for the mqtt_loop Thread
+    threading.current_thread().name = 'mqtt_thread'
+    logging.info("MQTT connected")
+    
     send_heartbeat()
     if len(subscribed_topics) > 0:
         for topic in subscribed_topics:
@@ -135,9 +146,16 @@ def on_connect(client, userdata, flags, rc):
 
 
 def on_disconnect(client, userdata, rc):
-    logging.warning("MQTT disconnected, reconnecting automatically")
+    logging.warning(f"MQTT disconnected, reconnecting automatically rc={rc}")
 
 
+def safe_on_message(client, userdata, msg):
+    try:
+        on_message(client, userdata, msg)
+    except Exception as error:
+        logging.error(f"Exception {error} processing received message on topic {msg.topic}")
+        return None
+        
 def on_message(client, userdata, msg):
     payload = msg.payload.decode("UTF-8")
     if msg.topic == otp_mqtt_topic:
@@ -152,7 +170,7 @@ def on_message(client, userdata, msg):
         try:
             vin = msg.topic.split('/')[2].split('_')[0]
         except IndexError:
-            logging.error("Error - Cannot get vin from MQTT topic!")
+            logging.error(f"Error - Cannot get vin from MQTT topic : {msg.topic}!")
             return None
 
     if "climate_status" in msg.topic:
@@ -179,7 +197,7 @@ def on_message(client, userdata, msg):
         try:
             d = json.loads(payload)
         except ValueError as e:
-            logging.error("Can't set timer. Error: " + str(e))
+            logging.error(f"Can't set timer. Error: {e}")
             return None
 
         if d["mode"] == "timer":
@@ -197,13 +215,13 @@ def start_climate_timer(d, vin):
         start_datetime = local_datetime.replace(hour=hour, minute=minute, second=0)
         timer_seconds = (start_datetime - local_datetime).total_seconds()
     except Exception as e:
-        logging.error("Error creating climate timer: " + str(e))
+        logging.error(f"Error creating climate timer: {e}")
         return None
 
     if timer_seconds > 0:
         Timer(timer_seconds, activate_climate_timer, (vin, start_datetime.isoformat(),)).start()
         active_schedules[vin]["timers"].append(start_datetime.isoformat())
-        logging.debug("Climate timer set to " + str(start_datetime))
+        logging.debug(f"Climate timer set to {start_datetime}")
         update_car_data()
     else:
         logging.warning("Timer can not be set. Unusable start time entered")
@@ -211,28 +229,28 @@ def start_climate_timer(d, vin):
 
 def unlock_car(vin):
     # Start the api call in another thread for HA performance
-    Thread(target=volvo.api_call, args=(CAR_UNLOCK_URL, "POST", vin)).start()
+    Thread(target=volvo.api_call, args=(CAR_UNLOCK_URL, "POST", vin), name="unlock_car_thread").start()
 
     # Force set unlocking state
     update_car_data(False, {"entity_id": "lock_status", "vin": vin, "state": "UNLOCKING"})
     # Fetch API lock state until unlocking finished
-    Thread(target=volvo.check_lock_status, args=(vin, "LOCKED")).start()
+    Thread(target=volvo.check_lock_status, args=(vin, "LOCKED"), name="check_lock_status_thread").start()
 
 
 def lock_car(vin):
     # Start the api call in another thread for HA performance
-    Thread(target=volvo.api_call, args=(CAR_LOCK_URL, "POST", vin)).start()
+    Thread(target=volvo.api_call, args=(CAR_LOCK_URL, "POST", vin), name="lock_car_thread").start()
 
     # Force set locking state
     update_car_data(False, {"entity_id": "lock_status", "vin": vin, "state": "LOCKING"})
     # Fetch API lock state until locking finished
-    Thread(target=volvo.check_lock_status, args=(vin, "UNLOCKED")).start()
+    Thread(target=volvo.check_lock_status, args=(vin, "UNLOCKED"), name="check_lock_status_thread").start()
 
 
 def stop_climate(vin):
     global assumed_climate_state, climate_timer, engine_status
     # Start the api call in another thread for HA performance
-    Thread(target=volvo.api_call, args=(CLIMATE_STOP_URL, "POST", vin)).start()
+    Thread(target=volvo.api_call, args=(CLIMATE_STOP_URL, "POST", vin), name="stop_climate_thread").start()
 
     # Stop door check thread if running
     if engine_status[vin].is_alive():
@@ -256,10 +274,10 @@ def activate_climate_timer(vin, start_time):
 def start_climate(vin):
     global assumed_climate_state, climate_timer, engine_status
     # Start the api call in another thread for HA performance
-    Thread(target=volvo.api_call, args=(CLIMATE_START_URL, "POST", vin)).start()
+    Thread(target=volvo.api_call, args=(CLIMATE_START_URL, "POST", vin), name="start_climate_thread").start()
 
     # Start door check thread to turn off climate if driver door is opened
-    check_engine_thread = Thread(target=volvo.check_engine_status, args=(vin,))
+    check_engine_thread = Thread(target=volvo.check_engine_status, args=(vin,), name="check_engine_status_thread")
     check_engine_thread.start()
     engine_status[vin] = check_engine_thread
 
@@ -277,9 +295,12 @@ def update_loop():
     while True:
         if settings["updateInterval"] > 0:
             logging.info("Sending mqtt update...")
-            send_heartbeat()
-            update_car_data()
-            logging.info("Mqtt update done. Next run in " + str(settings["updateInterval"]) + " seconds.")
+            try:
+                send_heartbeat()
+                update_car_data()
+                logging.info(f"Mqtt update done. Next run in {settings['updateInterval']} seconds.")
+            except Exception as error:
+                logging.info(f"Exception {error} in Mqtt update. Next run in {settings['updateInterval']} seconds.")
             time.sleep(settings["updateInterval"])
         else:
             logging.info("Data update is disabled, doing nothing for 30 seconds")
@@ -338,6 +359,7 @@ def update_car_data(force_update=False, overwrite={}):
             else:
                 topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/state"
 
+            logging.info(f"update_car_data {topic} {state}")
             if state or state == 0:
                 mqtt_client.publish(
                     topic,

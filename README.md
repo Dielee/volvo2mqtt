@@ -139,14 +139,15 @@ Here is what every option means:
 | ------------------------- | :-------: | :-----------------------------------: | :----------: | --------------------------------------------------------------- |
 | `CONF_updateInterval`     | `int`     |                                       | **required** | Update intervall in seconds.                                     |
 | `CONF_babelLocale`        | `string`  |                                       | **required** | Select your country from this [list](https://www.ibm.com/docs/en/radfws/9.7?topic=overview-locales-code-pages-supported). "Locale name" is the column you need!                                        |
-| `CONF_mqtt`               | `json`    | `broker`                              | **required** | Your MQTT Broker IP. Eg. 192.168.0.5.
+| `CONF_mqtt`               | `json`    | `broker`                              | **required** | Your MQTT Broker IP. Eg. 192.168.0.5. |
 | `CONF_mqtt`               | `json`    | `port`                                | 1883         | Your MQTT Broker Port. If no value is given, port 1883 will be used.  |
-| `CONF_mqtt`               | `json`    | `username`                            | optional     | MQTT Username for your broker.
-| `CONF_mqtt`               | `json`    | `password`                            | optional     | MQTT Password for your broker.
-| `CONF_volvoData`          | `json`    | `username`                            | **required** | Normally your email address to login into the Volvo App.
-| `CONF_volvoData`          | `json`    | `password`                            | **required** | Your password to login into the Volvo App.
-| `CONF_volvoData`          | `json`    | `vin`                                 | optional     | A single VIN like "VIN1" or a list of VINs like "["VIN1", "VIN2"]". Leave this empty if you don't know your VIN. The addon will use every car that is tied to your account.
-| `CONF_volvoData`          | `json`    | `vccapikey`                           | **required** | VCCAPIKEY linked with your volvo developer account. Get your Vccapi key from [here](https://developer.volvocars.com/account/). <b>Starting version 1.8.0, it is possible to define multiple keys, like this: `["vccapikey1", "vccapikey2", "vccapikey3", "etc..."]`</b>
+| `CONF_mqtt`               | `json`    | `username`                            | optional     | MQTT Username for your broker. |
+| `CONF_mqtt`               | `json`    | `password`                            | optional     | MQTT Password for your broker. |
+| `CONF_mqtt`               | `json`    | `logging`                             | optional     | Enable MQTT logging (true/false). Default don't enable MQTT log. |
+| `CONF_volvoData`          | `json`    | `username`                            | **required** | Normally your email address to login into the Volvo App. |
+| `CONF_volvoData`          | `json`    | `password`                            | **required** | Your password to login into the Volvo App. |
+| `CONF_volvoData`          | `json`    | `vin`                                 | optional     | A single VIN like "VIN1" or a list of VINs like "["VIN1", "VIN2"]". Leave this empty if you don't know your VIN. The addon will use every car that is tied to your account. |
+| `CONF_volvoData`          | `json`    | `vccapikey`                           | **required** | VCCAPIKEY linked with your volvo developer account. Get your Vccapi key from [here](https://developer.volvocars.com/account/). <b>Starting version 1.8.0, it is possible to define multiple keys, like this: `["vccapikey1", "vccapikey2", "vccapikey3", "etc..."]`</b> |
 | `CONF_debug`              | `string`  |                                       | optional     | Debug option (true/false). Normally you don't need this. |
 | `TZ`                      | `string`  |                                       | **required** | Container timezone eg "Europe/Berlin" from [here](https://docs.diladele.com/docker/timezones.html)|
 
