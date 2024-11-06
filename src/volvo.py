@@ -199,7 +199,11 @@ def refresh_auth():
         global token_expires_at
         token_expires_at = datetime.now(util.TZ) + timedelta(seconds=(data["expires_in"] - 30))
         refresh_token = data["refresh_token"]
+    elif int(auth.status_code / 100) == 5:
+        # Server error try again later
+        logging.warning("Refreshing credentials failed!: " + str(auth.status_code) + " Message: " + auth.text)
     else:
+        # TODO check other codes that dont have to force the renew_tokenfile
         logging.warning("Refreshing credentials failed!: " + str(auth.status_code) + " Message: " + auth.text)
         authorize(renew_tokenfile=True)
 
