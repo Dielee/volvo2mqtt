@@ -187,12 +187,15 @@ def on_message(client, userdata, msg):
         if payload == "PRESS":
             update_car_data(True)
     elif "update_interval" in msg.topic:
-        update_interval = int(payload)
-        if update_interval >= 60 or update_interval == -1:
-            settings.update({"updateInterval": int(update_interval)})
-        else:
-            logging.warning("Interval " + str(update_interval) + " seconds is to low. Doing nothing!")
-        update_car_data()
+        try:
+            update_interval = int(payload)
+            if update_interval >= 60 or update_interval == -1:
+               settings.update({"updateInterval": int(update_interval)})
+            else:
+                logging.warning(f"Interval {update_interval} seconds is to low. Doing nothing!")
+            update_car_data()
+        except ValueError as error:
+            logging.error(f"Unable to change update_interval {error} payload={payload}") 
     elif "schedule" in msg.topic:
         try:
             d = json.loads(payload)
