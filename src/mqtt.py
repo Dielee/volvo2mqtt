@@ -197,7 +197,7 @@ def on_message(client, userdata, msg):
         try:
             d = json.loads(payload)
         except ValueError as e:
-            logging.error(f"Can't set timer. Error: {e}")
+            logging.error(f"Can't set timer. Error: {e}, payload={payload}")
             return None
 
         if d["mode"] == "timer":
