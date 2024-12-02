@@ -136,6 +136,10 @@ supported_entities = [
                         {"name": "API Backend status", "domain": "sensor", "id": "api_backend_status", "icon": "alert"},
                         {"name": "Update Interval", "domain": "number", "id": "update_interval", "unit": "seconds", "icon": "timer", "min": -1, "max": 600, "mode": "box"},
                         {"name": "Warnings", "domain": "sensor", "id": "warnings", "icon": "alert", "url": WARNINGS_URL}
+                        ,{"name": "Trip Fuel Consumption", "domain": "sensor", "id": "trip_fuel_consumption", "unit": VOLUME_LITERS, "icon": "fuel", "url": STATISTICS_URL}
+                        ,{"name": "Trip distance", "domain": "sensor", "id": "trip_distance", "unit": LENGTH_KILOMETERS if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["trip_distance"]["unit"], "icon": "counter", "url": STATISTICS_URL, "state_class":"measurement"}
+                        ,{"name": "Trip Energy Consumption", "domain": "sensor", "id": "trip_energy_consumption", "unit": ENERGY_KILO_WATT_HOUR, "icon": "car-electric", "url": STATISTICS_URL}
+                        ,{"name": "Trip Speed", "domain": "sensor", "id": "trip_speed", "unit": SPEED_KILOMETERS_PER_HOUR if not units.get(settings["babelLocale"]) else units[settings["babelLocale"]]["trip_speed"]["unit"], "icon": "speedometer", "url": STATISTICS_URL, "state_class": "measurement"}
 ]
 
 old_entity_ids = ["months_to_service", "service_warning_trigger", "distance_to_empty"]
