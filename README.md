@@ -1,4 +1,5 @@
 # Volvo2Mqtt
+## Project discontinued. Please use the Integration from thomasddn [Link](https://github.com/thomasddn/ha-volvo-cars)
 ![Supports aarch64 Architecture][aarch64-shield]
 ![Supports amd64 Architecture][amd64-shield]
 ![Supports armhf Architecture][armhf-shield]
@@ -158,6 +159,6 @@ Here is what every option means:
 [i386-shield]: https://img.shields.io/badge/i386-yes-green.svg
 [releases]: https://github.com/Dielee/volvo2mqtt/releases
 [releases-shield]: https://img.shields.io/github/release/Dielee/volvo2mqtt.svg
-[maintenance-shield]: https://img.shields.io/maintenance/yes/2024.svg
+[maintenance-shield]: https://img.shields.io/maintenance/no/2025.svg
 [commits-shield]: https://img.shields.io/github/commit-activity/y/Dielee/volvo2mqtt.svg
 [commits]: https://github.com/Dielee/volvo2mqtt/commits/main
