@@ -71,7 +71,7 @@ def setup_logging():
     logging.Formatter.converter = lambda *args: datetime.now(tz=TZ).timetuple()
     file_log_handler = logging.handlers.RotatingFileHandler(log_location, maxBytes=1000000, backupCount=1)
     formatter = logging.Formatter(
-        '%(asctime)s volvo2mqtt [%(process)d] - %(levelname)s: %(message)s',
+        '%(asctime)s volvo2mqtt [%(threadName)s] [%(process)d] - %(levelname)s: %(message)s',
         '%b %d %H:%M:%S')
     file_log_handler.setFormatter(formatter)
 
