@@ -108,7 +108,7 @@ def authorize(renew_tokenfile=False):
     Thread(target=backend_status_loop).start()
 
 def continue_auth(auth_session, data):
-    next_url = data["_links"]["continueAuthentication"]["href"] + "?action=continueAuthentication"
+    next_url = data["_links"]["continueAuthentication"]["href"].replace("http://", "https://") + "?action=continueAuthentication"
     auth = auth_session.get(next_url)
 
     if auth.status_code == 200:
@@ -131,7 +131,7 @@ def get_token(auth_session, data):
 
 
 def check_username_password(auth_session, data):
-    next_url = data["_links"]["checkUsernamePassword"]["href"] + "?action=checkUsernamePassword"
+    next_url = data["_links"]["checkUsernamePassword"]["href"].replace("http://", "https://") + "?action=checkUsernamePassword"
     body = {"username": settings.volvoData["username"],
              "password": settings.volvoData["password"]}
     auth = auth_session.post(next_url, data=json.dumps(body))
@@ -145,7 +145,7 @@ def check_username_password(auth_session, data):
 
 def send_otp(auth_session, data):
     mqtt.create_otp_input()
-    next_url = data["_links"]["checkOtp"]["href"] + "?action=checkOtp"
+    next_url = data["_links"]["checkOtp"]["href"].replace("http://", "https://") + "?action=checkOtp"
     body = {"otp": ""}
 
     for i in range(otp_max_loops):
