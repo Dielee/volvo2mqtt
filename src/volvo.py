@@ -191,16 +191,27 @@ def refresh_auth():
 
     if auth.status_code == 200:
         token_path = util.get_token_path()
-        data = auth.json()
-        util.save_to_json(data, token_path)
-        session.headers.update({"authorization": "Bearer " + data["access_token"]})
+        refresh_data = auth.json()
+
+        f = open(token_path)
+        try:
+            data = json.load(f)
+            refresh_token = data["refresh_token"]
+        except ValueError:
+            raise Exception("Cannot refresh token!")
+
+        refresh_data["refresh_token"] = refresh_token
+        util.save_to_json(refresh_data, token_path)
+        session.headers.update({"authorization": "Bearer " + refresh_data["access_token"]})
 
         global token_expires_at
-        token_expires_at = datetime.now(util.TZ) + timedelta(seconds=(data["expires_in"] - 30))
-        refresh_token = data["refresh_token"]
+        token_expires_at = datetime.now(util.TZ) + timedelta(seconds=(refresh_data["expires_in"] - 30))
+        refresh_token = refresh_data["refresh_token"]
+        return None
     else:
         logging.warning("Refreshing credentials failed!: " + str(auth.status_code) + " Message: " + auth.text)
         authorize(renew_tokenfile=True)
+        return None
 
 
 def get_vehicles():
