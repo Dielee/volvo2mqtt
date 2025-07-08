@@ -1,5 +1,5 @@
 # Volvo2Mqtt
-## Project discontinued. Please use the Integration from thomasddn [Link](https://github.com/thomasddn/ha-volvo-cars)
+
 ![Supports aarch64 Architecture][aarch64-shield]
 ![Supports amd64 Architecture][amd64-shield]
 ![Supports armhf Architecture][armhf-shield]
