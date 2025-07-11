@@ -29,6 +29,7 @@ If you like my work:<br>
 - XC40 PHEV (2021)
 - V60 T8 PHEV (2023)
 - V60 T6 PHEV (2025)
+- V60 CC B5 Mildhybrid (2024)
 - C40 BEV (2023)
 - C40 BEV (2022)
 - C40 BEV (2024)
