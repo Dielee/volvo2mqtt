@@ -1,4 +1,5 @@
 # Volvo2Mqtt
+
 ![Supports aarch64 Architecture][aarch64-shield]
 ![Supports amd64 Architecture][amd64-shield]
 ![Supports armhf Architecture][armhf-shield]
@@ -28,6 +29,7 @@ If you like my work:<br>
 - XC40 PHEV (2021)
 - V60 T8 PHEV (2023)
 - V60 T6 PHEV (2025)
+- V60 CC B5 Mildhybrid (2024)
 - C40 BEV (2023)
 - C40 BEV (2022)
 - C40 BEV (2024)
@@ -159,6 +161,6 @@ Here is what every option means:
 [i386-shield]: https://img.shields.io/badge/i386-yes-green.svg
 [releases]: https://github.com/Dielee/volvo2mqtt/releases
 [releases-shield]: https://img.shields.io/github/release/Dielee/volvo2mqtt.svg
-[maintenance-shield]: https://img.shields.io/maintenance/yes/2024.svg
+[maintenance-shield]: https://img.shields.io/maintenance/yes/2025.svg
 [commits-shield]: https://img.shields.io/github/commit-activity/y/Dielee/volvo2mqtt.svg
 [commits]: https://github.com/Dielee/volvo2mqtt/commits/main
