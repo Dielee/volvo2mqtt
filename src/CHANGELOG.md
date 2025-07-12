@@ -1,9 +1,21 @@
+## v1.2.0
+
+### 🚀 Features:
+
+- Some minor corrections and more checking for exceptions #267
+- Better logging, indicate URL used on API errors, check exceptions in more places to dont kill threads, add option for mqtt logging
+- Dont force token renew on 5xx errors
+- Indicate payload on error message to understand better issue #270
+- Better checking on received update_interval #270 
+- Add TA trip statistics #283
+
+Thanks to @luka6000 and @ivanfmartinez for your PRs!
+
 ## v1.10.6
 
 ### 🐛 Bug Fixes:
 
 - Fix missing refresh_token and API changes by volvo. Thanks to @esusxunil.
-
 
 ## v1.10.5
 
