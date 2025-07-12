@@ -21,6 +21,7 @@ options:
     port: "auto_port"
     username: "auto_user"
     password: "auto_password"
+    logging: false
   volvoData:
     username: null
     password: null
@@ -38,6 +39,7 @@ schema:
     port: str
     username: str?
     password: str?
+    logging: bool
   volvoData:
     username: match(^([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)|(\+\d{5,20})$)
     password: str
