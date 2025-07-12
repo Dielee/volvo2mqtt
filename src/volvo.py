@@ -47,6 +47,7 @@ def authorize(renew_tokenfile=False):
         except ValueError:
             logging.warning("Detected corrupted token file, restarting auth process")
             authorize(True)
+            return
     else:
         logging.info("Starting login with OTP")
         auth_session = requests.session()
@@ -105,7 +106,7 @@ def authorize(renew_tokenfile=False):
     get_vcc_api_keys()
     get_vehicles()
     check_supported_endpoints()
-    Thread(target=backend_status_loop).start()
+    Thread(target=backend_status_loop,name="backend_status_thread").start()
 
 def continue_auth(auth_session, data):
     next_url = data["_links"]["continueAuthentication"]["href"].replace("http://", "https://") + "?action=continueAuthentication"
@@ -205,10 +206,15 @@ def refresh_auth():
         session.headers.update({"authorization": "Bearer " + refresh_data["access_token"]})
 
         global token_expires_at
-        token_expires_at = datetime.now(util.TZ) + timedelta(seconds=(refresh_data["expires_in"] - 30))
-        refresh_token = refresh_data["refresh_token"]
+        token_expires_at = datetime.now(util.TZ) + timedelta(seconds=(data["expires_in"] - 30))
+        refresh_token = data["refresh_token"]
+        return None
+    elif int(auth.status_code / 100) == 5:
+        # Server error try again later
+        logging.warning("Refreshing credentials failed!: " + str(auth.status_code) + " Message: " + auth.text)
         return None
     else:
+        # TODO check other codes that dont have to force the renew_tokenfile
         logging.warning("Refreshing credentials failed!: " + str(auth.status_code) + " Message: " + auth.text)
         authorize(renew_tokenfile=True)
         return None
@@ -449,27 +455,38 @@ def check_engine_status(vin):
 
 
 def backend_status_loop():
+    logging.debug("backend_status_loop started")
     while True:
-        get_backend_status()
-        # Update every hour
-        time.sleep(3600)
+        last_status = get_backend_status()
+        # Update every hour when not error, 10 minutes when got server error
+        time.sleep(3600 if not last_status.startswith("APIERR_") else 600)
 
 
 def get_backend_status():
     global backend_status
-    response = session.get(API_BACKEND_STATUS, timeout=15)
     try:
-        data = response.json()
-        if util.keys_exists(data, "message"):
-            if data["message"]:
-                backend_status = data["message"]
+        response = session.get(API_BACKEND_STATUS, timeout=15)
+        try:
+            data = response.json()
+            if util.keys_exists(data, "message"):
+                if data["message"]:
+                    backend_status = data["message"]
+                else:
+                    backend_status = "NO_WARNING"
             else:
                 backend_status = "NO_WARNING"
-        else:
-            backend_status = "NO_WARNING"
 
-    except JSONDecodeError as e:
-        backend_status = "NO_WARNING"
+        except JSONDecodeError as e:
+            logging.error(f"Invalid json response from API Backend Status - {response} - {e}")
+            backend_status = "APIERR_INVALID_JSON_RESPONSE"
+            
+    except requests.exceptions.ReadTimeout as e:
+        logging.error(f"API Backend Status - timeout - {e}")
+        backend_status = "APIERR_TIMEOUT"
+    except requests.exceptions.RequestException as e:
+        logging.error(f"API Backend Status - Error - {e}")
+        backend_status = "APIERR_REQUEST_ERROR"
+        
     return backend_status
 
 
@@ -485,28 +502,28 @@ def api_call(url, method, vin, sensor_id=None, force_update=False, key_change=Fa
             # Exception caught while getting data from volvo api, doing nothing
             return None
     elif method == "GET":
-        logging.debug("Starting " + method + " call against " + url)
+        logging.debug(f"Starting {method} call against {url}")
         try:
             response = session.get(url.format(vin), timeout=15)
         except requests.exceptions.RequestException as e:
-            logging.error("Error getting data: " + str(e))
+            logging.error(f"Error getting data: {e} from {url}")
             return None
     elif method == "POST":
-        logging.debug("Starting " + method + " call against " + url)
+        logging.debug(f"Starting {method} call against {url}")
         try:
             response = session.post(url.format(vin), timeout=20)
         except requests.exceptions.RequestException as e:
-            logging.error("Error getting data: " + str(e))
+            logging.error(f"Error getting data from {url} : {e}")
             return None
     else:
-        logging.error("Unkown method posted: " + method + ". Returning nothing")
+        logging.error(f"Unkown method posted: {method}. Returning nothing")
         return None
 
-    logging.debug("Response status code: " + str(response.status_code))
+    logging.debug(f"Response status code: {response.status_code}")
     try:
         data = response.json()
     except JSONDecodeError as e:
-        logging.error("Fetched json decode error, Volvo API seems to return garbage. Skipping update. Error: " + str(e))
+        logging.error(f"Fetched json decode error, Volvo API seems to return garbage. Skipping update. Error: {e}")
         return None
 
     if response.status_code == 200:
@@ -529,9 +546,9 @@ def api_call(url, method, vin, sensor_id=None, force_update=False, key_change=Fa
                 api_call(url, method, vin, sensor_id, force_update, True)
             else:
                 logging.error(
-                    "API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
+                    f"API Call failed to {url}. Status Code: {response.status_code}. Error: {response.text}")
         else:
-            logging.error("API Call failed. Status Code: " + str(response.status_code) + ". Error: " + response.text)
+            logging.error(f"API Call failed to {url}. Status Code: {response.status_code}. Error: {response.text}")
         return None
 
 
@@ -539,11 +556,11 @@ def cached_request(url, method, vin, force_update=False, key_change=False):
     global cached_requests
     if not util.keys_exists(cached_requests, vin + "_" + url):
         # No API Data cached, get fresh data from API
-        logging.debug("Starting " + method + " call against " + url)
+        logging.debug(f"Starting {method} call against {url}")
         try:
             response = session.get(url.format(vin), timeout=15)
         except requests.exceptions.RequestException as e:
-            logging.error("Error getting data: " + str(e))
+            logging.error(f"Error getting data from {url}: {e}")
             return None
 
         data = {"response": response, "last_update": datetime.now(util.TZ)}
@@ -555,11 +572,11 @@ def cached_request(url, method, vin, force_update=False, key_change=False):
                                                       "last_update"]).total_seconds() >= 2) \
                 or key_change:
             # Old Data in Cache, or force mode active, updating
-            logging.debug("Starting " + method + " call against " + url)
+            logging.debug(f"Starting {method} call against {url}")
             try:
                 response = session.get(url.format(vin), timeout=15)
             except requests.exceptions.RequestException as e:
-                logging.error("Error getting data: " + str(e))
+                logging.error(f"Error getting data from {url} : {e}")
                 return None
             data = {"response": response, "last_update": datetime.now(util.TZ)}
             cached_requests[vin + "_" + url] = data
