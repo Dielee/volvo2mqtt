@@ -751,6 +751,31 @@ def parse_api_data(data, sensor_id=None):
                 cleaned_data[key] = dicts["value"]
 
         return cleaned_data if warnings > 0 else None
+    elif sensor_id == "trip_fuel_consumption":
+        trip_fuel_con = 0
+        if util.keys_exists(data, "averageFuelConsumptionAutomatic"):
+            trip_fuel_con = float(data["averageFuelConsumptionAutomatic"]["value"])
+        if trip_fuel_con > 0:
+            return trip_fuel_con
+        return None
+    elif sensor_id == "trip_distance":
+        return util.convert_metric_values(int(data["tripMeterAutomatic"]["value"])) \
+            if util.keys_exists(data, "tripMeterAutomatic") else None
+    elif sensor_id == "trip_energy_consumption":
+        trip_energy_con = 0
+        if util.keys_exists(data, "averageEnergyConsumptionAutomatic"):
+            trip_energy_con = data["averageEnergyConsumptionAutomatic"]["value"]
+        if trip_energy_con != 0:
+            return trip_energy_con
+        return None
+    elif sensor_id == "trip_speed":
+        trip_speed = 0
+        if util.keys_exists(data, "averageSpeedAutomatic"):
+            trip_speed = float(data["averageSpeedAutomatic"]["value"])
+        if trip_speed != 0:
+            return util.convert_metric_values(trip_speed)
+        return None
+
     else:
         return None
 
