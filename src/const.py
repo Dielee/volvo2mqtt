@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.12.0"
+VERSION = "v1.12.1"
 
 OAUTH_TOKEN_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 OAUTH_AUTH_URL = "https://volvoid.eu.volvocars.com/as/authorization.oauth2"
@@ -41,7 +41,9 @@ units = {
                 "odometer": {"unit": LENGTH_MILES},
                 "average_speed": {"unit": SPEED_MILES_PER_HOUR},
                 "distance_to_empty": {"unit": LENGTH_MILES},
-                "distance_to_service": {"unit": LENGTH_MILES}
+                "distance_to_service": {"unit": LENGTH_MILES},
+                "trip_distance": {"unit": LENGTH_MILES},
+                "trip_speed": {"unit": SPEED_MILES_PER_HOUR}
             },
             "en_US": {
                 "divider": 1.60934,
@@ -49,7 +51,9 @@ units = {
                 "odometer": {"unit": LENGTH_MILES},
                 "average_speed": {"unit": SPEED_MILES_PER_HOUR},
                 "distance_to_empty": {"unit": LENGTH_MILES},
-                "distance_to_service": {"unit": LENGTH_MILES}
+                "distance_to_service": {"unit": LENGTH_MILES},
+                "trip_distance": {"unit": LENGTH_MILES},
+                "trip_speed": {"unit": SPEED_MILES_PER_HOUR}
             }
         }
 

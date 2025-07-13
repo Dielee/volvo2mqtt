@@ -1,3 +1,9 @@
+## v1.12.1
+
+### 🐛 Bug Fixes:
+
+- Fix `trip_speed` and `trip_distance` unit for `en_US` and `en_GB` #301
+
 ## v1.12.0
 
 ### 🚀 Features:
