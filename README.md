@@ -129,7 +129,17 @@ The following steps are required for authentication in exactly this order:
 Just install this addon with the following command.
 Please note to fill in your settings inside the environment variables.
 
-`docker run -d --pull=always -e CONF_updateInterval=300 -e CONF_babelLocale='de' -e CONF_mqtt='@json {"broker": "", "username": "", "password": "", "port": 1883}' -e CONF_volvoData='@json {"username": "", "password": "", "vin": "", "vccapikey": ["key1", "key2"]}' -e TZ='Europe/Berlin' --name volvo2mqtt ghcr.io/dielee/volvo2mqtt:latest`
+<pre>
+<code>docker run -d --pull=always \
+  -e CONF_updateInterval=300 \
+  -e CONF_babelLocale='de' \
+  -e CONF_mqtt='@json {"broker": "", "username": "", "password": "", "port": 1883}' \
+  -e CONF_volvoData='@json {"username": "", "password": "", "vin": "", "vccapikey": ["key1", "key2"]}' \
+  -e TZ='Europe/Berlin' \
+  --name volvo2mqtt \
+  ghcr.io/dielee/volvo2mqtt:latest
+</code>
+</pre>
 
 <b>HA Add-On:</b><br>
 
