@@ -48,6 +48,10 @@ def authorize(renew_tokenfile=False):
             logging.warning("Detected corrupted token file, restarting auth process")
             authorize(True)
             return
+        except KeyError:
+            logging.warning("Token file missing refresh_token, restarting auth process")
+            authorize(True)
+            return
     else:
         logging.info("Starting login with OTP")
         auth_session = requests.session()
