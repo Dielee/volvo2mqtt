@@ -175,8 +175,9 @@ def send_otp(auth_session, data):
 
 
 def refresh_auth():
-    logging.info("Refreshing credentials")
     global refresh_token
+    logging.info("Refreshing credentials with token " + refresh_token)
+
     headers = {
         "authorization": "Basic aDRZZjBiOlU4WWtTYlZsNnh3c2c1WVFxWmZyZ1ZtSWFEcGhPc3kxUENhVXNpY1F0bzNUUjVrd2FKc2U0QVpkZ2ZJZmNMeXc=",
         "content-type": "application/x-www-form-urlencoded",
@@ -198,12 +199,13 @@ def refresh_auth():
         token_path = util.get_token_path()
         refresh_data = auth.json()
 
-        f = open(token_path)
-        try:
-            data = json.load(f)
-            refresh_token = data["refresh_token"]
-        except ValueError:
-            raise Exception("Cannot refresh token!")
+        if not "refresh_token" in refresh_data:
+            f = open(token_path)
+            try:
+                data = json.load(f)
+                refresh_token = data["refresh_token"]
+            except ValueError:
+                raise Exception("Cannot refresh token!")
 
         refresh_data["refresh_token"] = refresh_token
         util.save_to_json(refresh_data, token_path)
