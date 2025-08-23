@@ -203,11 +203,12 @@ def refresh_auth():
             f = open(token_path)
             try:
                 data = json.load(f)
-                refresh_token = data["refresh_token"]
+                refresh_data["refresh_token"] = data["refresh_token"]
             except ValueError:
                 raise Exception("Cannot refresh token!")
+        else:
+            logging.info("New refresh token found, updating!")
 
-        refresh_data["refresh_token"] = refresh_token
         util.save_to_json(refresh_data, token_path)
         session.headers.update({"authorization": "Bearer " + refresh_data["access_token"]})
 

@@ -1,3 +1,10 @@
+## v1.12.2
+
+### 🚀 Features:
+
+- Add more logging for refresh process
+- Update refresh token, if volvo API returns a new one
+
 ## v1.12.1
 
 ### 🐛 Bug Fixes:
