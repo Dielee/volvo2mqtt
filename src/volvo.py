@@ -197,6 +197,10 @@ def refresh_auth():
 
     if auth.status_code == 200:
         token_path = util.get_token_path()
+        if os.path.exists(token_path):
+            with open(token_path) as f:
+                data = json.load(f)
+
         refresh_data = auth.json()
 
         if not "refresh_token" in refresh_data:
@@ -458,7 +462,9 @@ def check_engine_status(vin):
             mqtt.assumed_climate_state[vin] = "OFF"
             mqtt.update_car_data()
             break
+
         time.sleep(5)
+    return None
 
 
 def backend_status_loop():
