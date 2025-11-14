@@ -1,5 +1,6 @@
 import logging
 import time
+import ssl
 import paho.mqtt.client as mqtt
 import json
 import volvo
@@ -31,22 +32,51 @@ def connect():
     if "logging" in settings["mqtt"] and settings["mqtt"]["logging"]:
         mqtt_logger = logging.getLogger("mqtt")
         client.enable_logger(mqtt_logger)
-    
+
     client.on_message = safe_on_message
     client.on_disconnect = on_disconnect
     client.on_connect = on_connect
 
     client.will_set(availability_topic, "offline", 0, False)
-    if settings["mqtt"]["username"] and settings["mqtt"]["password"]:
-        client.username_pw_set(settings["mqtt"]["username"], settings["mqtt"]["password"])
-    port = 1883
-    if util.keys_exists(settings["mqtt"], "port"):
-        conf_port = settings["mqtt"]["port"]
-        if isinstance(conf_port, int):
-            if conf_port > 0:
-                port = settings["mqtt"]["port"]
-    client.connect(settings["mqtt"]["broker"], port)
-    
+
+    mqtt_settings = settings["mqtt"]
+    ca = mqtt_settings.get("ca_cert_path")
+    cert = mqtt_settings.get("client_cert_path")
+    key = mqtt_settings.get("client_key_path")
+    key_pwd = mqtt_settings.get("client_key_password")
+    tls_flag = bool(mqtt_settings.get("tls", False))
+    tls_insecure = bool(mqtt_settings.get("tls_insecure", False))
+
+    use_mtls = bool(cert and key)
+    use_tls = use_mtls or tls_flag or bool(ca)
+
+    if use_mtls:
+        client.tls_set(
+            ca_certs=ca,
+            certfile=cert,
+            keyfile=key,
+            keyfile_password=key_pwd or None,
+            tls_version=ssl.PROTOCOL_TLS_CLIENT,
+        )
+        client.tls_insecure_set(tls_insecure)
+    elif use_tls:
+        client.tls_set(
+            ca_certs=ca,
+            tls_version=ssl.PROTOCOL_TLS_CLIENT,
+        )
+        client.tls_insecure_set(tls_insecure)
+
+    if mqtt_settings.get("username") and mqtt_settings.get("password"):
+        client.username_pw_set(mqtt_settings["username"], mqtt_settings["password"])
+
+    port = 8883 if use_tls else 1883
+    if util.keys_exists(mqtt_settings, "port"):
+        conf_port = mqtt_settings["port"]
+        if isinstance(conf_port, int) and conf_port > 0:
+            port = conf_port
+
+    client.connect(mqtt_settings["broker"], port)
+
     client.loop_start()
     client.subscribe("volvoAAOS2mqtt/otp_code")
 
@@ -138,7 +168,7 @@ def on_connect(client, userdata, flags, rc):
     # set a better name for the mqtt_loop Thread
     threading.current_thread().name = 'mqtt_thread'
     logging.info("MQTT connected")
-    
+
     send_heartbeat()
     if len(subscribed_topics) > 0:
         for topic in subscribed_topics:
@@ -155,7 +185,7 @@ def safe_on_message(client, userdata, msg):
     except Exception as error:
         logging.error(f"Exception {error} processing received message on topic {msg.topic}")
         return None
-        
+
 def on_message(client, userdata, msg):
     payload = msg.payload.decode("UTF-8")
     if msg.topic == otp_mqtt_topic:
@@ -195,7 +225,7 @@ def on_message(client, userdata, msg):
                 logging.warning(f"Interval {update_interval} seconds is to low. Doing nothing!")
             update_car_data()
         except ValueError as error:
-            logging.error(f"Unable to change update_interval {error} payload={payload}") 
+            logging.error(f"Unable to change update_interval {error} payload={payload}")
     elif "schedule" in msg.topic:
         try:
             d = json.loads(payload)
