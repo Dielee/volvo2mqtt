@@ -43,6 +43,7 @@ If you like my work:<br>
 - XC90 B5 Mildhybrid (2024)
 - V90 PHEV T8 (2019)*
 - V90 PHEV T6 (2024)
+- V90 PHEV T6 (2022)
 - V90 B5 Mildhybrid (2023)
 - EX40 BEV (2025)
 
@@ -144,6 +145,7 @@ Please note to fill in your settings inside the environment variables.
 <b>HA Add-On:</b><br>
 
 [![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FDielee%2Fvolvo2mqtt)
+If you enable "use_tls" for your MQTT broker, place all certs in Home Assistant /ssl dir.
 
 Here is what every option means:
 
@@ -152,9 +154,15 @@ Here is what every option means:
 | `CONF_updateInterval`     | `int`     |                                       | **required** | Update intervall in seconds.                                     |
 | `CONF_babelLocale`        | `string`  |                                       | **required** | Select your country from this [list](https://www.ibm.com/docs/en/radfws/9.7?topic=overview-locales-code-pages-supported). "Locale name" is the column you need!                                        |
 | `CONF_mqtt`               | `json`    | `broker`                              | **required** | Your MQTT Broker IP. Eg. 192.168.0.5. |
-| `CONF_mqtt`               | `json`    | `port`                                | 1883         | Your MQTT Broker Port. If no value is given, port 1883 will be used.  |
+| `CONF_mqtt`               | `json`    | `port`                                | 1883 or 8883 | Your MQTT Broker Port. If no value is given, port 1883 or 8883 will be used depending on your TLS settings|
 | `CONF_mqtt`               | `json`    | `username`                            | optional     | MQTT Username for your broker. |
 | `CONF_mqtt`               | `json`    | `password`                            | optional     | MQTT Password for your broker. |
+| `CONF_mqtt`               | `json`    | `use_tls`                             | false        | Enable MQTT TLS. |
+| `CONF_mqtt`               | `json`    | `tls_insecure`                        | false        | Skip CA validation|
+| `CONF_mqtt`               | `json`    | `ca_cert_path`                        | optional     | Path to CA cert if you use TLS. |
+| `CONF_mqtt`               | `json`    | `client_cert_path`                    | optional     | Path to client cert if your broker uses mTLS. |
+| `CONF_mqtt`               | `json`    | `client_key_path`                     | optional     | Path to private key if your broker uses mTLS. |
+| `CONF_mqtt`               | `json`    | `client_key_password`                 | optional     | Private key password if your broker uses mTLS and key is password protected. |
 | `CONF_mqtt`               | `json`    | `logging`                             | optional     | Enable MQTT logging (true/false). Default don't enable MQTT log. |
 | `CONF_volvoData`          | `json`    | `username`                            | **required** | Normally your email address to login into the Volvo App. |
 | `CONF_volvoData`          | `json`    | `password`                            | **required** | Your password to login into the Volvo App. |

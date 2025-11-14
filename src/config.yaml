@@ -1,6 +1,6 @@
 name: "Volvo2Mqtt"
 description: "Volvo AAOS MQTT bridge"
-version: "1.12.2"
+version: "1.12.3"
 slug: "volvo2mqtt"
 init: false
 url: "https://github.com/Dielee/volvo2mqtt"
@@ -10,6 +10,7 @@ services:
   - 'mqtt:need'
 map: 
   - addons:rw
+  - ssl:ro
 options:
   updateInterval: 300
   babelLocale: null
@@ -21,13 +22,19 @@ options:
     port: "auto_port"
     username: "auto_user"
     password: "auto_password"
+    use_tls: false
+    tls_insecure: false
+    ca_cert_path: ""
+    client_cert_path: ""
+    client_key_path: ""
+    client_key_password: ""
     logging: false
   volvoData:
     username: null
     password: null
     vin: ""
     vccapikey:
-        - null
+      - null
 schema:
   updateInterval: int(60,)
   babelLocale: str
@@ -39,13 +46,19 @@ schema:
     port: str
     username: str?
     password: str?
+    use_tls: bool
+    tls_insecure: bool
+    ca_cert_path: str?
+    client_cert_path: str?
+    client_key_path: str?
+    client_key_password: str?
     logging: bool
   volvoData:
     username: match(^([a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+)|(\+\d{5,20})$)
     password: str
     vin: str?
     vccapikey:
-        - match(^\b\w{32}\b$)
+      - match(^\b\w{32}\b$)
 arch:
   - aarch64
   - amd64
