@@ -176,16 +176,24 @@ def on_message(client, userdata, msg):
     if "climate_status" in msg.topic:
         if payload == "ON":
             start_climate(vin)
+            return None
         elif payload == "OFF":
             stop_climate(vin)
+            return None
+        return None
     elif "lock_status" in msg.topic:
         if payload == "LOCK":
             lock_car(vin)
+            return None
         elif payload == "UNLOCK":
             unlock_car(vin)
+            return None
+        return None
     elif "update_data" in msg.topic:
         if payload == "PRESS":
             update_car_data(True)
+            return None
+        return None
     elif "update_interval" in msg.topic:
         try:
             update_interval = int(payload)
@@ -194,8 +202,10 @@ def on_message(client, userdata, msg):
             else:
                 logging.warning(f"Interval {update_interval} seconds is to low. Doing nothing!")
             update_car_data()
+            return None
         except ValueError as error:
-            logging.error(f"Unable to change update_interval {error} payload={payload}") 
+            logging.error(f"Unable to change update_interval {error} payload={payload}")
+            return None
     elif "schedule" in msg.topic:
         try:
             d = json.loads(payload)
@@ -205,8 +215,11 @@ def on_message(client, userdata, msg):
 
         if d["mode"] == "timer":
             start_climate_timer(d, vin)
+            return None
         else:
             logging.warning("No schedule mode found, doing nothing")
+            return None
+    return None
 
 
 def start_climate_timer(d, vin):
