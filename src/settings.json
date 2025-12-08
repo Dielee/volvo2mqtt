@@ -9,6 +9,12 @@
     "port": 1883,
     "username": "",
     "password": "",
+    "ca_cert_path": "",
+    "client_cert_path": "",
+    "client_key_path": "",
+    "client_key_password": "",
+    "tls_insecure": false,
+    "use_tls": false,
     "logging": false
   },
   "volvoData": {
