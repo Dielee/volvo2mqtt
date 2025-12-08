@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.12.2"
+VERSION = "v1.13.0"
 
 OAUTH_TOKEN_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 OAUTH_AUTH_URL = "https://volvoid.eu.volvocars.com/as/authorization.oauth2"
@@ -12,7 +12,7 @@ CLIMATE_STOP_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/
 LOCK_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/doors"
 CAR_LOCK_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/commands/lock"
 CAR_UNLOCK_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/commands/unlock"
-RECHARGE_STATE_URL = "https://api.volvocars.com/energy/v2/vehicles/{0}/recharge-status"
+RECHARGE_STATE_URL = "https://api.volvocars.com/energy/v2/vehicles/{0}/state"
 ODOMETER_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/odometer"
 LOCATION_STATE_URL = "https://api.volvocars.com/location/v1/vehicles/{0}/location"
 TYRE_STATE_URL = "https://api.volvocars.com/connected-vehicle/v2/vehicles/{0}/tyres"
@@ -59,13 +59,12 @@ units = {
 
 availability_topic = "volvoAAOS2mqtt/availability"
 
-charging_system_states = {"CHARGING_SYSTEM_CHARGING": "Charging", "CHARGING_SYSTEM_IDLE": "Idle",
-                          "CHARGING_SYSTEM_FAULT": "Fault", "CHARGING_SYSTEM_UNSPECIFIED": "Unspecified",
-                          "CHARGING_SYSTEM_DONE": "Done", "CHARGING_SYSTEM_SCHEDULED": "Scheduled"}
+charging_system_states = {"CHARGING": "Charging", "IDLE": "Idle",
+                          "FAULT": "Fault", "UNSPECIFIED": "Unspecified",
+                          "DONE": "Done", "SCHEDULED": "Scheduled"}
 
-charging_connection_states = {"CONNECTION_STATUS_DISCONNECTED": "Disconnected", "CONNECTION_STATUS_UNSPECIFIED": "Unspecified",
-                              "CONNECTION_STATUS_CONNECTED_DC": "Connected DC", "CONNECTION_STATUS_CONNECTED_AC": "Connected AC",
-                              "CONNECTION_STATUS_FAULT": "Fault"}
+charging_connection_states = {"DISCONNECTED": "Disconnected", "UNSPECIFIED": "Unspecified",
+                              "FAULT": "Fault", "CONNECTED": "Connected"}
 
 window_states = {"CLOSED": "OFF", "OPEN": "ON", "UNSPECIFIED": "UNKNOWN", "AJAR": "ON"}
 door_states = {"CLOSED": "OFF", "OPEN": "ON", "UNSPECIFIED": "UNKNOWN", "AJAR": "ON"}

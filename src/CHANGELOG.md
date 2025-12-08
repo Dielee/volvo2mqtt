@@ -1,3 +1,9 @@
+## v1.13.0
+
+### 🚀 Features:
+
+- Move energy api to v2 (https://developer.volvocars.com/apis/energy/v2/release-notes/)
+
 ## v1.12.2
 
 ### 🚀 Features:
