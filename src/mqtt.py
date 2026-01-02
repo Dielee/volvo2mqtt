@@ -58,7 +58,7 @@ def create_otp_input():
     state_topic = otp_mqtt_topic + "/state"
     config = {
         "name": "Volvo OTP",
-        "object_id": "volvo_otp",
+        "default_entity_id": "volvo_otp",
         "schema": "state",
         "command_topic": otp_mqtt_topic,
         "state_topic": state_topic,
@@ -95,7 +95,7 @@ def send_car_images(vin, data, device):
             image_topic = f"homeassistant/image/{vin}_{entity['id']}/image_topic"
             config = {
                 "name": entity["name"],
-                "object_id": f"volvo_{vin}_{entity['id']}",
+                "default_entity_id": f"volvo_{vin}_{entity['id']}",
                 "schema": "state",
                 "icon": "mdi:image-area",
                 "content_type": "image/png",
@@ -405,7 +405,7 @@ def update_ha_device(entity, vin, state):
     logging.debug("Updating icon to " + icon + " for " + entity["id"])
     config = {
         "name": entity['name'],
-        "object_id": f"volvo_{vin}_{entity['id']}",
+        "default_entity_id": f"volvo_{vin}_{entity['id']}",
         "schema": "state",
         "icon": f"mdi:{icon}" if icon else f"mdi:{entity['icon']}",
         "state_topic": f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/state",
@@ -446,7 +446,7 @@ def create_ha_devices():
         for entity in volvo.supported_endpoints[vin]:
             config = {
                 "name": entity['name'],
-                "object_id": f"volvo_{vin}_{entity['id']}",
+                "default_entity_id": f"volvo_{vin}_{entity['id']}",
                 "schema": "state",
                 "icon": f"mdi:{entity['icon']}",
                 "state_topic": f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/state",

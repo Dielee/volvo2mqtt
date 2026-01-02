@@ -3,6 +3,7 @@
 ### 🐛 Bug Fixes:
 
 - Fix missing charging system state `error` #314
+- Move `object_id` to `default_entity_id` for mqtt entities according to #312
 
 ## v1.13.0
 
