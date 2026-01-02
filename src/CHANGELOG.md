@@ -1,3 +1,9 @@
+## v1.13.1
+
+### 🐛 Bug Fixes:
+
+- Fix missing charging system state `error` #314
+
 ## v1.13.0
 
 ### 🚀 Features:
