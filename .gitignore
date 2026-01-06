@@ -2,5 +2,6 @@
 venv
 src/settings.dev.json
 .env
+src/.devcontainer
 /src/volvo2mqtt.log
 /src/volvo2mqtt.log.1
