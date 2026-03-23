@@ -114,7 +114,7 @@ def authorize(renew_tokenfile=False):
 
 def continue_auth(auth_session, data):
     next_url = data["_links"]["continueAuthentication"]["href"].replace("http://", "https://") + "?action=continueAuthentication"
-    auth = auth_session.get(next_url)
+    auth = auth_session.post(next_url, data="{}")
 
     if auth.status_code == 200:
         return auth.json()
