@@ -1,6 +1,6 @@
 requests~=2.32.0
-dynaconf~=3.2.13
-paho-mqtt~=2.1.0
-Babel~=2.18.0
-pytz~=2026.1.post1
+dynaconf~=3.1.12
+paho-mqtt~=1.6.1
+Babel~=2.12.1
+pytz~=2023.3
 google_play_scraper~=1.2.6

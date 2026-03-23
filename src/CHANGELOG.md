@@ -1,9 +1,3 @@
-## v1.13.3
-
-### 🐛 Bug Fixes:
-
-- Bump pypi packages
-
 ## v1.13.2
 
 ### 🐛 Bug Fixes:
