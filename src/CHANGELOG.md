@@ -1,3 +1,9 @@
+## v1.13.2
+
+### 🐛 Bug Fixes:
+
+- Fix KeyError: 'authorizeResponse' in auth flow #318
+
 ## v1.13.1
 
 ### 🐛 Bug Fixes:
