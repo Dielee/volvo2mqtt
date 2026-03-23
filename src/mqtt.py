@@ -25,8 +25,9 @@ active_schedules = {}
 otp_code = None
 
 def connect():
-    client = mqtt.Client("volvoAAOS2mqtt") if os.environ.get("IS_HA_ADDON") \
-        else mqtt.Client("volvoAAOS2mqtt_" + settings.volvoData["username"].replace("+", ""))
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, "volvoAAOS2mqtt") \
+                if os.environ.get("IS_HA_ADDON") \
+                else mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, "volvoAAOS2mqtt_" + settings.volvoData["username"].replace("+", ""))
 
     if "logging" in settings["mqtt"] and settings["mqtt"]["logging"]:
         mqtt_logger = logging.getLogger("mqtt")
