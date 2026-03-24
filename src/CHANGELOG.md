@@ -1,3 +1,15 @@
+## v1.13.4
+
+### 🐛 Bug Fixes:
+
+- Fix paho mqtt client upgrade has breaking changes #319 by reverting pypi package bump
+
+## v1.13.3
+
+### 🐛 Bug Fixes:
+
+- Bump pypi packages
+
 ## v1.13.2
 
 ### 🐛 Bug Fixes:
