@@ -1,3 +1,9 @@
+## v1.13.4
+
+### 🐛 Bug Fixes:
+
+- Fix `AttributeError: module 'paho.mqtt.client' has no attribute 'CallbackAPIVersion'` when paho-mqtt < 2.0 is installed
+
 ## v1.13.3
 
 ### 🐛 Bug Fixes:
