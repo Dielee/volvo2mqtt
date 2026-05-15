@@ -1,3 +1,9 @@
+## v1.13.5
+
+### 🐛 Bug Fixes:
+
+- Add build.yaml for homeassistant version > 2026.04.X
+
 ## v1.13.4
 
 ### 🐛 Bug Fixes:
