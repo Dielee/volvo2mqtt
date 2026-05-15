@@ -25,9 +25,13 @@ active_schedules = {}
 otp_code = None
 
 def connect():
-    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, "volvoAAOS2mqtt") \
-                if os.environ.get("IS_HA_ADDON") \
-                else mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, "volvoAAOS2mqtt_" + settings.volvoData["username"].replace("+", ""))
+    client_id = "volvoAAOS2mqtt" if os.environ.get("IS_HA_ADDON") \
+        else "volvoAAOS2mqtt_" + settings.volvoData["username"].replace("+", "")
+    try:
+        client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, client_id)
+    except AttributeError:
+        # paho-mqtt < 2.0 does not have CallbackAPIVersion
+        client = mqtt.Client(client_id)
 
     if "logging" in settings["mqtt"] and settings["mqtt"]["logging"]:
         mqtt_logger = logging.getLogger("mqtt")
