@@ -1,6 +1,6 @@
 build_from:
-  amd64: ghcr.io/home-assistant/base:latest
-  aarch64: ghcr.io/home-assistant/base:latest
-  armv7: ghcr.io/home-assistant/base:latest
-  armhf: ghcr.io/home-assistant/base:latest
-  i386: ghcr.io/home-assistant/base:latest
+  amd64: ghcr.io/home-assistant/base-python:latest
+  aarch64: ghcr.io/home-assistant/base-python:latest
+  armv7: ghcr.io/home-assistant/base-python:latest
+  armhf: ghcr.io/home-assistant/base-python:latest
+  i386: ghcr.io/home-assistant/base-python:latest
