@@ -1,5 +1,4 @@
-ARG BUILD_FROM
-FROM $BUILD_FROM
+FROM ghcr.io/home-assistant/amd64-base:latest
 
 # Add community packets
 RUN echo -e "https://nl.alpinelinux.org/alpine/latest-stable/main\nhttps://nl.alpinelinux.org/alpine/latest-stable/community" > /etc/apk/repositories
