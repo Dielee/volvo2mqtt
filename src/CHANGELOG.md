@@ -1,3 +1,9 @@
+## v1.13.6
+
+### 🐛 Bug Fixes:
+
+- Fix NoneType error #329, #330, #331, #332
+
 ## v1.13.5
 
 ### 🐛 Bug Fixes:
