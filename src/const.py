@@ -1,6 +1,6 @@
 from config import settings
 
-VERSION = "v1.13.6"
+VERSION = "v1.13.7"
 
 OAUTH_TOKEN_URL = "https://volvoid.eu.volvocars.com/as/token.oauth2"
 OAUTH_AUTH_URL = "https://volvoid.eu.volvocars.com/as/authorization.oauth2"
