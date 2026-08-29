@@ -1,3 +1,15 @@
+## v1.13.7
+
+### 🐛 Bug Fixes:
+
+- Extend fix NoneType error #329, #330, #331, #332 thanks to @mbednar
+
+## v1.13.6
+
+### 🐛 Bug Fixes:
+
+- Fix NoneType error #329, #330, #331, #332
+
 ## v1.13.5
 
 ### 🐛 Bug Fixes:
@@ -8,7 +20,8 @@
 
 ### 🐛 Bug Fixes:
 
-- Fix `AttributeError: module 'paho.mqtt.client' has no attribute 'CallbackAPIVersion'` when paho-mqtt < 2.0 is installed
+- Fix `AttributeError: module 'paho.mqtt.client' has no attribute 'CallbackAPIVersion'` when paho-mqtt < 2.0 is
+  installed
 
 ## v1.13.3
 
@@ -53,10 +66,11 @@
 ### 🚀 Features:
 
 - Some minor corrections and more checking for exceptions #267
-- Better logging, indicate URL used on API errors, check exceptions in more places to dont kill threads, add option for mqtt logging
+- Better logging, indicate URL used on API errors, check exceptions in more places to dont kill threads, add option for
+  mqtt logging
 - Dont force token renew on 5xx errors
 - Indicate payload on error message to understand better issue #270
-- Better checking on received update_interval #270 
+- Better checking on received update_interval #270
 - Add TA trip statistics #283
 
 Thanks to @luka6000 and @ivanfmartinez for your PRs!

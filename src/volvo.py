@@ -604,31 +604,31 @@ def parse_api_data(data, sensor_id=None):
                      "charging_connection_status", "estimated_charging_time", "estimated_charging_finish_time"]:
 
         if sensor_id == "battery_charge_level":
-            return data["batteryChargeLevel"]["value"] if util.keys_exists(data, "batteryChargeLevel") else None
+            return data["batteryChargeLevel"]["value"] if util.keys_exists(data, "batteryChargeLevel") and data["batteryChargeLevel"]["value"] is not None else None
         elif sensor_id == "electric_range":
             return util.convert_metric_values(data["electricRange"]["value"]) \
-                if util.keys_exists(data, "electricRange") else None
+                if util.keys_exists(data, "electricRange") and data["electricRange"]["value"] is not None else None
         elif sensor_id == "charging_system_status":
             return charging_system_states[data["chargingStatus"]["value"]] \
-                if util.keys_exists(data, "chargingStatus") else None
+                if util.keys_exists(data, "chargingStatus") and data["chargingStatus"]["value"] is not None else None
         elif sensor_id == "charging_connection_status":
             return charging_connection_states[data["chargerConnectionStatus"]["value"]] \
-                if util.keys_exists(data, "chargerConnectionStatus") else None
+                if util.keys_exists(data, "chargerConnectionStatus") and data["chargerConnectionStatus"]["value"] is not None else None
         elif sensor_id == "estimated_charging_time":
-            if util.keys_exists(data, "chargingStatus"):
+            if util.keys_exists(data, "chargingStatus") and data["chargingStatus"]["value"] is not None:
                 charging_system_state = charging_system_states[data["chargingStatus"]["value"]]
                 if charging_system_state == "Charging":
                     return data["estimatedChargingTimeToTargetBatteryChargeLevel"]["value"] if util.keys_exists(data,
-                                                                                      "estimatedChargingTimeToTargetBatteryChargeLevel") else ""
+                                                                                      "estimatedChargingTimeToTargetBatteryChargeLevel") and data["estimatedChargingTimeToTargetBatteryChargeLevel"]["value"] is not None else ""
                 else:
                     return 0
             return None
         elif sensor_id == "estimated_charging_finish_time":
-            if util.keys_exists(data, "estimatedChargingTimeToTargetBatteryChargeLevel"):
-                charging_system_state = charging_system_states[data["chargingStatus"]["value"]]
+            if util.keys_exists(data, "estimatedChargingTimeToTargetBatteryChargeLevel") and data["estimatedChargingTimeToTargetBatteryChargeLevel"]["value"] is not None:
+                charging_system_state = charging_system_states[data["chargingStatus"]["value"]] if util.keys_exists(data, "chargingStatus") and data["chargingStatus"]["value"] is not None else None
                 if charging_system_state == "Charging":
                     charging_time = int(
-                        data["estimatedChargingTimeToTargetBatteryChargeLevel"]["value"] if util.keys_exists(data, "estimatedChargingTimeToTargetBatteryChargeLevel")
+                        data["estimatedChargingTimeToTargetBatteryChargeLevel"]["value"] if util.keys_exists(data, "estimatedChargingTimeToTargetBatteryChargeLevel") and data["estimatedChargingTimeToTargetBatteryChargeLevel"]["value"] is not None
                         else 0)
                     charging_finished = datetime.now(util.TZ) + timedelta(minutes=charging_time)
                     return format_datetime(charging_finished, format="medium", locale=settings["babelLocale"])
@@ -641,62 +641,62 @@ def parse_api_data(data, sensor_id=None):
             data = data["data"]
 
         if sensor_id == "lock_status":
-            return data["centralLock"]["value"] if util.keys_exists(data, "centralLock") else None
+            return data["centralLock"]["value"] if util.keys_exists(data, "centralLock") and data["centralLock"]["value"] is not None else None
         elif sensor_id == "battery_capacity":
             return data["batteryCapacityKWH"] if util.keys_exists(data, "batteryCapacityKWH") else None
         elif sensor_id == "odometer":
             return util.convert_metric_values(int(data["odometer"]["value"])) \
-                if util.keys_exists(data, "odometer") else None
+                if util.keys_exists(data, "odometer") and data["odometer"]["value"] is not None else None
         elif sensor_id == "window_front_left":
-            return window_states[data["frontLeftWindow"]["value"]] if util.keys_exists(data, "frontLeftWindow") \
+            return window_states[data["frontLeftWindow"]["value"]] if util.keys_exists(data, "frontLeftWindow") and data["frontLeftWindow"]["value"] is not None \
                 else None
         elif sensor_id == "window_front_right":
-            return window_states[data["frontRightWindow"]["value"]] if util.keys_exists(data, "frontRightWindow") \
+            return window_states[data["frontRightWindow"]["value"]] if util.keys_exists(data, "frontRightWindow") and data["frontRightWindow"]["value"] is not None \
                 else None
         elif sensor_id == "window_rear_left":
-            return window_states[data["rearLeftWindow"]["value"]] if util.keys_exists(data, "rearLeftWindow") \
+            return window_states[data["rearLeftWindow"]["value"]] if util.keys_exists(data, "rearLeftWindow") and data["rearLeftWindow"]["value"] is not None \
                 else None
         elif sensor_id == "window_rear_right":
-            return window_states[data["rearRightWindow"]["value"]] if util.keys_exists(data, "rearRightWindow") \
+            return window_states[data["rearRightWindow"]["value"]] if util.keys_exists(data, "rearRightWindow") and data["rearRightWindow"]["value"] is not None \
                 else None
         elif sensor_id == "door_front_left":
-            return door_states[data["frontLeftDoor"]["value"]] if util.keys_exists(data, "frontLeftDoor") else None
+            return door_states[data["frontLeftDoor"]["value"]] if util.keys_exists(data, "frontLeftDoor") and data["frontLeftDoor"]["value"] is not None else None
         elif sensor_id == "door_front_right":
             return door_states[data["frontRightDoor"]["value"]] \
-                if util.keys_exists(data, "frontRightDoor") else None
+                if util.keys_exists(data, "frontRightDoor") and data["frontRightDoor"]["value"] is not None else None
         elif sensor_id == "door_rear_left":
-            return door_states[data["rearLeftDoor"]["value"]] if util.keys_exists(data, "rearLeftDoor") else None
+            return door_states[data["rearLeftDoor"]["value"]] if util.keys_exists(data, "rearLeftDoor") and data["rearLeftDoor"]["value"] is not None else None
         elif sensor_id == "door_rear_right":
-            return door_states[data["rearRightDoor"]["value"]] if util.keys_exists(data, "rearRightDoor") else None
+            return door_states[data["rearRightDoor"]["value"]] if util.keys_exists(data, "rearRightDoor") and data["rearRightDoor"]["value"] is not None else None
         elif sensor_id == "tailgate":
-            return door_states[data["tailgate"]["value"]] if util.keys_exists(data, "tailgate") else None
+            return door_states[data["tailgate"]["value"]] if util.keys_exists(data, "tailgate") and data["tailgate"]["value"] is not None else None
         elif sensor_id == "sunroof":
-            return door_states[data["sunroof"]["value"]] if util.keys_exists(data, "sunroof") else None
+            return door_states[data["sunroof"]["value"]] if util.keys_exists(data, "sunroof") and data["sunroof"]["value"] is not None else None
         elif sensor_id == "engine_hood":
-            return door_states[data["hood"]["value"]] if util.keys_exists(data, "hood") else None
+            return door_states[data["hood"]["value"]] if util.keys_exists(data, "hood") and data["hood"]["value"] is not None else None
         elif sensor_id == "tank_lid":
-            return door_states[data["tankLid"]["value"]] if util.keys_exists(data, "tankLid") else None
+            return door_states[data["tankLid"]["value"]] if util.keys_exists(data, "tankLid") and data["tankLid"]["value"] is not None else None
         elif sensor_id == "tyre_front_left":
-            return data["frontLeft"]["value"] if util.keys_exists(data, "frontLeft") else None
+            return data["frontLeft"]["value"] if util.keys_exists(data, "frontLeft") and data["frontLeft"]["value"] is not None else None
         elif sensor_id == "tyre_front_right":
-            return data["frontRight"]["value"] if util.keys_exists(data, "frontRight") else None
+            return data["frontRight"]["value"] if util.keys_exists(data, "frontRight") and data["frontRight"]["value"] is not None else None
         elif sensor_id == "tyre_rear_left":
-            return data["rearLeft"]["value"] if util.keys_exists(data, "rearLeft") else None
+            return data["rearLeft"]["value"] if util.keys_exists(data, "rearLeft") and data["rearLeft"]["value"] is not None else None
         elif sensor_id == "tyre_rear_right":
-            return data["rearRight"]["value"] if util.keys_exists(data, "rearRight") else None
+            return data["rearRight"]["value"] if util.keys_exists(data, "rearRight") and data["rearRight"]["value"] is not None else None
         elif sensor_id == "engine_state":
-            return engine_states[data["engineStatus"]["value"]] if util.keys_exists(data, "engineStatus") else None
+            return engine_states[data["engineStatus"]["value"]] if util.keys_exists(data, "engineStatus") and data["engineStatus"]["value"] is not None else None
         elif sensor_id == "fuel_level":
-            if util.keys_exists(data, "fuelAmount"):
+            if util.keys_exists(data, "fuelAmount") and data["fuelAmount"]["value"] is not None:
                 fuel_amount = float(data["fuelAmount"]["value"])
                 if fuel_amount > 0:
                     return fuel_amount
             return None
         elif sensor_id == "average_fuel_consumption":
             average_fuel_con = 0
-            if util.keys_exists(data, "averageFuelConsumption"):
+            if util.keys_exists(data, "averageFuelConsumption") and data["averageFuelConsumption"]["value"] is not None:
                 average_fuel_con = float(data["averageFuelConsumption"]["value"])
-            elif util.keys_exists(data, "averageFuelConsumptionAutomatic"):
+            elif util.keys_exists(data, "averageFuelConsumptionAutomatic") and data["averageFuelConsumptionAutomatic"]["value"] is not None:
                 average_fuel_con = float(data["averageFuelConsumptionAutomatic"]["value"])
 
             if average_fuel_con > 0:
@@ -704,9 +704,9 @@ def parse_api_data(data, sensor_id=None):
             return None
         elif sensor_id == "average_speed":
             average_speed = 0
-            if util.keys_exists(data, "averageSpeed"):
+            if util.keys_exists(data, "averageSpeed") and data["averageSpeed"]["value"] is not None:
                 average_speed = float(data["averageSpeed"]["value"])
-            elif util.keys_exists(data, "averageSpeedAutomatic"):
+            elif util.keys_exists(data, "averageSpeedAutomatic") and data["averageSpeedAutomatic"]["value"] is not None:
                 average_speed = float(data["averageSpeedAutomatic"]["value"])
 
             if average_speed != 0:
@@ -723,44 +723,44 @@ def parse_api_data(data, sensor_id=None):
                                    "gps_accuracy": 1}
             return coordinates
         elif sensor_id == "distance_to_empty_tank":
-            if util.keys_exists(data, "distanceToEmptyTank"):
+            if util.keys_exists(data, "distanceToEmptyTank") and data["distanceToEmptyTank"]["value"] is not None:
                 distance_to_empty = int(data["distanceToEmptyTank"]["value"])
                 if distance_to_empty > 0:
                     return util.convert_metric_values(data["distanceToEmptyTank"]["value"])
             return None
         elif sensor_id == "distance_to_empty_battery":
-            if util.keys_exists(data, "distanceToEmptyBattery"):
+            if util.keys_exists(data, "distanceToEmptyBattery") and data["distanceToEmptyBattery"]["value"] is not None:
                 distance_to_empty = int(data["distanceToEmptyBattery"]["value"])
                 if distance_to_empty > 0:
                     return util.convert_metric_values(data["distanceToEmptyBattery"]["value"])
             return None
         elif sensor_id == "hours_to_service":
-            return data["engineHoursToService"]["value"] if util.keys_exists(data, "engineHoursToService") else None
+            return data["engineHoursToService"]["value"] if util.keys_exists(data, "engineHoursToService") and data["engineHoursToService"]["value"] is not None else None
         elif sensor_id == "km_to_service":
-            if util.keys_exists(data, "distanceToService"):
+            if util.keys_exists(data, "distanceToService") and data["distanceToService"]["value"] is not None:
                 km_to_service = int(data["distanceToService"]["value"])
                 if km_to_service > 0:
                     return util.convert_metric_values(data["distanceToService"]["value"])
             return None
         elif sensor_id == "time_to_service":
-            if util.keys_exists(data, "timeToService"):
+            if util.keys_exists(data, "timeToService") and data["timeToService"]["value"] is not None:
                 return str(data["timeToService"]["value"]) + " " + data["timeToService"]["unit"]
             else:
                 return None
         elif sensor_id == "service_warning_status":
-            return data["serviceWarning"]["value"] if util.keys_exists(data, "serviceWarning") else None
+            return data["serviceWarning"]["value"] if util.keys_exists(data, "serviceWarning") and data["serviceWarning"]["value"] is not None else None
         elif sensor_id == "average_energy_consumption":
             average_energy_con = 0
-            if util.keys_exists(data, "averageEnergyConsumption"):
+            if util.keys_exists(data, "averageEnergyConsumption") and data["averageEnergyConsumption"]["value"] is not None:
                 average_energy_con = data["averageEnergyConsumption"]["value"]
-            elif util.keys_exists(data, "averageEnergyConsumptionAutomatic"):
+            elif util.keys_exists(data, "averageEnergyConsumptionAutomatic") and data["averageEnergyConsumptionAutomatic"]["value"] is not None:
                 average_energy_con = data["averageEnergyConsumptionAutomatic"]["value"]
 
             if average_energy_con != 0:
                 return average_energy_con
             return None
         elif sensor_id == "washer_fluid_warning":
-            return data["washerFluidLevelWarning"]["value"] if util.keys_exists(data, "washerFluidLevelWarning") else None
+            return data["washerFluidLevelWarning"]["value"] if util.keys_exists(data, "washerFluidLevelWarning") and data["washerFluidLevelWarning"]["value"] is not None else None
         elif sensor_id == "warnings":
             warnings = 0
             cleaned_data = {}
@@ -773,24 +773,24 @@ def parse_api_data(data, sensor_id=None):
             return cleaned_data if warnings > 0 else None
         elif sensor_id == "trip_fuel_consumption":
             trip_fuel_con = 0
-            if util.keys_exists(data, "averageFuelConsumptionAutomatic"):
+            if util.keys_exists(data, "averageFuelConsumptionAutomatic") and data["averageFuelConsumptionAutomatic"]["value"] is not None:
                 trip_fuel_con = float(data["averageFuelConsumptionAutomatic"]["value"])
             if trip_fuel_con > 0:
                 return trip_fuel_con
             return None
         elif sensor_id == "trip_distance":
             return util.convert_metric_values(int(data["tripMeterAutomatic"]["value"])) \
-                if util.keys_exists(data, "tripMeterAutomatic") else None
+                if util.keys_exists(data, "tripMeterAutomatic") and data["tripMeterAutomatic"]["value"] is not None else None
         elif sensor_id == "trip_energy_consumption":
             trip_energy_con = 0
-            if util.keys_exists(data, "averageEnergyConsumptionAutomatic"):
+            if util.keys_exists(data, "averageEnergyConsumptionAutomatic") and data["averageEnergyConsumptionAutomatic"]["value"] is not None:
                 trip_energy_con = data["averageEnergyConsumptionAutomatic"]["value"]
             if trip_energy_con != 0:
                 return trip_energy_con
             return None
         elif sensor_id == "trip_speed":
             trip_speed = 0
-            if util.keys_exists(data, "averageSpeedAutomatic"):
+            if util.keys_exists(data, "averageSpeedAutomatic") and data["averageSpeedAutomatic"]["value"] is not None:
                 trip_speed = float(data["averageSpeedAutomatic"]["value"])
             if trip_speed != 0:
                 return util.convert_metric_values(trip_speed)

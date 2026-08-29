@@ -104,8 +104,12 @@ def check_existing_folder(path):
 
 def keys_exists(element, *keys):
     """"
-    Check if *keys (nested) exists in `element` (dict).
+    Check if *keys (nested) exists in `element` (dict) and the resolved value is not None.
     Thanks stackoverflow: https://stackoverflow.com/questions/43491287/elegant-way-to-check-if-a-nested-key-exists-in-a-dict
+
+    Note: the Volvo API may return a key with an explicit `null` value instead of
+    omitting it. Such a key exists, but its value cannot be subscripted, so it must
+    be treated the same as a missing key.
     """
     if not isinstance(element, dict):
         raise AttributeError('keys_exists() expects dict as first argument.')
@@ -116,9 +120,9 @@ def keys_exists(element, *keys):
     for key in keys:
         try:
             _element = _element[key]
-        except KeyError:
+        except (KeyError, TypeError):
             return False
-    return True
+    return _element is not None
 
 
 def set_tz():
