@@ -363,6 +363,8 @@ def update_car_data(force_update=False, overwrite={}):
                     state = ov_state
                 else:
                     state = volvo.api_call(entity["url"], "GET", vin, entity["id"], force_update)
+                    # Volvo API rate limit: 100 req/min per User + Client ID
+                    time.sleep(2.0)
 
             if entity["domain"] == "device_tracker" or entity["id"] == "active_schedules":
                 topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/attributes"

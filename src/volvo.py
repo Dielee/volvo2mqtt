@@ -399,6 +399,8 @@ def check_supported_endpoints():
 
             if entity.get('url'):
                 state = api_call(entity["url"], "GET", vin, entity["id"])
+                # Volvo API rate limit: 100 req/min per User + Client ID
+                time.sleep(2.0)
             else:
                 state = ""
 
