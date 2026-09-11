@@ -28,7 +28,7 @@ def connect():
     client_id = "volvoAAOS2mqtt" if os.environ.get("IS_HA_ADDON") \
         else "volvoAAOS2mqtt_" + settings.volvoData["username"].replace("+", "")
     try:
-        client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, client_id)
+        client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, client_id, clean_session=False)
     except AttributeError:
         # paho-mqtt < 2.0 does not have CallbackAPIVersion
         client = mqtt.Client(client_id)
@@ -40,6 +40,7 @@ def connect():
     client.on_message = safe_on_message
     client.on_disconnect = on_disconnect
     client.on_connect = on_connect
+    client.reconnect_delay_set(min_delay=1, max_delay=30)
 
     client.will_set(availability_topic, "offline", 0, False)
     if settings["mqtt"]["username"] and settings["mqtt"]["password"]:
@@ -50,10 +51,9 @@ def connect():
         if isinstance(conf_port, int):
             if conf_port > 0:
                 port = settings["mqtt"]["port"]
-    client.connect(settings["mqtt"]["broker"], port)
+    client.connect(settings["mqtt"]["broker"], port, 120)
     
     client.loop_start()
-    client.subscribe("volvoAAOS2mqtt/otp_code")
 
     global mqtt_client
     mqtt_client = client
@@ -145,6 +145,7 @@ def on_connect(client, userdata, flags, rc):
     logging.info("MQTT connected")
     
     send_heartbeat()
+    mqtt_client.subscribe("volvoAAOS2mqtt/otp_code")
     if len(subscribed_topics) > 0:
         for topic in subscribed_topics:
             mqtt_client.subscribe(topic)
@@ -362,6 +363,8 @@ def update_car_data(force_update=False, overwrite={}):
                     state = ov_state
                 else:
                     state = volvo.api_call(entity["url"], "GET", vin, entity["id"], force_update)
+                    # Volvo API rate limit: 100 req/min per User + Client ID
+                    time.sleep(2.0)
 
             if entity["domain"] == "device_tracker" or entity["id"] == "active_schedules":
                 topic = f"homeassistant/{entity['domain']}/{vin}_{entity['id']}/attributes"
@@ -439,6 +442,7 @@ def update_ha_device(entity, vin, state):
     mqtt_client.publish(
         f"homeassistant/{entity['domain']}/volvoAAOS2mqtt/{vin}_{entity['id']}/config",
         json.dumps(config),
+        qos=1,
         retain=True
     )
 
@@ -489,8 +493,10 @@ def create_ha_devices():
             mqtt_client.publish(
                 f"homeassistant/{entity['domain']}/volvoAAOS2mqtt/{vin}_{entity['id']}/config",
                 json.dumps(config),
+                qos=1,
                 retain=True
             )
+            time.sleep(0.05)
     time.sleep(2)
     send_heartbeat()
 
