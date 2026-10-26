@@ -6,13 +6,14 @@ import util
 import time
 import re
 import os.path
+import oauth
 from threading import current_thread, Thread
 from datetime import datetime, timedelta
 from config import settings
 from babel.dates import format_datetime
 from json import JSONDecodeError
 from const import charging_system_states, charging_connection_states, door_states, window_states, \
-    OAUTH_AUTH_URL, OAUTH_TOKEN_URL, VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, CLIMATE_START_URL, \
+    VEHICLES_URL, VEHICLE_DETAILS_URL, RECHARGE_STATE_URL, CLIMATE_START_URL, \
     WINDOWS_STATE_URL, LOCK_STATE_URL, TYRE_STATE_URL, supported_entities, FUEL_BATTERY_STATE_URL, \
     STATISTICS_URL, ENGINE_DIAGNOSTICS_URL, VEHICLE_DIAGNOSTICS_URL, API_BACKEND_STATUS, WARNINGS_URL, engine_states, \
     otp_max_loops
@@ -37,125 +38,54 @@ def authorize(renew_tokenfile=False):
     global refresh_token
 
     token_path = util.get_token_path()
-    if os.path.isfile(token_path) and not renew_tokenfile:
+    login_required = renew_tokenfile or not os.path.isfile(token_path)
+    if not login_required:
         logging.info("Using login from token file")
-        f = open(token_path)
         try:
-            data = json.load(f)
+            with open(token_path) as f:
+                data = json.load(f)
             refresh_token = data["refresh_token"]
-            refresh_auth()
-        except ValueError:
+            login_required = not refresh_auth()
+        except (ValueError, JSONDecodeError):
             logging.warning("Detected corrupted token file, restarting auth process")
-            authorize(True)
-            return
+            login_required = True
         except KeyError:
             logging.warning("Token file missing refresh_token, restarting auth process")
-            authorize(True)
-            return
-    else:
-        logging.info("Starting login with OTP")
-        auth_session = requests.session()
-        auth_session.headers = {
-            "authorization": "Basic aDRZZjBiOlU4WWtTYlZsNnh3c2c1WVFxWmZyZ1ZtSWFEcGhPc3kxUENhVXNpY1F0bzNUUjVrd2FKc2U0QVpkZ2ZJZmNMeXc=",
-            "User-Agent": "vca-android/" + util.get_volvo_app_version(),
-            "Accept-Encoding": "gzip",
-            "Content-Type": "application/json; charset=utf-8"
-        }
+            login_required = True
 
-        url_params = ("?client_id=h4Yf0b"
-                      "&response_type=code"
-                      "&acr_values=urn:volvoid:aal:bronze:2sv"
-                      "&response_mode=pi.flow"
-                      "&scope=openid email profile care_by_volvo:financial_information:invoice:read care_by_volvo:financial_information:payment_method care_by_volvo:subscription:read customer:attributes customer:attributes:write order:attributes vehicle:attributes tsp_customer_api:all conve:brake_status conve:climatization_start_stop conve:command_accessibility conve:commands conve:diagnostics_engine_status conve:diagnostics_workshop conve:doors_status conve:engine_status conve:environment conve:fuel_status conve:honk_flash conve:lock conve:lock_status conve:navigation conve:odometer_status conve:trip_statistics conve:tyre_status conve:unlock conve:vehicle_relation conve:warnings conve:windows_status energy:battery_charge_level energy:charging_connection_status energy:charging_system_status energy:electric_range energy:estimated_charging_time energy:recharge_status vehicle:attributes")
-
-        auth = auth_session.get(OAUTH_AUTH_URL + url_params)
-        if auth.status_code == 200:
-            response = auth.json()
-            auth_state = response["status"]
-
-            if auth_state == "USERNAME_PASSWORD_REQUIRED":
-                auth_session.headers.update({"x-xsrf-header": "PingFederate"})
-                response = check_username_password(auth_session, response)
-                auth_state = response["status"]
-
-                if auth_state == "OTP_REQUIRED":
-                    response = send_otp(auth_session, response)
-                    response = continue_auth(auth_session, response)
-                    token_data = get_token(auth_session, response)
-                else:
-                    raise Exception("Unkown auth state " + auth_state)
-            elif auth_state == "OTP_REQUIRED":
-                response = send_otp(auth_session, response)
-                response = continue_auth(auth_session, response)
-                token_data = get_token(auth_session, response)
-            elif auth_state == "OTP_VERIFIED":
-                response = continue_auth(auth_session, response)
-                token_data = get_token(auth_session, response)
-            elif auth_state == "COMPLETED":
-                token_data = get_token(auth_session, response)
-            else:
-                raise Exception("Unkown auth state " + auth_state)
-
-            session.headers.update({"authorization": "Bearer " + token_data["access_token"]})
-
-            global token_expires_at
-            token_expires_at = datetime.now(util.TZ) + timedelta(seconds=(token_data["expires_in"] - 30))
-            refresh_token = token_data["refresh_token"]
-
-            util.save_to_json(token_data, token_path)
-        else:
-            message = auth.json()
-            raise Exception(message["details"][0]["userMessage"])
+    if login_required:
+        login_with_otp(token_path)
 
     get_vcc_api_keys()
     get_vehicles()
     check_supported_endpoints()
     Thread(target=backend_status_loop,name="backend_status_thread").start()
 
-def continue_auth(auth_session, data):
-    next_url = data["_links"]["continueAuthentication"]["href"].replace("http://", "https://") + "?action=continueAuthentication"
-    auth = auth_session.post(next_url, data="{}")
 
-    if auth.status_code == 200:
-        return auth.json()
-    else:
-        message = auth.json()
-        raise Exception(message["details"][0]["userMessage"])
+def login_with_otp(token_path=None):
+    global refresh_token, token_expires_at
+    logging.info("Starting login with OTP")
+    auth_session = requests.session()
+    user_agent = "vca-android/" + util.get_volvo_app_version()
+    verifier, state, login_action = oauth.start_login(auth_session, user_agent)
+    otp_action = oauth.submit_credentials(
+        auth_session,
+        login_action,
+        settings.volvoData["username"],
+        settings.volvoData["password"],
+    )
+    callback_url = send_otp(auth_session, otp_action)
+    token_data = oauth.exchange_code(auth_session, callback_url, verifier, state)
 
+    session.headers.update({"authorization": "Bearer " + token_data["access_token"]})
+    token_expires_at = datetime.now(util.TZ) + timedelta(seconds=(token_data["expires_in"] - 30))
+    refresh_token = token_data["refresh_token"]
+    util.save_to_json(token_data, token_path or util.get_token_path())
 
-def get_token(auth_session, data):
-    auth_session.headers.update({"content-type": "application/x-www-form-urlencoded"})
-    body = {"code": data["authorizeResponse"]["code"], "grant_type": "authorization_code"}
-    token_auth = auth_session.post(OAUTH_TOKEN_URL, data=body)
-
-    if token_auth.status_code == 200:
-        return token_auth.json()
-    else:
-        message = token_auth.json()
-        raise Exception(message["error_description"])
-
-
-def check_username_password(auth_session, data):
-    next_url = data["_links"]["checkUsernamePassword"]["href"].replace("http://", "https://") + "?action=checkUsernamePassword"
-    body = {"username": settings.volvoData["username"],
-             "password": settings.volvoData["password"]}
-    auth = auth_session.post(next_url, data=json.dumps(body))
-
-    if auth.status_code == 200:
-        return auth.json()
-    else:
-        message = auth.json()
-        raise Exception(message["details"][0]["userMessage"])
-
-
-def send_otp(auth_session, data):
+def send_otp(auth_session, otp_action):
     mqtt.create_otp_input()
-    next_url = data["_links"]["checkOtp"]["href"].replace("http://", "https://") + "?action=checkOtp"
-    body = {"otp": ""}
-
     for i in range(otp_max_loops):
         if mqtt.otp_code:
-            body["otp"] = mqtt.otp_code
             break
 
         logging.info("Waiting for otp code... Please check your mailbox and post your otp code to the following "
@@ -165,51 +95,25 @@ def send_otp(auth_session, data):
     if not mqtt.otp_code:
         raise Exception ("No OTP found, exting...")
 
-    auth = auth_session.post(next_url, data=json.dumps(body))
+    otp_code = mqtt.otp_code
     mqtt.otp_code = None
-    if auth.status_code == 200:
-        return auth.json()
-    else:
-        message = auth.json()
-        raise Exception(message["details"][0]["userMessage"])
+    return oauth.submit_otp(auth_session, otp_action, otp_code)
 
 
 def refresh_auth():
     global refresh_token
-    logging.info("Refreshing credentials with token " + refresh_token)
-
-    headers = {
-        "authorization": "Basic aDRZZjBiOlU4WWtTYlZsNnh3c2c1WVFxWmZyZ1ZtSWFEcGhPc3kxUENhVXNpY1F0bzNUUjVrd2FKc2U0QVpkZ2ZJZmNMeXc=",
-        "content-type": "application/x-www-form-urlencoded",
-        "accept": "application/json"
-    }
-
-    body = {
-        "grant_type": "refresh_token",
-        "refresh_token": refresh_token
-    }
+    logging.info("Refreshing credentials")
 
     try:
-        auth = requests.post(OAUTH_TOKEN_URL, data=body, headers=headers)
-    except requests.exceptions.RequestException as e:
-        logging.error("Error refreshing credentials data: " + str(e))
-        return None
-
-    if auth.status_code == 200:
+        refresh_data = oauth.refresh(refresh_token, "vca-android/" + util.get_volvo_app_version())
         token_path = util.get_token_path()
+        data = {}
         if os.path.exists(token_path):
             with open(token_path) as f:
                 data = json.load(f)
 
-        refresh_data = auth.json()
-
-        if not "refresh_token" in refresh_data:
-            f = open(token_path)
-            try:
-                data = json.load(f)
-                refresh_data["refresh_token"] = data["refresh_token"]
-            except ValueError:
-                raise Exception("Cannot refresh token!")
+        if "refresh_token" not in refresh_data:
+            refresh_data["refresh_token"] = data["refresh_token"]
         else:
             logging.info("New refresh token found, updating!")
 
@@ -217,18 +121,18 @@ def refresh_auth():
         session.headers.update({"authorization": "Bearer " + refresh_data["access_token"]})
 
         global token_expires_at
-        token_expires_at = datetime.now(util.TZ) + timedelta(seconds=(data["expires_in"] - 30))
-        refresh_token = data["refresh_token"]
-        return None
-    elif int(auth.status_code / 100) == 5:
-        # Server error try again later
-        logging.warning("Refreshing credentials failed!: " + str(auth.status_code) + " Message: " + auth.text)
-        return None
-    else:
-        # TODO check other codes that dont have to force the renew_tokenfile
-        logging.warning("Refreshing credentials failed!: " + str(auth.status_code) + " Message: " + auth.text)
-        authorize(renew_tokenfile=True)
-        return None
+        token_expires_at = datetime.now(util.TZ) + timedelta(seconds=(refresh_data["expires_in"] - 30))
+        refresh_token = refresh_data["refresh_token"]
+        return True
+    except oauth.OAuthError as e:
+        logging.warning("Refreshing credentials failed: " + str(e))
+        if e.requires_login():
+            login_with_otp()
+            return True
+        raise
+    except (requests.exceptions.RequestException, KeyError, ValueError) as e:
+        logging.warning("Refreshing credentials failed: " + str(e))
+        raise
 
 
 def get_vehicles():
