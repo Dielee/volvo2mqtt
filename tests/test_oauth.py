@@ -40,7 +40,7 @@ class OAuthTests(unittest.TestCase):
         self.assertEqual(oauth.extract_page_id(html), "login-otp-email")
         self.assertEqual(
             oauth.extract_login_action(html),
-            "https://auth.volvocars.com/next?a=1&amp;b=2",
+            "https://auth.volvocars.com/next?a=1&b=2",
         )
 
     def test_extracts_code_from_mobile_callback(self):

@@ -1,5 +1,6 @@
 import base64
 import hashlib
+from html import unescape
 import json
 import re
 import secrets
@@ -62,7 +63,7 @@ def extract_login_action(html):
     action = extract_context_string(html, "loginAction")
     if not action:
         raise OAuthError("Volvo sign-in page did not contain a login action")
-    return action
+    return unescape(action)
 
 
 def extract_page_id(html):
@@ -110,12 +111,30 @@ def submit_credentials(auth_session, action, username, password):
             "login": "Sign in",
         },
         timeout=30,
+        allow_redirects=False,
     )
+    response = follow_identity_redirects(auth_session, response)
     response.raise_for_status()
     page_id = extract_page_id(response.text)
     if page_id != "login-otp-email":
         raise OAuthError("Volvo sign-in did not advance to email verification")
     return extract_login_action(response.text)
+
+
+def follow_identity_redirects(auth_session, response, max_redirects=10):
+    for _ in range(max_redirects + 1):
+        if not 300 <= response.status_code < 400:
+            return response
+        if response.status_code not in (301, 302, 303):
+            raise OAuthError("Refusing to replay credentials during Volvo sign-in")
+        location = response.headers.get("location")
+        if not location:
+            raise OAuthError("Volvo sign-in redirect did not contain a location")
+        location = urljoin(response.url, location)
+        location = upgrade_identity_redirect(location)
+        validate_identity_url(location)
+        response = auth_session.get(location, timeout=30, allow_redirects=False)
+    raise OAuthError("Too many redirects while submitting Volvo credentials")
 
 
 def submit_otp(auth_session, action, otp):
@@ -135,11 +154,28 @@ def follow_redirects_to_callback(auth_session, response, max_redirects=10):
         if not location:
             raise OAuthError("Volvo sign-in did not return an authorization callback")
         location = urljoin(response.url, location)
+        location = upgrade_identity_redirect(location)
         if is_callback_url(location):
             return location
         validate_identity_url(location)
         response = auth_session.get(location, timeout=30, allow_redirects=False)
     raise OAuthError("Too many redirects while completing Volvo sign-in")
+
+
+def upgrade_identity_redirect(url):
+    """Upgrade Volvo's HTTP resume redirect without making an HTTP request."""
+    parsed = urlparse(url)
+    if (
+        parsed.scheme == "http"
+        and parsed.hostname == "volvoid.eu.volvocars.com"
+        and parsed.port in (None, 80)
+        and parsed.username is None
+        and parsed.password is None
+        and parsed.path.startswith("/as/")
+        and parsed.path.endswith("/resume/as/authorization.ping")
+    ):
+        return parsed._replace(scheme="https", netloc=parsed.hostname).geturl()
+    return url
 
 
 def is_callback_url(url):
@@ -189,6 +225,7 @@ def exchange_code(auth_session, callback_url, verifier, state):
         },
         headers={"Accept": "application/json"},
         timeout=30,
+        allow_redirects=False,
     )
     if response.status_code != 200:
         raise _oauth_error(response, "Authorization code exchange failed")
@@ -205,6 +242,7 @@ def refresh(refresh_token, user_agent):
         },
         headers={"Accept": "application/json", "User-Agent": user_agent},
         timeout=30,
+        allow_redirects=False,
     )
     if response.status_code != 200:
         raise _oauth_error(response, "Refreshing credentials failed")
